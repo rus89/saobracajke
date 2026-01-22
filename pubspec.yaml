@@ -1,7 +1,7 @@
 name: saobracajke
-description: "A new Flutter project."
-publish_to: 'none'
-version: 0.1.0
+description: "A Flutter application for traffic accident reporting using Serbian Open Data."
+publish_to: "none"
+version: 0.1.0+1
 
 environment:
   sdk: ^3.10.7
@@ -9,11 +9,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_riverpod: ^3.2.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
+  path: ^1.9.1
+  path_provider: ^2.1.5
+  sqflite: ^2.4.2
+  archive: ^4.0.7
+  provider: ^6.1.5+1
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/db/serbian_traffic.db.zip

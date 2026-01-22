@@ -7,6 +7,7 @@ import '../../domain/models/accident_model.dart';
 //----------------------------------------------------------------------------
 class TrafficState {
   final List<AccidentModel> accidents;
+  final List<String> departments;
   final bool isLoading;
 
   // Active Filters
@@ -16,6 +17,7 @@ class TrafficState {
 
   TrafficState({
     this.accidents = const [],
+    this.departments = const [],
     this.isLoading = false,
     this.selectedDept,
     this.startDate,
@@ -24,6 +26,7 @@ class TrafficState {
 
   TrafficState copyWith({
     List<AccidentModel>? accidents,
+    List<String>? departments,
     bool? isLoading,
     String? selectedDept,
     DateTime? startDate,
@@ -31,6 +34,7 @@ class TrafficState {
   }) {
     return TrafficState(
       accidents: accidents ?? this.accidents,
+      departments: departments ?? this.departments,
       isLoading: isLoading ?? this.isLoading,
       selectedDept: selectedDept ?? this.selectedDept,
       startDate: startDate ?? this.startDate,
@@ -44,7 +48,24 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
   final TrafficRepository _repo;
 
   TrafficNotifier(this._repo) : super(TrafficState()) {
-    loadAccidents(); // Load initial data
+    _initialize();
+  }
+
+  //-------------------------------------------------------------------------------
+  Future<void> _initialize() async {
+    state = state.copyWith(isLoading: true);
+
+    try {
+      // Load departments first
+      final depts = await _repo.getDepartments();
+      state = state.copyWith(departments: depts);
+
+      // Then load initial accidents
+      await loadAccidents();
+    } catch (e) {
+      debugPrint("Error initializing: $e");
+      state = state.copyWith(isLoading: false);
+    }
   }
 
   //-------------------------------------------------------------------------------

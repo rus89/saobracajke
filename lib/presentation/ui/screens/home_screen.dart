@@ -12,28 +12,74 @@ class HomeScreen extends ConsumerWidget {
     final state = ref.watch(trafficProvider);
 
     return Scaffold(
+      appBar: AppBar(title: const Text('Saobraćajne Nezgode')),
       body: state.isLoading
-          ? Center(child: CircularProgressIndicator())
+          ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
-                // Your Filter Dropdown
-                DropdownButton(
-                  value: state.selectedDept,
-                  onChanged: (val) {
-                    // 2. Update logic
-                    ref
-                        .read(trafficProvider.notifier)
-                        .setDepartment(val as String?);
-                  },
-                  items: [],
-                ),
-                // Your List
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: state.accidents.length,
-                    itemBuilder: (ctx, index) =>
-                        AccidentCard(accident: state.accidents[index]),
+                // Filter Section
+                Container(
+                  padding: const EdgeInsets.all(16.0),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade50,
+                    border: Border(
+                      bottom: BorderSide(color: Colors.grey.shade300, width: 1),
+                    ),
                   ),
+                  child: DropdownButtonFormField<String?>(
+                    value: state.selectedDept,
+                    decoration: const InputDecoration(
+                      labelText: 'Izaberite policijsku upravu',
+                      prefixIcon: Icon(Icons.location_city),
+                      border: OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.white,
+                    ),
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('Sve policijske uprave'),
+                      ),
+                      ...state.departments.map(
+                        (dept) =>
+                            DropdownMenuItem(value: dept, child: Text(dept)),
+                      ),
+                    ],
+                    onChanged: (val) {
+                      ref.read(trafficProvider.notifier).setDepartment(val);
+                    },
+                  ),
+                ),
+                // Accident List
+                Expanded(
+                  child: state.isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : state.accidents.isEmpty
+                      ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.inbox_outlined,
+                                size: 64,
+                                color: Colors.grey.shade400,
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Nema podataka',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : ListView.builder(
+                          itemCount: state.accidents.length,
+                          itemBuilder: (ctx, index) =>
+                              AccidentCard(accident: state.accidents[index]),
+                        ),
                 ),
               ],
             ),

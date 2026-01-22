@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:saobracajke/presentation/ui/main_scaffold.dart';
 import 'core/services/database_service.dart';
-import 'presentation/ui/screens/home_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

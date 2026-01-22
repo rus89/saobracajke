@@ -88,9 +88,9 @@ class DashboardRepository {
     for (var row in monthRes) {
       int m = int.parse(row['month'] as String);
       int count = row['cnt'] as int;
-      if (m >= 3 && m <= 5)
+      if (m >= 3 && m <= 5) {
         seasons['Proleće'] = (seasons['Proleće']! + count);
-      else if (m >= 6 && m <= 8)
+      } else if (m >= 6 && m <= 8)
         seasons['Leto'] = (seasons['Leto']! + count);
       else if (m >= 9 && m <= 11)
         seasons['Jesen'] = (seasons['Jesen']! + count);
@@ -112,9 +112,9 @@ class DashboardRepository {
     for (var row in timeRes) {
       int h = int.parse(row['hour'] as String);
       int count = row['cnt'] as int;
-      if (h >= 6 && h < 12)
+      if (h >= 6 && h < 12) {
         times['Jutro'] = (times['Jutro']! + count);
-      else if (h >= 12 && h < 18)
+      } else if (h >= 12 && h < 18)
         times['Popodne'] = (times['Popodne']! + count);
       else if (h >= 18)
         times['Veče'] = (times['Veče']! + count);

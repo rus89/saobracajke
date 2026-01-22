@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:saobracajke/presentation/ui/main_scaffold.dart';
 import 'core/services/database_service.dart';
 import 'presentation/ui/screens/home_screen.dart';
 
@@ -39,9 +40,9 @@ class _SplashScreenState extends State<SplashScreen> {
 
     // Once done, navigate to Home
     if (mounted) {
-      Navigator.of(
-        context,
-      ).pushReplacement(MaterialPageRoute(builder: (_) => const HomeScreen()));
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => const MainScaffold()),
+      );
     }
   }
 

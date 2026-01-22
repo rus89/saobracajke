@@ -76,4 +76,13 @@ class TrafficRepository {
 
     return result.map((row) => AccidentModel.fromSql(row)).toList();
   }
+
+  //-------------------------------------------------------------------------------
+  Future<List<int>> getAvailableYears() async {
+    final db = await _dbService.database;
+    final res = await db.rawQuery(
+      "SELECT DISTINCT year FROM accidents ORDER BY year DESC",
+    );
+    return res.map((e) => e['year'] as int).toList();
+  }
 }

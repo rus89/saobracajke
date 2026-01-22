@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'core/services/database_service.dart';
-import 'screens/home_screen.dart';
+import 'presentation/ui/screens/home_screen.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

@@ -8,6 +8,8 @@ class SectionOneHeader extends StatelessWidget {
   final int fatalitiesDelta;
   final int injuries;
   final int injuriesDelta;
+  final int materialDamageAccidents;
+  final int materialDamageAccidentsDelta;
 
   const SectionOneHeader({
     super.key,
@@ -17,6 +19,8 @@ class SectionOneHeader extends StatelessWidget {
     required this.fatalitiesDelta,
     required this.injuries,
     required this.injuriesDelta,
+    required this.materialDamageAccidents,
+    required this.materialDamageAccidentsDelta,
   });
 
   @override
@@ -143,6 +147,16 @@ class SectionOneHeader extends StatelessWidget {
                   delta: fatalitiesDelta,
                   color: Colors.red,
                   icon: Icons.heart_broken,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildMiniStat(
+                  label: "SA MATERIJALNOM ŠTETOM",
+                  count: materialDamageAccidents,
+                  delta: materialDamageAccidentsDelta,
+                  color: Colors.blue,
+                  icon: Icons.build,
                 ),
               ),
             ],

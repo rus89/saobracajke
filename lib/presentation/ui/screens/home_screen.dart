@@ -102,6 +102,8 @@ class HomeScreen extends ConsumerWidget {
                       fatalitiesDelta: 0,
                       injuries: state.injuriesCount,
                       injuriesDelta: 0,
+                      materialDamageAccidents: state.materialDamageCount,
+                      materialDamageAccidentsDelta: 0,
                     ),
                   ),
                   // Placeholder for Section 2 & 3

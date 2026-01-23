@@ -44,8 +44,7 @@ class TrafficState {
 
   int get fatalitiesCount => accidentTypeCounts['Sa poginulim'] ?? 0;
   int get injuriesCount => accidentTypeCounts['Sa povredjenim'] ?? 0;
-  int get materialDamageCount =>
-      accidentTypeCounts['Sa materijalnom štetom'] ?? 0;
+  int get materialDamageCount => accidentTypeCounts['Sa mat.stetom'] ?? 0;
 
   TrafficState copyWith({
     List<AccidentModel>? accidents,

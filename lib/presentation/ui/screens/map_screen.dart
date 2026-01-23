@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/presentation/logic/traffic_provider.dart';
 
+//-------------------------------------------------------------------------------
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
@@ -13,6 +14,7 @@ class MapScreen extends ConsumerStatefulWidget {
   ConsumerState<MapScreen> createState() => _MapScreenState();
 }
 
+//-------------------------------------------------------------------------------
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
   bool _isLoading = false;
@@ -23,13 +25,14 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     _loadAccidents();
   }
 
+  //----------------------------------------------------------------------------
   Future<void> _loadAccidents() async {
     setState(() => _isLoading = true);
     await ref.read(trafficProvider.notifier).loadAccidents();
     setState(() => _isLoading = false);
   }
 
-  // Get marker color based on accident type
+  //----------------------------------------------------------------------------
   Color _getMarkerColor(String type) {
     if (type.contains('poginulim')) {
       return Colors.red;
@@ -40,7 +43,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     }
   }
 
-  // Create custom marker widget
+  //----------------------------------------------------------------------------
   Widget _buildMarker(String type, int count) {
     final color = _getMarkerColor(type);
     return Stack(
@@ -70,6 +73,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
+  //----------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(trafficProvider);
@@ -117,13 +121,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     initialZoom: 7.0,
                     minZoom: 6.5,
                     maxZoom: 18.0,
-                    // Bounds for Serbia (approximate)
-                    cameraConstraint: CameraConstraint.contain(
-                      bounds: LatLngBounds(
-                        const LatLng(41.8, 18.8), // Southwest
-                        const LatLng(46.2, 23.0), // Northeast
-                      ),
-                    ),
                   ),
                   children: [
                     TileLayer(
@@ -162,15 +159,83 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ],
                 ),
                 // Legend
-                Positioned(bottom: 20, right: 20, child: _buildLegend()),
-                // Info card
-                if (state.accidents.isNotEmpty)
-                  Positioned(
-                    top: 10,
-                    left: 10,
-                    right: 10,
-                    child: _buildInfoCard(state.accidents.length),
+                Positioned(bottom: 20, left: 20, child: _buildLegend()),
+                // Filters card (floating)
+                Positioned(
+                  top: 10,
+                  left: 10,
+                  right: 10,
+                  child: Card(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.all(12),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          DropdownButtonFormField<int>(
+                            initialValue: state.selectedYear,
+                            decoration: const InputDecoration(
+                              labelText: 'Izaberite godinu',
+                              prefixIcon: Icon(Icons.calendar_today),
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            items: state.availableYears.map((year) {
+                              return DropdownMenuItem(
+                                value: year,
+                                child: Text(year.toString()),
+                              );
+                            }).toList(),
+                            onChanged: (year) async {
+                              if (year == null) return;
+                              setState(() => _isLoading = true);
+                              ref.read(trafficProvider.notifier).setYear(year);
+                              await ref
+                                  .read(trafficProvider.notifier)
+                                  .loadAccidents();
+                              if (mounted) setState(() => _isLoading = false);
+                            },
+                          ),
+                          const SizedBox(height: 8),
+                          DropdownButtonFormField<String?>(
+                            initialValue: state.selectedDept,
+                            decoration: const InputDecoration(
+                              labelText: 'Izaberite policijsku upravu',
+                              prefixIcon: Icon(Icons.location_city),
+                              border: OutlineInputBorder(),
+                              isDense: true,
+                            ),
+                            items: [
+                              const DropdownMenuItem(
+                                value: null,
+                                child: Text('Sve policijske uprave'),
+                              ),
+                              ...state.departments.map(
+                                (dept) => DropdownMenuItem(
+                                  value: dept,
+                                  child: Text(dept),
+                                ),
+                              ),
+                            ],
+                            onChanged: (dept) async {
+                              setState(() => _isLoading = true);
+                              ref
+                                  .read(trafficProvider.notifier)
+                                  .setDepartment(dept);
+                              await ref
+                                  .read(trafficProvider.notifier)
+                                  .loadAccidents();
+                              if (mounted) setState(() => _isLoading = false);
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                ),
               ],
             ),
       floatingActionButton: Column(
@@ -213,6 +278,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
+  //----------------------------------------------------------------------------
   Widget _buildLegend() {
     return Container(
       padding: const EdgeInsets.all(12),
@@ -246,6 +312,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
+  //----------------------------------------------------------------------------
   Widget _buildLegendItem(Color color, String label) {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -257,24 +324,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
-  Widget _buildInfoCard(int count) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Icon(Icons.info_outline, color: Colors.blue.shade600),
-            const SizedBox(width: 8),
-            Text(
-              'Prikazano nesreća: $count',
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
+  //----------------------------------------------------------------------------
   void _showAccidentDetails(AccidentModel accident) {
     showModalBottomSheet(
       context: context,
@@ -357,6 +407,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
+  //----------------------------------------------------------------------------
   Widget _buildDetailRow(IconData icon, String label, String value) {
     return Row(
       children: [
@@ -375,6 +426,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
+  //----------------------------------------------------------------------------
   void _showFilterDialog() {
     showDialog(
       context: context,

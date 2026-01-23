@@ -188,9 +188,19 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
 
   // For map/list views later
   Future<void> loadAccidents() async {
-    // This will be used for map view, keep it limited
     try {
-      final results = await _repo.getAccidents(department: state.selectedDept);
+      DateTime? start;
+      DateTime? end;
+      if (state.selectedYear != null) {
+        start = DateTime(state.selectedYear!, 1, 1);
+        end = DateTime(state.selectedYear!, 12, 31, 23, 59, 59);
+      }
+
+      final results = await _repo.getAccidents(
+        department: state.selectedDept,
+        startDate: start,
+        endDate: end,
+      );
       state = state.copyWith(accidents: results);
     } catch (e) {
       debugPrint("Error loading accidents: $e");

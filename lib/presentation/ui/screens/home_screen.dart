@@ -46,7 +46,14 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ],
                     onChanged: (val) {
-                      ref.read(trafficProvider.notifier).setDepartment(val);
+                      if (val == null) {
+                        debugPrint('Resetting department filter');
+                        ref
+                            .read(trafficProvider.notifier)
+                            .resetDepartmentFilter();
+                      } else {
+                        ref.read(trafficProvider.notifier).setDepartment(val);
+                      }
                     },
                   ),
                 ),

@@ -28,7 +28,7 @@ class TrafficState {
     List<AccidentModel>? accidents,
     List<String>? departments,
     bool? isLoading,
-    String? selectedDept,
+    String? selectedDept = '_UNSET_', // Special handling for null
     DateTime? startDate,
     DateTime? endDate,
   }) {
@@ -36,7 +36,9 @@ class TrafficState {
       accidents: accidents ?? this.accidents,
       departments: departments ?? this.departments,
       isLoading: isLoading ?? this.isLoading,
-      selectedDept: selectedDept ?? this.selectedDept,
+      selectedDept: selectedDept != '_UNSET_'
+          ? selectedDept
+          : this.selectedDept,
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
     );
@@ -93,6 +95,11 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
 
   void setDateRange(DateTime start, DateTime end) {
     state = state.copyWith(startDate: start, endDate: end);
+    loadAccidents();
+  }
+
+  void resetDepartmentFilter() {
+    state = state.copyWith(selectedDept: null);
     loadAccidents();
   }
 }

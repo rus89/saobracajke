@@ -22,6 +22,10 @@ class TrafficState {
   final Map<String, int> seasonCounts;
   final Map<String, int> timeOfDayCounts;
   final Map<String, int> weekendCounts;
+  // section 2
+  final Map<int, int> monthlyAccidents;
+  final Map<String, Map<int, int>> typeMonthlyAccidents;
+  final Map<String, int> stationAccidents;
 
   TrafficState({
     this.accidents = const [],
@@ -37,6 +41,9 @@ class TrafficState {
     this.seasonCounts = const {},
     this.timeOfDayCounts = const {},
     this.weekendCounts = const {},
+    this.monthlyAccidents = const {},
+    this.typeMonthlyAccidents = const {},
+    this.stationAccidents = const {},
   });
 
   // Computed properties
@@ -60,6 +67,9 @@ class TrafficState {
     Map<String, int>? seasonCounts,
     Map<String, int>? timeOfDayCounts,
     Map<String, int>? weekendCounts,
+    Map<int, int>? monthlyAccidents,
+    Map<String, Map<int, int>>? typeMonthlyAccidents,
+    Map<String, int>? stationAccidents,
   }) {
     return TrafficState(
       accidents: accidents ?? this.accidents,
@@ -80,10 +90,14 @@ class TrafficState {
       seasonCounts: seasonCounts ?? this.seasonCounts,
       timeOfDayCounts: timeOfDayCounts ?? this.timeOfDayCounts,
       weekendCounts: weekendCounts ?? this.weekendCounts,
+      monthlyAccidents: monthlyAccidents ?? this.monthlyAccidents,
+      typeMonthlyAccidents: typeMonthlyAccidents ?? this.typeMonthlyAccidents,
+      stationAccidents: stationAccidents ?? this.stationAccidents,
     );
   }
 }
 
+//-------------------------------------------------------------------------------
 class TrafficNotifier extends StateNotifier<TrafficState> {
   final TrafficRepository _repo;
 
@@ -91,6 +105,7 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
     _initialize();
   }
 
+  //----------------------------------------------------------------------------
   Future<void> _initialize() async {
     state = state.copyWith(isLoading: true);
 
@@ -118,6 +133,7 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
     }
   }
 
+  //----------------------------------------------------------------------------
   Future<void> _loadDashboardData() async {
     if (state.selectedYear == null) return;
 
@@ -134,6 +150,11 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
         _repo.getAccidentsBySeasonForYear(year, department: dept),
         _repo.getAccidentsByTimeOfDayForYear(year, department: dept),
         _repo.getAccidentsByWeekendForYear(year, department: dept),
+        _repo.getAccidentsByMonthForYear(year, department: dept),
+        _repo.getAccidentTypesByMonthForYear(year, department: dept),
+        dept != null
+            ? _repo.getAccidentsByStationForDepartment(year, dept)
+            : Future.value(<String, int>{}),
       ]);
 
       state = state.copyWith(
@@ -144,17 +165,22 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
         seasonCounts: results[4] as Map<String, int>,
         timeOfDayCounts: results[5] as Map<String, int>,
         weekendCounts: results[6] as Map<String, int>,
+        monthlyAccidents: results[7] as Map<int, int>,
+        typeMonthlyAccidents: results[8] as Map<String, Map<int, int>>,
+        stationAccidents: results[9] as Map<String, int>,
       );
     } catch (e) {
       debugPrint("Error loading dashboard data: $e");
     }
   }
 
+  //----------------------------------------------------------------------------
   void setYear(int year) {
     state = state.copyWith(selectedYear: year);
     _loadDashboardData();
   }
 
+  //----------------------------------------------------------------------------
   void setDepartment(String? dept) {
     state = state.copyWith(selectedDept: dept);
     _loadDashboardData();

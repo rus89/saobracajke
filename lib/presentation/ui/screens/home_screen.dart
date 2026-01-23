@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:saobracajke/presentation/logic/traffic_provider.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_one_header.dart';
+import 'package:saobracajke/presentation/ui/widgets/dashboard/section_two_charts.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -94,6 +95,16 @@ class HomeScreen extends ConsumerWidget {
                   ),
                   // Section 1: Key Metrics
                   Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(
+                      'Sekcija 1: Ključni pokazatelji',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Padding(
                     padding: const EdgeInsets.all(16),
                     child: SectionOneHeader(
                       totalAccidents: state.totalAccidents,
@@ -106,7 +117,25 @@ class HomeScreen extends ConsumerWidget {
                       materialDamageAccidentsDelta: 0,
                     ),
                   ),
-                  // Placeholder for Section 2 & 3
+                  // Placeholder for Section 2
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(
+                      'Sekcija 2: Trendovi i Analize',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SectionTwoCharts(
+                      monthlyAccidents: state.monthlyAccidents,
+                      typeMonthlyAccidents: state.typeMonthlyAccidents,
+                      stationAccidents: state.stationAccidents,
+                    ),
+                  ),
                   Container(
                     margin: const EdgeInsets.all(16),
                     padding: const EdgeInsets.all(24),
@@ -114,7 +143,7 @@ class HomeScreen extends ConsumerWidget {
                       color: Colors.grey.shade100,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: const Text('Section 2 & 3 coming soon...'),
+                    child: const Text('Sekcija 3 uskoro...'),
                   ),
                   const SizedBox(height: 20),
                 ],

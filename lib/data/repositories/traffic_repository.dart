@@ -291,4 +291,127 @@ class TrafficRepository {
     final result = await db.rawQuery(sql, args);
     return result.map((row) => AccidentModel.fromSql(row)).toList();
   }
+
+  // AGGREGATE: Get accidents by month for a year
+  Future<Map<int, int>> getAccidentsByMonthForYear(
+    int year, {
+    String? department,
+  }) async {
+    final db = await _dbService.database;
+
+    String whereClause = "strftime('%Y', a.date_and_time) = ?";
+    List<dynamic> args = [year.toString()];
+
+    if (department != null && department.isNotEmpty) {
+      whereClause += " AND d.name = ?";
+      args.add(department);
+    }
+
+    final sql =
+        '''
+    SELECT 
+      CAST(strftime('%m', a.date_and_time) AS INTEGER) as month,
+      COUNT(*) as cnt
+    FROM accidents a
+    JOIN departments d ON a.department_id = d.id
+    WHERE $whereClause
+    GROUP BY month
+    ORDER BY month ASC
+  ''';
+
+    final result = await db.rawQuery(sql, args);
+    final Map<int, int> monthCounts = {};
+
+    // Initialize all months with 0
+    for (int i = 1; i <= 12; i++) {
+      monthCounts[i] = 0;
+    }
+
+    // Fill in actual values
+    for (var row in result) {
+      monthCounts[row['month'] as int] = row['cnt'] as int;
+    }
+
+    return monthCounts;
+  }
+
+  // AGGREGATE: Get accidents by type per month for a year
+  Future<Map<String, Map<int, int>>> getAccidentTypesByMonthForYear(
+    int year, {
+    String? department,
+  }) async {
+    final db = await _dbService.database;
+
+    String whereClause = "strftime('%Y', a.date_and_time) = ?";
+    List<dynamic> args = [year.toString()];
+
+    if (department != null && department.isNotEmpty) {
+      whereClause += " AND d.name = ?";
+      args.add(department);
+    }
+
+    final sql =
+        '''
+    SELECT 
+      t.name,
+      CAST(strftime('%m', a.date_and_time) AS INTEGER) as month,
+      COUNT(*) as cnt
+    FROM accidents a
+    JOIN types t ON a.type_id = t.id
+    JOIN departments d ON a.department_id = d.id
+    WHERE $whereClause
+    GROUP BY t.name, month
+    ORDER BY t.name, month ASC
+  ''';
+
+    final result = await db.rawQuery(sql, args);
+    final Map<String, Map<int, int>> typeMonthCounts = {};
+
+    // Initialize all types and months with 0
+    final types = await db.rawQuery(
+      'SELECT DISTINCT name FROM types ORDER BY name',
+    );
+    for (var typeRow in types) {
+      final typeName = typeRow['name'] as String;
+      typeMonthCounts[typeName] = {};
+      for (int i = 1; i <= 12; i++) {
+        typeMonthCounts[typeName]![i] = 0;
+      }
+    }
+
+    // Fill in actual values
+    for (var row in result) {
+      final typeName = row['name'] as String;
+      final month = row['month'] as int;
+      final count = row['cnt'] as int;
+      typeMonthCounts[typeName]?[month] = count;
+    }
+
+    return typeMonthCounts;
+  }
+
+  // AGGREGATE: Get accidents by station for a department
+  Future<Map<String, int>> getAccidentsByStationForDepartment(
+    int year,
+    String department,
+  ) async {
+    final db = await _dbService.database;
+
+    final sql = '''
+    SELECT s.name, COUNT(*) as cnt
+    FROM accidents a
+    JOIN stations s ON a.station_id = s.id
+    JOIN departments d ON a.department_id = d.id
+    WHERE strftime('%Y', a.date_and_time) = ?
+      AND d.name = ?
+    GROUP BY s.name
+    ORDER BY cnt DESC
+    LIMIT 20
+  ''';
+
+    final result = await db.rawQuery(sql, [year.toString(), department]);
+    return Map.fromEntries(
+      result.map((row) => MapEntry(row['name'] as String, row['cnt'] as int)),
+    );
+  }
 }

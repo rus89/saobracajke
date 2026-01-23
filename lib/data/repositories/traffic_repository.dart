@@ -1,7 +1,7 @@
+import 'package:sqflite/sqflite.dart';
 import '../../core/services/database_service.dart';
 import '../../domain/models/accident_model.dart';
 
-//-------------------------------------------------------------------------------
 class TrafficRepository {
   final DatabaseService _dbService = DatabaseService();
 
@@ -12,18 +12,237 @@ class TrafficRepository {
     return res.map((e) => e['name'] as String).toList();
   }
 
-  // The Big Search Function
+  // Get available years
+  Future<List<int>> getAvailableYears() async {
+    final db = await _dbService.database;
+    final res = await db.rawQuery(
+      "SELECT DISTINCT strftime('%Y', date_and_time) as year FROM accidents ORDER BY year DESC",
+    );
+    return res.map((e) => int.parse(e['year'] as String)).toList();
+  }
+
+  // AGGREGATE: Get total accidents for a year (with optional department filter)
+  Future<int> getTotalAccidentsForYear(int year, {String? department}) async {
+    final db = await _dbService.database;
+
+    String whereClause = "strftime('%Y', a.date_and_time) = ?";
+    List<dynamic> args = [year.toString()];
+
+    if (department != null && department.isNotEmpty) {
+      whereClause += " AND d.name = ?";
+      args.add(department);
+    }
+
+    final sql =
+        '''
+      SELECT COUNT(*) as cnt
+      FROM accidents a
+      JOIN departments d ON a.department_id = d.id
+      WHERE $whereClause
+    ''';
+
+    final result = await db.rawQuery(sql, args);
+    return Sqflite.firstIntValue(result) ?? 0;
+  }
+
+  // AGGREGATE: Get accident counts by type for a year
+  Future<Map<String, int>> getAccidentTypeCountsForYear(
+    int year, {
+    String? department,
+  }) async {
+    final db = await _dbService.database;
+
+    String whereClause = "strftime('%Y', a.date_and_time) = ?";
+    List<dynamic> args = [year.toString()];
+
+    if (department != null && department.isNotEmpty) {
+      whereClause += " AND d.name = ?";
+      args.add(department);
+    }
+
+    final sql =
+        '''
+      SELECT t.name, COUNT(*) as cnt
+      FROM accidents a
+      JOIN types t ON a.type_id = t.id
+      JOIN departments d ON a.department_id = d.id
+      WHERE $whereClause
+      GROUP BY t.name
+      ORDER BY cnt DESC
+    ''';
+
+    final result = await db.rawQuery(sql, args);
+    return Map.fromEntries(
+      result.map((row) => MapEntry(row['name'] as String, row['cnt'] as int)),
+    );
+  }
+
+  // AGGREGATE: Get top 10 cities/stations for a year
+  Future<Map<String, int>> getTopCitiesForYear(
+    int year, {
+    String? department,
+  }) async {
+    final db = await _dbService.database;
+
+    String whereClause = "strftime('%Y', a.date_and_time) = ?";
+    List<dynamic> args = [year.toString()];
+
+    if (department != null && department.isNotEmpty) {
+      whereClause += " AND d.name = ?";
+      args.add(department);
+    }
+
+    final sql =
+        '''
+      SELECT s.name, COUNT(*) as cnt
+      FROM accidents a
+      JOIN stations s ON a.station_id = s.id
+      JOIN departments d ON a.department_id = d.id
+      WHERE $whereClause
+      GROUP BY s.name
+      ORDER BY cnt DESC
+      LIMIT 10
+    ''';
+
+    final result = await db.rawQuery(sql, args);
+    return Map.fromEntries(
+      result.map((row) => MapEntry(row['name'] as String, row['cnt'] as int)),
+    );
+  }
+
+  // AGGREGATE: Get accidents by season for a year
+  Future<Map<String, int>> getAccidentsBySeasonForYear(
+    int year, {
+    String? department,
+  }) async {
+    final db = await _dbService.database;
+
+    String whereClause = "strftime('%Y', a.date_and_time) = ?";
+    List<dynamic> args = [year.toString()];
+
+    String deptJoin = '';
+    if (department != null && department.isNotEmpty) {
+      deptJoin = 'JOIN departments d ON a.department_id = d.id';
+      whereClause += " AND d.name = ?";
+      args.add(department);
+    }
+
+    final sql =
+        '''
+      SELECT season, COUNT(*) as cnt FROM (
+        SELECT 
+          CASE
+            WHEN CAST(strftime('%m', a.date_and_time) AS INTEGER) BETWEEN 3 AND 5 THEN 'Proljeće'
+            WHEN CAST(strftime('%m', a.date_and_time) AS INTEGER) BETWEEN 6 AND 8 THEN 'Ljeto'
+            WHEN CAST(strftime('%m', a.date_and_time) AS INTEGER) BETWEEN 9 AND 11 THEN 'Jesen'
+            ELSE 'Zima'
+          END AS season
+        FROM accidents a
+        $deptJoin
+        WHERE $whereClause
+      )
+      GROUP BY season
+    ''';
+
+    final result = await db.rawQuery(sql, args);
+    return Map.fromEntries(
+      result.map((row) => MapEntry(row['season'] as String, row['cnt'] as int)),
+    );
+  }
+
+  // AGGREGATE: Get accidents by time of day for a year
+  Future<Map<String, int>> getAccidentsByTimeOfDayForYear(
+    int year, {
+    String? department,
+  }) async {
+    final db = await _dbService.database;
+
+    String whereClause = "strftime('%Y', a.date_and_time) = ?";
+    List<dynamic> args = [year.toString()];
+
+    String deptJoin = '';
+    if (department != null && department.isNotEmpty) {
+      deptJoin = 'JOIN departments d ON a.department_id = d.id';
+      whereClause += " AND d.name = ?";
+      args.add(department);
+    }
+
+    final sql =
+        '''
+      SELECT time_period, COUNT(*) as cnt FROM (
+        SELECT 
+          CASE
+            WHEN CAST(strftime('%H', a.date_and_time) AS INTEGER) BETWEEN 0 AND 5 THEN 'Noć (00-06)'
+            WHEN CAST(strftime('%H', a.date_and_time) AS INTEGER) BETWEEN 6 AND 11 THEN 'Jutro (06-12)'
+            WHEN CAST(strftime('%H', a.date_and_time) AS INTEGER) BETWEEN 12 AND 17 THEN 'Popodne (12-18)'
+            ELSE 'Veče (18-00)'
+          END AS time_period
+        FROM accidents a
+        $deptJoin
+        WHERE $whereClause
+      )
+      GROUP BY time_period
+    ''';
+
+    final result = await db.rawQuery(sql, args);
+    return Map.fromEntries(
+      result.map(
+        (row) => MapEntry(row['time_period'] as String, row['cnt'] as int),
+      ),
+    );
+  }
+
+  // AGGREGATE: Get accidents by weekend/weekday for a year
+  Future<Map<String, int>> getAccidentsByWeekendForYear(
+    int year, {
+    String? department,
+  }) async {
+    final db = await _dbService.database;
+
+    String whereClause = "strftime('%Y', a.date_and_time) = ?";
+    List<dynamic> args = [year.toString()];
+
+    String deptJoin = '';
+    if (department != null && department.isNotEmpty) {
+      deptJoin = 'JOIN departments d ON a.department_id = d.id';
+      whereClause += " AND d.name = ?";
+      args.add(department);
+    }
+
+    final sql =
+        '''
+      SELECT day_type, COUNT(*) as cnt FROM (
+        SELECT 
+          CASE
+            WHEN CAST(strftime('%w', a.date_and_time) AS INTEGER) IN (0, 6) THEN 'Vikend'
+            ELSE 'Radni dan'
+          END AS day_type
+        FROM accidents a
+        $deptJoin
+        WHERE $whereClause
+      )
+      GROUP BY day_type
+    ''';
+
+    final result = await db.rawQuery(sql, args);
+    return Map.fromEntries(
+      result.map(
+        (row) => MapEntry(row['day_type'] as String, row['cnt'] as int),
+      ),
+    );
+  }
+
+  // Keep the limited query for list/map view (NOT for dashboard)
   Future<List<AccidentModel>> getAccidents({
     DateTime? startDate,
     DateTime? endDate,
     String? department,
     String? station,
-    String? keyword, // For searching participants
+    String? keyword,
   }) async {
     final db = await _dbService.database;
 
-    // 1. Build the Query dynamically
-    String whereClause = "1=1"; // Default true
+    String whereClause = "1=1";
     List<dynamic> args = [];
 
     if (startDate != null && endDate != null) {
@@ -44,13 +263,10 @@ class TrafficRepository {
 
     if (keyword != null && keyword.isNotEmpty) {
       whereClause += " AND (a.participants LIKE ? OR a.accident_id LIKE ?)";
-      args.add('%$keyword%'); // SQL 'LIKE' syntax
+      args.add('%$keyword%');
       args.add('%$keyword%');
     }
 
-    // 2. The Efficient JOIN Query
-    // We limit to 500 rows initially to prevent UI freeze if user selects "All"
-    // Use 'OFFSET' and 'LIMIT' for pagination if you want to be fancy later.
     final sql =
         '''
       SELECT 
@@ -73,16 +289,6 @@ class TrafficRepository {
     ''';
 
     final result = await db.rawQuery(sql, args);
-
     return result.map((row) => AccidentModel.fromSql(row)).toList();
-  }
-
-  //-------------------------------------------------------------------------------
-  Future<List<int>> getAvailableYears() async {
-    final db = await _dbService.database;
-    final res = await db.rawQuery(
-      "SELECT DISTINCT year FROM accidents ORDER BY year DESC",
-    );
-    return res.map((e) => e['year'] as int).toList();
   }
 }

@@ -3,7 +3,7 @@ import 'package:intl/intl.dart';
 
 class SectionOneHeader extends StatelessWidget {
   final int totalAccidents;
-  final int delta; // e.g. -150 or +400
+  final int delta;
   final int fatalities;
   final int fatalitiesDelta;
   final int injuries;
@@ -21,120 +21,134 @@ class SectionOneHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Determine Trend Color (Green is good/less accidents, Red is bad)
-    final bool isImprovement = delta < 0;
+    // Determine Trend Color (Green is good/less accidents, Red is bad)
+    final bool isImprovement = delta <= 0;
     final Color trendColor = isImprovement
         ? Colors.green.shade700
         : Colors.red.shade700;
     final Color trendBg = isImprovement
         ? Colors.green.shade50
         : Colors.red.shade50;
-    final String sign = delta > 0 ? "+" : ""; // Negative number already has "-"
+    final String sign = delta > 0 ? "+" : "";
 
-    return Column(
-      children: [
-        // --- MAIN CARD (Total Accidents) ---
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.06),
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                "UKUPNO NESREĆA",
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.2,
-                  color: Colors.grey.shade500,
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        children: [
+          // --- MAIN CARD (Total Accidents) ---
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.06),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                NumberFormat('#,###').format(totalAccidents), // 24.500
-                style: const TextStyle(
-                  fontSize: 42,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.black87,
-                  height: 1.0,
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text(
+                  "UKUPNO NESREĆA",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.2,
+                    color: Colors.grey.shade500,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
+                const SizedBox(height: 8),
+                Text(
+                  NumberFormat('#,###').format(totalAccidents),
+                  style: const TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.w900,
+                    color: Colors.black87,
+                    height: 1.0,
+                  ),
+                ),
+                const SizedBox(height: 20),
 
-              // The Trend Badge
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: BoxDecoration(
-                  color: trendBg,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isImprovement ? Icons.arrow_downward : Icons.arrow_upward,
-                      size: 16,
-                      color: trendColor,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      "$sign$delta u odnosu na prošlu godinu",
-                      style: TextStyle(
+                // The Trend Badge
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: trendBg,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isImprovement
+                            ? Icons.arrow_downward
+                            : Icons.arrow_upward,
+                        size: 18,
                         color: trendColor,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
                       ),
-                    ),
-                  ],
+                      const SizedBox(width: 8),
+                      Text(
+                        "$sign$delta",
+                        style: TextStyle(
+                          color: trendColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        "vs prošlu godinu",
+                        style: TextStyle(
+                          color: trendColor,
+                          fontWeight: FontWeight.w500,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 20),
+
+          // --- SUB-METRICS ROW (The Breakdown) ---
+          Row(
+            children: [
+              // Left: Injuries
+              Expanded(
+                child: _buildMiniStat(
+                  label: "POVREĐENI",
+                  count: injuries,
+                  delta: injuriesDelta,
+                  color: Colors.orange,
+                  icon: Icons.personal_injury,
+                ),
+              ),
+              const SizedBox(width: 12),
+              // Right: Deaths (The most critical metric)
+              Expanded(
+                child: _buildMiniStat(
+                  label: "POGINULI",
+                  count: fatalities,
+                  delta: fatalitiesDelta,
+                  color: Colors.red,
+                  icon: Icons.heart_broken,
                 ),
               ),
             ],
           ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // --- SUB-METRICS ROW (The Breakdown) ---
-        Row(
-          children: [
-            // Left: Injuries
-            Expanded(
-              child: _buildMiniStat(
-                label: "POVREĐENI",
-                count: injuries,
-                delta: injuriesDelta,
-                color: Colors.orange,
-                icon: Icons.personal_injury,
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Right: Deaths (The most critical metric)
-            Expanded(
-              child: _buildMiniStat(
-                label: "POGINULI",
-                count: fatalities,
-                delta: fatalitiesDelta,
-                color: Colors.red, // Alert color for deaths
-                icon: Icons.heart_broken, // Emotional impact icon
-              ),
-            ),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -146,6 +160,7 @@ class SectionOneHeader extends StatelessWidget {
     required IconData icon,
   }) {
     final bool isUp = delta > 0;
+    final Color deltaColor = isUp ? Colors.red.shade600 : Colors.green.shade600;
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -153,40 +168,63 @@ class SectionOneHeader extends StatelessWidget {
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: Colors.grey.shade100),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.03),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, size: 18, color: color),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 20, color: color),
+              ),
               const Spacer(),
               // Mini delta indicator
-              Text(
-                "${isUp ? '+' : ''}$delta",
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.bold,
-                  color: isUp ? Colors.red : Colors.green, // More deaths = Red
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: deltaColor.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  "${isUp ? '+' : ''}$delta",
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                    color: deltaColor,
+                  ),
                 ),
               ),
             ],
           ),
           const SizedBox(height: 12),
           Text(
-            count.toString(),
+            NumberFormat('#,###').format(count),
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Colors.black87,
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             label,
             style: TextStyle(
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: FontWeight.w600,
-              color: Colors.grey.shade400,
+              color: Colors.grey.shade500,
+              letterSpacing: 0.5,
             ),
           ),
         ],

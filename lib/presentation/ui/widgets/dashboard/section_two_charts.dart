@@ -59,9 +59,16 @@ class SectionTwoCharts extends StatelessWidget {
               LineChartData(
                 gridData: FlGridData(show: true),
                 titlesData: FlTitlesData(
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      reservedSize: 30,
                       getTitlesWidget: (value, meta) {
                         const months = [
                           'Jan',
@@ -78,23 +85,56 @@ class SectionTwoCharts extends StatelessWidget {
                           'Dec',
                         ];
                         if (value.toInt() >= 1 && value.toInt() <= 12) {
-                          return Text(months[value.toInt() - 1]);
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              months[value.toInt() - 1],
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          );
                         }
                         return const Text('');
                       },
                     ),
                   ),
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(fontSize: 12),
+                        );
+                      },
+                    ),
                   ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: spots,
                     isCurved: true,
                     color: Colors.blue.shade600,
-                    barWidth: 2,
-                    dotData: FlDotData(show: true),
+                    barWidth: 3,
+                    dotData: FlDotData(
+                      show: true,
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 4,
+                          color: Colors.blue.shade600,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: Colors.blue.shade600.withOpacity(0.1),
+                    ),
                   ),
                 ],
               ),
@@ -126,8 +166,18 @@ class SectionTwoCharts extends StatelessWidget {
           spots: spots,
           isCurved: true,
           color: colors[colorIndex % colors.length],
-          barWidth: 2,
-          dotData: FlDotData(show: false),
+          barWidth: 3,
+          dotData: FlDotData(
+            show: true,
+            getDotPainter: (spot, percent, barData, index) {
+              return FlDotCirclePainter(
+                radius: 3,
+                color: colors[colorIndex % colors.length],
+                strokeWidth: 1,
+                strokeColor: Colors.white,
+              );
+            },
+          ),
         ),
       );
       colorIndex++;
@@ -154,9 +204,16 @@ class SectionTwoCharts extends StatelessWidget {
               LineChartData(
                 gridData: FlGridData(show: true),
                 titlesData: FlTitlesData(
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      reservedSize: 30,
                       getTitlesWidget: (value, meta) {
                         const months = [
                           'Jan',
@@ -173,15 +230,34 @@ class SectionTwoCharts extends StatelessWidget {
                           'Dec',
                         ];
                         if (value.toInt() >= 1 && value.toInt() <= 12) {
-                          return Text(months[value.toInt() - 1]);
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: Text(
+                              months[value.toInt() - 1],
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          );
                         }
                         return const Text('');
                       },
                     ),
                   ),
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(fontSize: 12),
+                        );
+                      },
+                    ),
                   ),
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border.all(color: Colors.grey.shade300),
                 ),
                 lineBarsData: lines,
               ),
@@ -199,10 +275,13 @@ class SectionTwoCharts extends StatelessWidget {
                   Container(
                     width: 12,
                     height: 12,
-                    color: colors[entry.key % colors.length],
+                    decoration: BoxDecoration(
+                      color: colors[entry.key % colors.length],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                   const SizedBox(width: 8),
-                  Text(entry.value),
+                  Text(entry.value, style: const TextStyle(fontSize: 13)),
                 ],
               );
             }).toList(),
@@ -216,10 +295,8 @@ class SectionTwoCharts extends StatelessWidget {
     final sortedStations = stationAccidents.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    final spots = <FlSpot>[];
-    for (int i = 0; i < sortedStations.length; i++) {
-      spots.add(FlSpot(i.toDouble(), sortedStations[i].value.toDouble()));
-    }
+    // Take top 10
+    final topStations = sortedStations.take(10).toList();
 
     return Container(
       padding: const EdgeInsets.all(16),
@@ -232,31 +309,38 @@ class SectionTwoCharts extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Nesreće po policijskoj stanici',
+            'Top 10 policijskih stanica po broju nesreća',
             style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 16),
           SizedBox(
-            height: 300,
-            child: LineChart(
-              LineChartData(
-                gridData: FlGridData(show: true),
+            height: 400,
+            child: BarChart(
+              BarChartData(
+                gridData: FlGridData(show: true, drawVerticalLine: false),
                 titlesData: FlTitlesData(
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      reservedSize: 80,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
-                        if (index >= 0 && index < sortedStations.length) {
+                        if (index >= 0 && index < topStations.length) {
                           return Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: SizedBox(
-                              width: 60,
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: RotatedBox(
+                              quarterTurns: -1,
                               child: Text(
-                                sortedStations[index].key,
+                                topStations[index].key,
+                                style: const TextStyle(fontSize: 11),
                                 overflow: TextOverflow.ellipsis,
-                                textAlign: TextAlign.center,
-                                style: const TextStyle(fontSize: 10),
+                                maxLines: 1,
                               ),
                             ),
                           );
@@ -266,18 +350,38 @@ class SectionTwoCharts extends StatelessWidget {
                     ),
                   ),
                   leftTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: true),
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                      getTitlesWidget: (value, meta) {
+                        return Text(
+                          value.toInt().toString(),
+                          style: const TextStyle(fontSize: 12),
+                        );
+                      },
+                    ),
                   ),
                 ),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: spots,
-                    isCurved: true,
-                    color: Colors.purple.shade600,
-                    barWidth: 2,
-                    dotData: FlDotData(show: true),
-                  ),
-                ],
+                borderData: FlBorderData(
+                  show: true,
+                  border: Border.all(color: Colors.grey.shade300),
+                ),
+                barGroups: topStations.asMap().entries.map((entry) {
+                  return BarChartGroupData(
+                    x: entry.key,
+                    barRods: [
+                      BarChartRodData(
+                        toY: entry.value.value.toDouble(),
+                        color: Colors.purple.shade600,
+                        width: 20,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(6),
+                          topRight: Radius.circular(6),
+                        ),
+                      ),
+                    ],
+                  );
+                }).toList(),
               ),
             ),
           ),

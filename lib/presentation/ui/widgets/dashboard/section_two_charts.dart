@@ -133,7 +133,7 @@ class SectionTwoCharts extends StatelessWidget {
                     ),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Colors.blue.shade600.withOpacity(0.1),
+                      color: Colors.blue.shade600.withAlpha(25),
                     ),
                   ),
                 ],

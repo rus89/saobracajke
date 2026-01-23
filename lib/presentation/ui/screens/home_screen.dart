@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:saobracajke/presentation/logic/traffic_provider.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_one_header.dart';
+import 'package:saobracajke/presentation/ui/widgets/dashboard/section_three_charts.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_two_charts.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -136,15 +137,25 @@ class HomeScreen extends ConsumerWidget {
                       stationAccidents: state.stationAccidents,
                     ),
                   ),
-                  Container(
-                    margin: const EdgeInsets.all(16),
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(12),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16),
+                    child: Text(
+                      'Sekcija 3: Vremenska Distribucija',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    child: const Text('Sekcija 3 uskoro...'),
                   ),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: SectionThreeTemporal(
+                      seasonCounts: state.seasonCounts,
+                      weekendCounts: state.weekendCounts,
+                      timeOfDayCounts: state.timeOfDayCounts,
+                    ),
+                  ),
+                  const SizedBox(height: 20),
                   const SizedBox(height: 20),
                 ],
               ),

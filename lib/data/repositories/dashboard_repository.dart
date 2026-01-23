@@ -90,12 +90,13 @@ class DashboardRepository {
       int count = row['cnt'] as int;
       if (m >= 3 && m <= 5) {
         seasons['Proleće'] = (seasons['Proleće']! + count);
-      } else if (m >= 6 && m <= 8)
+      } else if (m >= 6 && m <= 8) {
         seasons['Leto'] = (seasons['Leto']! + count);
-      else if (m >= 9 && m <= 11)
+      } else if (m >= 9 && m <= 11) {
         seasons['Jesen'] = (seasons['Jesen']! + count);
-      else
+      } else {
         seasons['Zima'] = (seasons['Zima']! + count);
+      }
     }
 
     // 5. TIME OF DAY (Section 3)
@@ -114,12 +115,13 @@ class DashboardRepository {
       int count = row['cnt'] as int;
       if (h >= 6 && h < 12) {
         times['Jutro'] = (times['Jutro']! + count);
-      } else if (h >= 12 && h < 18)
+      } else if (h >= 12 && h < 18) {
         times['Popodne'] = (times['Popodne']! + count);
-      else if (h >= 18)
+      } else if (h >= 18) {
         times['Veče'] = (times['Veče']! + count);
-      else
+      } else {
         times['Noć'] = (times['Noć']! + count);
+      }
     }
 
     return DashboardStats(

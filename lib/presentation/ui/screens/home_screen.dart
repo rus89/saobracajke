@@ -27,7 +27,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   child: DropdownButtonFormField<String?>(
-                    value: state.selectedDept,
+                    initialValue: state.selectedDept,
                     decoration: const InputDecoration(
                       labelText: 'Izaberite policijsku upravu',
                       prefixIcon: Icon(Icons.location_city),

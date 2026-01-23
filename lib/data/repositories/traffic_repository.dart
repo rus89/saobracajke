@@ -132,8 +132,8 @@ class TrafficRepository {
       SELECT season, COUNT(*) as cnt FROM (
         SELECT 
           CASE
-            WHEN CAST(strftime('%m', a.date_and_time) AS INTEGER) BETWEEN 3 AND 5 THEN 'Proljeće'
-            WHEN CAST(strftime('%m', a.date_and_time) AS INTEGER) BETWEEN 6 AND 8 THEN 'Ljeto'
+            WHEN CAST(strftime('%m', a.date_and_time) AS INTEGER) BETWEEN 3 AND 5 THEN 'Proleće'
+            WHEN CAST(strftime('%m', a.date_and_time) AS INTEGER) BETWEEN 6 AND 8 THEN 'Leto'
             WHEN CAST(strftime('%m', a.date_and_time) AS INTEGER) BETWEEN 9 AND 11 THEN 'Jesen'
             ELSE 'Zima'
           END AS season

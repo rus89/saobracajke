@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.saobracajke"
+    namespace = "com.serbiaOpenData.saobracajke"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -19,9 +19,13 @@ android {
         jvmTarget = JavaVersion.VERSION_17.toString()
     }
 
+    dependencies {
+    implementation("com.google.android.material:material:1.13.0")
+    }
+
+
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.saobracajke"
+        applicationId = "com.serbiaOpenData.saobracajke"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion

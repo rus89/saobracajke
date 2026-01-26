@@ -1,4 +1,4 @@
-package com.example.saobracajke
+package com.serbiaOpenData.saobracajke
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -7,6 +7,7 @@ import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/presentation/logic/accidents_provider.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
+import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart';
 
 //-------------------------------------------------------------------------------
 class MapScreen extends ConsumerStatefulWidget {
@@ -156,58 +157,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     elevation: 4,
                     child: Padding(
                       padding: const EdgeInsets.all(12),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          DropdownButtonFormField<int>(
-                            initialValue: dashboardState.selectedYear,
-                            decoration: const InputDecoration(
-                              labelText: 'Izaberite godinu',
-                              prefixIcon: Icon(Icons.calendar_today),
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            items: dashboardState.availableYears.map((year) {
-                              return DropdownMenuItem(
-                                value: year,
-                                child: Text(year.toString()),
-                              );
-                            }).toList(),
-                            onChanged: (year) {
-                              if (year == null) return;
-                              ref
-                                  .read(dashboardProvider.notifier)
-                                  .setYear(year);
-                            },
-                          ),
-                          const SizedBox(height: 8),
-                          DropdownButtonFormField<String?>(
-                            initialValue: dashboardState.selectedDept,
-                            decoration: const InputDecoration(
-                              labelText: 'Izaberite policijsku upravu',
-                              prefixIcon: Icon(Icons.location_city),
-                              border: OutlineInputBorder(),
-                              isDense: true,
-                            ),
-                            items: [
-                              const DropdownMenuItem(
-                                value: null,
-                                child: Text('Sve policijske uprave'),
-                              ),
-                              ...dashboardState.departments.map(
-                                (dept) => DropdownMenuItem(
-                                  value: dept,
-                                  child: Text(dept),
-                                ),
-                              ),
-                            ],
-                            onChanged: (dept) {
-                              ref
-                                  .read(dashboardProvider.notifier)
-                                  .setDepartment(dept);
-                            },
-                          ),
-                        ],
+                      child: YearDepartmentFilter(
+                        selectedYear: dashboardState.selectedYear,
+                        availableYears: dashboardState.availableYears,
+                        selectedDept: dashboardState.selectedDept,
+                        departments: dashboardState.departments,
+                        compact: true,
+                        onYearChanged: (year) {
+                          if (year == null) return;
+                          ref.read(dashboardProvider.notifier).setYear(year);
+                        },
+                        onDepartmentChanged: (dept) {
+                          ref
+                              .read(dashboardProvider.notifier)
+                              .setDepartment(dept);
+                        },
                       ),
                     ),
                   ),

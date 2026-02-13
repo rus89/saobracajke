@@ -4,6 +4,7 @@ import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_one_header.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_three_charts.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_two_charts.dart';
+import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -34,66 +35,21 @@ class HomeScreen extends ConsumerWidget {
                         ),
                       ),
                     ),
-                    child: Column(
-                      children: [
-                        // Year Dropdown
-                        DropdownButtonFormField<int>(
-                          initialValue: state.selectedYear,
-                          decoration: InputDecoration(
-                            labelText: 'Izaberite godinu',
-                            prefixIcon: const Icon(Icons.calendar_today),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
-                          items: state.availableYears.map((year) {
-                            return DropdownMenuItem(
-                              value: year,
-                              child: Text(year.toString()),
-                            );
-                          }).toList(),
-                          onChanged: (year) {
-                            if (year != null) {
-                              ref
-                                  .read(dashboardProvider.notifier)
-                                  .setYear(year);
-                            }
-                          },
-                        ),
-                        const SizedBox(height: 12),
-                        // Department Dropdown
-                        DropdownButtonFormField<String?>(
-                          initialValue: state.selectedDept,
-                          decoration: InputDecoration(
-                            labelText: 'Izaberite policijsku upravu',
-                            prefixIcon: const Icon(Icons.location_city),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            filled: true,
-                            fillColor: Colors.white,
-                          ),
-                          items: [
-                            const DropdownMenuItem(
-                              value: null,
-                              child: Text('Sve policijske uprave'),
-                            ),
-                            ...state.departments.map(
-                              (dept) => DropdownMenuItem(
-                                value: dept,
-                                child: Text(dept),
-                              ),
-                            ),
-                          ],
-                          onChanged: (dept) {
-                            ref
-                                .read(dashboardProvider.notifier)
-                                .setDepartment(dept);
-                          },
-                        ),
-                      ],
+                    child: YearDepartmentFilter(
+                      selectedYear: state.selectedYear,
+                      availableYears: state.availableYears,
+                      selectedDept: state.selectedDept,
+                      departments: state.departments,
+                      onYearChanged: (year) {
+                        if (year != null) {
+                          ref.read(dashboardProvider.notifier).setYear(year);
+                        }
+                      },
+                      onDepartmentChanged: (dept) {
+                        ref
+                            .read(dashboardProvider.notifier)
+                            .setDepartment(dept);
+                      },
                     ),
                   ),
                   // Section 1: Key Metrics

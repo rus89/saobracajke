@@ -6,6 +6,19 @@ import 'package:sqflite/sqflite.dart';
 import 'package:archive/archive.dart';
 
 //-------------------------------------------------------------------------------
+/// Thrown when database extraction or opening fails during bootstrap.
+/// Callers can show a user-visible message and offer retry.
+class DatabaseBootstrapException implements Exception {
+  DatabaseBootstrapException(this.message, [this.cause]);
+
+  final String message;
+  final Object? cause;
+
+  @override
+  String toString() => cause != null ? '$message: $cause' : message;
+}
+
+//-------------------------------------------------------------------------------
 class DatabaseService {
   static const String _dbName = "serbian_traffic.db";
   static const String _zipName = "serbian_traffic.db.zip";
@@ -28,42 +41,57 @@ class DatabaseService {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, _dbName);
 
-    // Check if the DB already exists on the device
     if (!await databaseExists(path)) {
-      debugPrint("⏳ Database not found. extracting from asset...");
+      debugPrint("⏳ Database not found. Extracting from asset...");
 
       try {
-        // 1. Load the ZIP from assets
         final ByteData data = await rootBundle.load(
           join("assets", "db", _zipName),
         );
         final List<int> bytes = data.buffer.asUint8List();
-
-        // 2. Decode the ZIP
         final Archive archive = ZipDecoder().decodeBytes(bytes);
 
-        // 3. Extract the file
-        // We assume the zip contains exactly one file named same as _dbName
+        bool extracted = false;
         for (final file in archive) {
           if (file.name == _dbName) {
             final data = file.content as List<int>;
             await File(path).writeAsBytes(data, flush: true);
+            extracted = true;
             debugPrint("✅ Database extracted to: $path");
+            break;
           }
         }
-      } catch (e) {
-        debugPrint("❌ CRITICAL ERROR: Could not extract database: $e");
-        // Handle error (maybe show a dialog to the user)
+
+        if (!extracted || !await databaseExists(path)) {
+          throw DatabaseBootstrapException(
+            'Database asset is missing or invalid (no "$_dbName" in archive)',
+          );
+        }
+      } catch (e, st) {
+        debugPrint("❌ Database extraction failed: $e");
+        debugPrint("$st");
+        if (e is DatabaseBootstrapException) rethrow;
+        throw DatabaseBootstrapException(
+          'Could not prepare database. Please try again.',
+          e,
+        );
       }
     } else {
       debugPrint("✅ Database already exists.");
     }
 
-    //-------------------------------------------------------------------------------
-    return await openDatabase(
-      path,
-      readOnly:
-          true, // Keep it read-only for safety unless you plan to add user notes
-    );
+    try {
+      return await openDatabase(
+        path,
+        readOnly: true,
+      );
+    } catch (e, st) {
+      debugPrint("❌ Database open failed: $e");
+      debugPrint("$st");
+      throw DatabaseBootstrapException(
+        'Could not open database. Please try again.',
+        e,
+      );
+    }
   }
 }

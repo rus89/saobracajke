@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:saobracajke/data/repositories/traffic_repository.dart';
+import 'package:saobracajke/data/repositories/traffic_repository.dart'
+    as data_repo;
 
 void main() {
   late Database db;
@@ -86,13 +87,13 @@ void main() {
     await db.close();
   });
 
-  TrafficRepository createRepo() {
-    return TrafficRepository(
+  data_repo.SqliteTrafficRepository createRepo() {
+    return data_repo.SqliteTrafficRepository(
       databaseProvider: () async => db,
     );
   }
 
-  group('TrafficRepository (in-memory DB)', () {
+  group('SqliteTrafficRepository (in-memory DB)', () {
     test('getDepartments returns names ordered by name', () async {
       final repo = createRepo();
       final list = await repo.getDepartments();

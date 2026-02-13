@@ -1,9 +1,10 @@
 import 'package:flutter/foundation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
-import '../../data/repositories/traffic_repository.dart';
+
+import '../../core/di/repository_providers.dart';
 import '../../domain/accident_types.dart';
 import '../../domain/models/accident_model.dart';
+import '../../domain/repositories/traffic_repository.dart';
 
 class TrafficState {
   final List<AccidentModel> accidents; // For map/list views only
@@ -103,7 +104,9 @@ class TrafficState {
 class TrafficNotifier extends StateNotifier<TrafficState> {
   final TrafficRepository _repo;
 
-  TrafficNotifier(this._repo) : super(TrafficState()) {
+  TrafficNotifier(TrafficRepository repo)
+    : _repo = repo,
+      super(TrafficState()) {
     _initialize();
   }
 
@@ -209,8 +212,6 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
     }
   }
 }
-
-final repositoryProvider = Provider((ref) => TrafficRepository());
 
 final trafficProvider = StateNotifierProvider<TrafficNotifier, TrafficState>((
   ref,

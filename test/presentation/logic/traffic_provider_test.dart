@@ -1,7 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:saobracajke/data/repositories/traffic_repository.dart';
+import 'package:saobracajke/core/di/repository_providers.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
+import 'package:saobracajke/domain/repositories/traffic_repository.dart';
 import 'package:saobracajke/presentation/logic/traffic_provider.dart';
 
 void main() {
@@ -103,10 +104,8 @@ void main() {
   });
 }
 
-class FakeTrafficRepository extends TrafficRepository {
+class FakeTrafficRepository implements TrafficRepository {
   final List<int> getTotalAccidentsForYearCalls = [];
-
-  FakeTrafficRepository() : super(databaseProvider: null);
 
   @override
   Future<List<String>> getDepartments() async => ['Dept1'];

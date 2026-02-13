@@ -3,25 +3,26 @@ import 'package:sqflite/sqflite.dart';
 import '../../core/services/database_service.dart';
 import '../../domain/accident_types.dart';
 import '../../domain/models/accident_model.dart';
+import '../../domain/repositories/traffic_repository.dart';
 
-class TrafficRepository {
+class SqliteTrafficRepository implements TrafficRepository {
   final Future<Database> Function()? _databaseProvider;
   final DatabaseService _dbService = DatabaseService();
 
-  TrafficRepository({Future<Database> Function()? databaseProvider})
-    : _databaseProvider = databaseProvider;
+  SqliteTrafficRepository({Future<Database> Function()? databaseProvider})
+      : _databaseProvider = databaseProvider;
 
   Future<Database> get _db async =>
       _databaseProvider != null ? _databaseProvider() : _dbService.database;
 
-  // Fetch unique filter options for Dropdowns
+  @override
   Future<List<String>> getDepartments() async {
     final db = await _db;
     final res = await db.query('departments', orderBy: 'name ASC');
     return res.map((e) => e['name'] as String).toList();
   }
 
-  // Get available years
+  @override
   Future<List<int>> getAvailableYears() async {
     final db = await _db;
     final res = await db.rawQuery(
@@ -30,7 +31,7 @@ class TrafficRepository {
     return res.map((e) => int.parse(e['year'] as String)).toList();
   }
 
-  // AGGREGATE: Get total accidents for a year (with optional department filter)
+  @override
   Future<int> getTotalAccidentsForYear(int year, {String? department}) async {
     final db = await _db;
 
@@ -54,7 +55,7 @@ class TrafficRepository {
     return Sqflite.firstIntValue(result) ?? 0;
   }
 
-  // AGGREGATE: Get accident counts by type for a year
+  @override
   Future<Map<String, int>> getAccidentTypeCountsForYear(
     int year, {
     String? department,
@@ -87,7 +88,7 @@ class TrafficRepository {
     return AccidentTypes.normalizeCounts(raw);
   }
 
-  // AGGREGATE: Get top 10 cities/stations for a year
+  @override
   Future<Map<String, int>> getTopCitiesForYear(
     int year, {
     String? department,
@@ -120,7 +121,7 @@ class TrafficRepository {
     );
   }
 
-  // AGGREGATE: Get accidents by season for a year
+  @override
   Future<Map<String, int>> getAccidentsBySeasonForYear(
     int year, {
     String? department,
@@ -160,7 +161,7 @@ class TrafficRepository {
     );
   }
 
-  // AGGREGATE: Get accidents by time of day for a year
+  @override
   Future<Map<String, int>> getAccidentsByTimeOfDayForYear(
     int year, {
     String? department,
@@ -202,7 +203,7 @@ class TrafficRepository {
     );
   }
 
-  // AGGREGATE: Get accidents by weekend/weekday for a year
+  @override
   Future<Map<String, int>> getAccidentsByWeekendForYear(
     int year, {
     String? department,
@@ -242,7 +243,7 @@ class TrafficRepository {
     );
   }
 
-  // Keep the limited query for list/map view (NOT for dashboard)
+  @override
   Future<List<AccidentModel>> getAccidents({
     DateTime? startDate,
     DateTime? endDate,
@@ -302,7 +303,7 @@ class TrafficRepository {
     return result.map((row) => AccidentModel.fromSql(row)).toList();
   }
 
-  // AGGREGATE: Get accidents by month for a year
+  @override
   Future<Map<int, int>> getAccidentsByMonthForYear(
     int year, {
     String? department,
@@ -345,7 +346,7 @@ class TrafficRepository {
     return monthCounts;
   }
 
-  // AGGREGATE: Get accidents by type per month for a year
+  @override
   Future<Map<String, Map<int, int>>> getAccidentTypesByMonthForYear(
     int year, {
     String? department,
@@ -393,7 +394,7 @@ class TrafficRepository {
     return typeMonthCounts;
   }
 
-  // AGGREGATE: Get accidents by station for a department
+  @override
   Future<Map<String, int>> getAccidentsByStationForDepartment(
     int year,
     String department,

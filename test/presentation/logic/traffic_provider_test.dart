@@ -3,12 +3,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:saobracajke/core/di/repository_providers.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/domain/repositories/traffic_repository.dart';
-import 'package:saobracajke/presentation/logic/traffic_provider.dart';
+import 'package:saobracajke/presentation/logic/accidents_provider.dart';
+import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
 
 void main() {
-  group('TrafficState', () {
+  group('DashboardState', () {
     test('copyWith preserves unset fields', () {
-      final state = TrafficState(
+      const state = DashboardState(
         departments: ['A'],
         availableYears: [2022],
         selectedYear: 2022,
@@ -22,7 +23,7 @@ void main() {
     });
 
     test('deltaAccidents is totalAccidents minus totalAccidentsPrevYear', () {
-      final state = TrafficState(
+      const state = DashboardState(
         totalAccidents: 100,
         totalAccidentsPrevYear: 80,
       );
@@ -30,7 +31,7 @@ void main() {
     });
 
     test('fatalitiesCount and injuriesCount read from accidentTypeCounts', () {
-      final state = TrafficState(
+      const state = DashboardState(
         accidentTypeCounts: {
           'Sa poginulim': 3,
           'Sa povredjenim': 7,
@@ -43,7 +44,7 @@ void main() {
     });
   });
 
-  group('TrafficNotifier', () {
+  group('DashboardNotifier', () {
     late FakeTrafficRepository fakeRepo;
     late ProviderContainer container;
 
@@ -56,21 +57,20 @@ void main() {
 
     tearDown(() => container.dispose());
 
-    /// Wait for notifier's async _initialize() to complete so tests see stable state.
     Future<void> waitForInit() async {
-      container.read(trafficProvider);
+      container.read(dashboardProvider);
       for (var i = 0; i < 100; i++) {
         await Future.delayed(const Duration(milliseconds: 20));
-        if (!container.read(trafficProvider).isLoading) return;
+        if (!container.read(dashboardProvider).isLoading) return;
       }
-      throw StateError('Timeout waiting for TrafficNotifier init');
+      throw StateError('Timeout waiting for DashboardNotifier init');
     }
 
     test(
       'after init, state has departments, years, default year, and loading false',
       () async {
         await waitForInit();
-        final state = container.read(trafficProvider);
+        final state = container.read(dashboardProvider);
         expect(state.departments, ['Dept1']);
         expect(state.availableYears, [2023]);
         expect(state.selectedYear, 2023);
@@ -80,26 +80,48 @@ void main() {
 
     test('setYear updates selectedYear and reloads dashboard', () async {
       await waitForInit();
-      final notifier = container.read(trafficProvider.notifier);
+      final notifier = container.read(dashboardProvider.notifier);
       notifier.setYear(2022);
-      expect(container.read(trafficProvider).selectedYear, 2022);
+      expect(container.read(dashboardProvider).selectedYear, 2022);
       expect(fakeRepo.getTotalAccidentsForYearCalls, contains(2022));
     });
 
     test('setDepartment updates selectedDept and reloads dashboard', () async {
       await waitForInit();
-      final notifier = container.read(trafficProvider.notifier);
+      final notifier = container.read(dashboardProvider.notifier);
       notifier.setDepartment('Belgrade');
-      expect(container.read(trafficProvider).selectedDept, 'Belgrade');
+      expect(container.read(dashboardProvider).selectedDept, 'Belgrade');
       expect(fakeRepo.getTotalAccidentsForYearCalls, isNotEmpty);
     });
+  });
 
-    test('loadAccidents populates accidents list', () async {
-      await waitForInit();
-      final notifier = container.read(trafficProvider.notifier);
-      await notifier.loadAccidents();
-      expect(container.read(trafficProvider).accidents.length, 1);
-      expect(container.read(trafficProvider).accidents.first.id, 'test-id');
+  group('accidentsProvider', () {
+    late FakeTrafficRepository fakeRepo;
+    late ProviderContainer container;
+
+    setUp(() {
+      fakeRepo = FakeTrafficRepository();
+      container = ProviderContainer(
+        overrides: [repositoryProvider.overrideWithValue(fakeRepo)],
+      );
+    });
+
+    tearDown(() => container.dispose());
+
+    Future<void> waitForDashboardInit() async {
+      container.read(dashboardProvider);
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        if (!container.read(dashboardProvider).isLoading) return;
+      }
+      throw StateError('Timeout waiting for dashboard init');
+    }
+
+    test('populates accidents list from current dashboard filters', () async {
+      await waitForDashboardInit();
+      final accidents = await container.read(accidentsProvider.future);
+      expect(accidents.length, 1);
+      expect(accidents.first.id, 'test-id');
     });
   });
 }

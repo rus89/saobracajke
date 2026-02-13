@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
-import 'package:saobracajke/presentation/logic/traffic_provider.dart';
+import 'package:saobracajke/presentation/logic/accidents_provider.dart';
+import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
 
 //-------------------------------------------------------------------------------
 class MapScreen extends ConsumerStatefulWidget {
@@ -18,20 +19,6 @@ class MapScreen extends ConsumerStatefulWidget {
 //-------------------------------------------------------------------------------
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
-  bool _isLoading = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadAccidents();
-  }
-
-  //----------------------------------------------------------------------------
-  Future<void> _loadAccidents() async {
-    setState(() => _isLoading = true);
-    await ref.read(trafficProvider.notifier).loadAccidents();
-    setState(() => _isLoading = false);
-  }
 
   //----------------------------------------------------------------------------
   Color _getMarkerColor(String type) => AccidentTypes.markerColor(type);
@@ -69,11 +56,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   //----------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(trafficProvider);
+    final dashboardState = ref.watch(dashboardProvider);
+    final accidentsAsync = ref.watch(accidentsProvider);
 
     // Group accidents by location for clustering
+    final accidents = accidentsAsync.value ?? [];
     final markers = <Marker>[];
-    for (var accident in state.accidents) {
+    for (var accident in accidents) {
       markers.add(
         Marker(
           point: LatLng(accident.lat, accident.lng),
@@ -89,6 +78,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       );
     }
 
+    final isLoading = accidentsAsync.isLoading;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mapa Nesreća'),
@@ -102,7 +93,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
         ],
       ),
-      body: _isLoading
+      body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : Stack(
               children: [
@@ -169,32 +160,29 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           DropdownButtonFormField<int>(
-                            initialValue: state.selectedYear,
+                            initialValue: dashboardState.selectedYear,
                             decoration: const InputDecoration(
                               labelText: 'Izaberite godinu',
                               prefixIcon: Icon(Icons.calendar_today),
                               border: OutlineInputBorder(),
                               isDense: true,
                             ),
-                            items: state.availableYears.map((year) {
+                            items: dashboardState.availableYears.map((year) {
                               return DropdownMenuItem(
                                 value: year,
                                 child: Text(year.toString()),
                               );
                             }).toList(),
-                            onChanged: (year) async {
+                            onChanged: (year) {
                               if (year == null) return;
-                              setState(() => _isLoading = true);
-                              ref.read(trafficProvider.notifier).setYear(year);
-                              await ref
-                                  .read(trafficProvider.notifier)
-                                  .loadAccidents();
-                              if (mounted) setState(() => _isLoading = false);
+                              ref
+                                  .read(dashboardProvider.notifier)
+                                  .setYear(year);
                             },
                           ),
                           const SizedBox(height: 8),
                           DropdownButtonFormField<String?>(
-                            initialValue: state.selectedDept,
+                            initialValue: dashboardState.selectedDept,
                             decoration: const InputDecoration(
                               labelText: 'Izaberite policijsku upravu',
                               prefixIcon: Icon(Icons.location_city),
@@ -206,22 +194,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                                 value: null,
                                 child: Text('Sve policijske uprave'),
                               ),
-                              ...state.departments.map(
+                              ...dashboardState.departments.map(
                                 (dept) => DropdownMenuItem(
                                   value: dept,
                                   child: Text(dept),
                                 ),
                               ),
                             ],
-                            onChanged: (dept) async {
-                              setState(() => _isLoading = true);
+                            onChanged: (dept) {
                               ref
-                                  .read(trafficProvider.notifier)
+                                  .read(dashboardProvider.notifier)
                                   .setDepartment(dept);
-                              await ref
-                                  .read(trafficProvider.notifier)
-                                  .loadAccidents();
-                              if (mounted) setState(() => _isLoading = false);
                             },
                           ),
                         ],
@@ -296,16 +279,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           ),
           const SizedBox(height: 8),
           _buildLegendItem(
-              AccidentTypes.markerColor(AccidentTypes.fatalities),
-              AccidentTypes.displayLabel(AccidentTypes.fatalities)),
+            AccidentTypes.markerColor(AccidentTypes.fatalities),
+            AccidentTypes.displayLabel(AccidentTypes.fatalities),
+          ),
           const SizedBox(height: 4),
           _buildLegendItem(
-              AccidentTypes.markerColor(AccidentTypes.injuries),
-              AccidentTypes.displayLabel(AccidentTypes.injuries)),
+            AccidentTypes.markerColor(AccidentTypes.injuries),
+            AccidentTypes.displayLabel(AccidentTypes.injuries),
+          ),
           const SizedBox(height: 4),
           _buildLegendItem(
-              AccidentTypes.markerColor(AccidentTypes.materialDamage),
-              AccidentTypes.displayLabel(AccidentTypes.materialDamage)),
+            AccidentTypes.markerColor(AccidentTypes.materialDamage),
+            AccidentTypes.displayLabel(AccidentTypes.materialDamage),
+          ),
         ],
       ),
     );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:saobracajke/presentation/logic/traffic_provider.dart';
+import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_one_header.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_three_charts.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_two_charts.dart';
@@ -10,7 +10,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(trafficProvider);
+    final state = ref.watch(dashboardProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -56,7 +56,9 @@ class HomeScreen extends ConsumerWidget {
                           }).toList(),
                           onChanged: (year) {
                             if (year != null) {
-                              ref.read(trafficProvider.notifier).setYear(year);
+                              ref
+                                  .read(dashboardProvider.notifier)
+                                  .setYear(year);
                             }
                           },
                         ),
@@ -87,7 +89,7 @@ class HomeScreen extends ConsumerWidget {
                           ],
                           onChanged: (dept) {
                             ref
-                                .read(trafficProvider.notifier)
+                                .read(dashboardProvider.notifier)
                                 .setDepartment(dept);
                           },
                         ),

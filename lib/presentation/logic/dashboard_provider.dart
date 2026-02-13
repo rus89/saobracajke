@@ -3,20 +3,18 @@ import 'package:flutter_riverpod/legacy.dart';
 
 import '../../core/di/repository_providers.dart';
 import '../../domain/accident_types.dart';
-import '../../domain/models/accident_model.dart';
 import '../../domain/repositories/traffic_repository.dart';
 
-class TrafficState {
-  final List<AccidentModel> accidents; // For map/list views only
+/// Dashboard-only state: filters, metadata, and chart aggregates.
+/// Map/list accident list is held by [accidentsProvider].
+class DashboardState {
   final List<String> departments;
   final List<int> availableYears;
   final bool isLoading;
 
-  // Active Filters
   final String? selectedDept;
   final int? selectedYear;
 
-  // Dashboard Aggregates (computed from DB, not from loaded rows)
   final int totalAccidents;
   final int totalAccidentsPrevYear;
   final Map<String, int> accidentTypeCounts;
@@ -24,13 +22,11 @@ class TrafficState {
   final Map<String, int> seasonCounts;
   final Map<String, int> timeOfDayCounts;
   final Map<String, int> weekendCounts;
-  // section 2
   final Map<int, int> monthlyAccidents;
   final Map<String, Map<int, int>> typeMonthlyAccidents;
   final Map<String, int> stationAccidents;
 
-  TrafficState({
-    this.accidents = const [],
+  const DashboardState({
     this.departments = const [],
     this.availableYears = const [],
     this.isLoading = false,
@@ -48,16 +44,13 @@ class TrafficState {
     this.stationAccidents = const {},
   });
 
-  // Computed properties
   int get deltaAccidents => totalAccidents - totalAccidentsPrevYear;
-
   int get fatalitiesCount => accidentTypeCounts[AccidentTypes.fatalities] ?? 0;
   int get injuriesCount => accidentTypeCounts[AccidentTypes.injuries] ?? 0;
   int get materialDamageCount =>
       accidentTypeCounts[AccidentTypes.materialDamage] ?? 0;
 
-  TrafficState copyWith({
-    List<AccidentModel>? accidents,
+  DashboardState copyWith({
     List<String>? departments,
     List<int>? availableYears,
     bool? isLoading,
@@ -74,8 +67,7 @@ class TrafficState {
     Map<String, Map<int, int>>? typeMonthlyAccidents,
     Map<String, int>? stationAccidents,
   }) {
-    return TrafficState(
-      accidents: accidents ?? this.accidents,
+    return DashboardState(
       departments: departments ?? this.departments,
       availableYears: availableYears ?? this.availableYears,
       isLoading: isLoading ?? this.isLoading,
@@ -100,53 +92,41 @@ class TrafficState {
   }
 }
 
-//-------------------------------------------------------------------------------
-class TrafficNotifier extends StateNotifier<TrafficState> {
+/// Manages dashboard filters and aggregates only. Does not load accident list;
+/// [accidentsProvider] reacts to filter changes and loads map/list data.
+class DashboardNotifier extends StateNotifier<DashboardState> {
   final TrafficRepository _repo;
 
-  TrafficNotifier(TrafficRepository repo)
+  DashboardNotifier(TrafficRepository repo)
     : _repo = repo,
-      super(TrafficState()) {
+      super(const DashboardState()) {
     _initialize();
   }
 
-  //----------------------------------------------------------------------------
   Future<void> _initialize() async {
     state = state.copyWith(isLoading: true);
-
     try {
-      // Load metadata
       final depts = await _repo.getDepartments();
       final years = await _repo.getAvailableYears();
-
-      // Set default year to most recent
       final defaultYear = years.isNotEmpty ? years.first : DateTime.now().year;
-
       state = state.copyWith(
         departments: depts,
         availableYears: years,
         selectedYear: defaultYear,
       );
-
-      // Load dashboard data for default year
       await _loadDashboardData();
-
       state = state.copyWith(isLoading: false);
     } catch (e) {
-      debugPrint("Error initializing: $e");
+      debugPrint('Error initializing dashboard: $e');
       state = state.copyWith(isLoading: false);
     }
   }
 
-  //----------------------------------------------------------------------------
   Future<void> _loadDashboardData() async {
     if (state.selectedYear == null) return;
-
     final year = state.selectedYear!;
     final dept = state.selectedDept;
-
     try {
-      // Load all aggregates in parallel
       final results = await Future.wait([
         _repo.getTotalAccidentsForYear(year, department: dept),
         _repo.getTotalAccidentsForYear(year - 1, department: dept),
@@ -161,7 +141,6 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
             ? _repo.getAccidentsByStationForDepartment(year, dept)
             : Future.value(<String, int>{}),
       ]);
-
       state = state.copyWith(
         totalAccidents: results[0] as int,
         totalAccidentsPrevYear: results[1] as int,
@@ -175,46 +154,22 @@ class TrafficNotifier extends StateNotifier<TrafficState> {
         stationAccidents: results[9] as Map<String, int>,
       );
     } catch (e) {
-      debugPrint("Error loading dashboard data: $e");
+      debugPrint('Error loading dashboard data: $e');
     }
   }
 
-  //----------------------------------------------------------------------------
   void setYear(int year) {
     state = state.copyWith(selectedYear: year);
     _loadDashboardData();
   }
 
-  //----------------------------------------------------------------------------
   void setDepartment(String? dept) {
     state = state.copyWith(selectedDept: dept);
     _loadDashboardData();
   }
-
-  // For map/list views later
-  Future<void> loadAccidents() async {
-    try {
-      DateTime? start;
-      DateTime? end;
-      if (state.selectedYear != null) {
-        start = DateTime(state.selectedYear!, 1, 1);
-        end = DateTime(state.selectedYear!, 12, 31, 23, 59, 59);
-      }
-
-      final results = await _repo.getAccidents(
-        department: state.selectedDept,
-        startDate: start,
-        endDate: end,
-      );
-      state = state.copyWith(accidents: results);
-    } catch (e) {
-      debugPrint("Error loading accidents: $e");
-    }
-  }
 }
 
-final trafficProvider = StateNotifierProvider<TrafficNotifier, TrafficState>((
-  ref,
-) {
-  return TrafficNotifier(ref.read(repositoryProvider));
-});
+final dashboardProvider =
+    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
+      return DashboardNotifier(ref.read(repositoryProvider));
+    });

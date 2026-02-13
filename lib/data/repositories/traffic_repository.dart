@@ -1,20 +1,28 @@
 import 'package:sqflite/sqflite.dart';
+
 import '../../core/services/database_service.dart';
 import '../../domain/models/accident_model.dart';
 
 class TrafficRepository {
+  final Future<Database> Function()? _databaseProvider;
   final DatabaseService _dbService = DatabaseService();
+
+  TrafficRepository({Future<Database> Function()? databaseProvider})
+    : _databaseProvider = databaseProvider;
+
+  Future<Database> get _db async =>
+      _databaseProvider != null ? _databaseProvider() : _dbService.database;
 
   // Fetch unique filter options for Dropdowns
   Future<List<String>> getDepartments() async {
-    final db = await _dbService.database;
+    final db = await _db;
     final res = await db.query('departments', orderBy: 'name ASC');
     return res.map((e) => e['name'] as String).toList();
   }
 
   // Get available years
   Future<List<int>> getAvailableYears() async {
-    final db = await _dbService.database;
+    final db = await _db;
     final res = await db.rawQuery(
       "SELECT DISTINCT strftime('%Y', date_and_time) as year FROM accidents ORDER BY year DESC",
     );
@@ -23,7 +31,7 @@ class TrafficRepository {
 
   // AGGREGATE: Get total accidents for a year (with optional department filter)
   Future<int> getTotalAccidentsForYear(int year, {String? department}) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
     List<dynamic> args = [year.toString()];
@@ -50,7 +58,7 @@ class TrafficRepository {
     int year, {
     String? department,
   }) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
     List<dynamic> args = [year.toString()];
@@ -82,7 +90,7 @@ class TrafficRepository {
     int year, {
     String? department,
   }) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
     List<dynamic> args = [year.toString()];
@@ -115,7 +123,7 @@ class TrafficRepository {
     int year, {
     String? department,
   }) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
     List<dynamic> args = [year.toString()];
@@ -155,7 +163,7 @@ class TrafficRepository {
     int year, {
     String? department,
   }) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
     List<dynamic> args = [year.toString()];
@@ -197,7 +205,7 @@ class TrafficRepository {
     int year, {
     String? department,
   }) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
     List<dynamic> args = [year.toString()];
@@ -240,7 +248,7 @@ class TrafficRepository {
     String? station,
     String? keyword,
   }) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "1=1";
     List<dynamic> args = [];
@@ -297,7 +305,7 @@ class TrafficRepository {
     int year, {
     String? department,
   }) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
     List<dynamic> args = [year.toString()];
@@ -340,7 +348,7 @@ class TrafficRepository {
     int year, {
     String? department,
   }) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
     List<dynamic> args = [year.toString()];
@@ -395,7 +403,7 @@ class TrafficRepository {
     int year,
     String department,
   ) async {
-    final db = await _dbService.database;
+    final db = await _db;
 
     final sql = '''
     SELECT s.name, COUNT(*) as cnt

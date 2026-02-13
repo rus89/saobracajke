@@ -1,5 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
+import 'package:saobracajke/core/theme/app_spacing.dart';
+import 'package:saobracajke/core/theme/app_theme.dart';
 
 class SectionTwoCharts extends StatelessWidget {
   final Map<int, int> monthlyAccidents;
@@ -15,44 +17,43 @@ class SectionTwoCharts extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // Chart 1: Monthly Accidents
-          _buildMonthlyChart(),
-          const SizedBox(height: 24),
-          // Chart 2: Type per Month
-          _buildTypeMonthlyChart(),
-          const SizedBox(height: 24),
-          // Chart 3: Station Accidents
-          if (stationAccidents.isNotEmpty) _buildStationChart(),
-        ],
+    return Semantics(
+      label:
+          'Charts: monthly accidents, accidents by type per month, top police stations',
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          children: [
+            _buildMonthlyChart(context),
+            const SizedBox(height: AppSpacing.xxl),
+            _buildTypeMonthlyChart(context),
+            const SizedBox(height: AppSpacing.xxl),
+            if (stationAccidents.isNotEmpty) _buildStationChart(context),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildMonthlyChart() {
+  Widget _buildMonthlyChart(BuildContext context) {
+    final theme = Theme.of(context);
     final spots = <FlSpot>[];
     for (int i = 1; i <= 12; i++) {
       spots.add(FlSpot(i.toDouble(), (monthlyAccidents[i] ?? 0).toDouble()));
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Nesreće po mesecima',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 16),
+          Text('Nesreće po mesecima', style: theme.textTheme.titleMedium),
+          const SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 300,
             child: LineChart(
@@ -89,11 +90,11 @@ class SectionTwoCharts extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
                               months[value.toInt() - 1],
-                              style: const TextStyle(fontSize: 12),
+                              style: theme.textTheme.bodySmall,
                             ),
                           );
                         }
-                        return const Text('');
+                        return const SizedBox.shrink();
                       },
                     ),
                   ),
@@ -104,7 +105,7 @@ class SectionTwoCharts extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(fontSize: 12),
+                          style: theme.textTheme.bodySmall,
                         );
                       },
                     ),
@@ -112,28 +113,28 @@ class SectionTwoCharts extends StatelessWidget {
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: theme.colorScheme.outline),
                 ),
                 lineBarsData: [
                   LineChartBarData(
                     spots: spots,
                     isCurved: true,
-                    color: Colors.blue.shade600,
+                    color: theme.colorScheme.primary,
                     barWidth: 3,
                     dotData: FlDotData(
                       show: true,
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
                           radius: 4,
-                          color: Colors.blue.shade600,
+                          color: theme.colorScheme.primary,
                           strokeWidth: 2,
-                          strokeColor: Colors.white,
+                          strokeColor: theme.colorScheme.surface,
                         );
                       },
                     ),
                     belowBarData: BarAreaData(
                       show: true,
-                      color: Colors.blue.shade600.withAlpha(25),
+                      color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     ),
                   ),
                 ],
@@ -145,11 +146,12 @@ class SectionTwoCharts extends StatelessWidget {
     );
   }
 
-  Widget _buildTypeMonthlyChart() {
+  Widget _buildTypeMonthlyChart(BuildContext context) {
+    final theme = Theme.of(context);
     final colors = [
-      Colors.red.shade600,
+      theme.colorScheme.error,
       Colors.orange.shade600,
-      Colors.green.shade600,
+      AppTheme.primaryGreen,
     ];
 
     int colorIndex = 0;
@@ -160,21 +162,21 @@ class SectionTwoCharts extends StatelessWidget {
       for (int i = 1; i <= 12; i++) {
         spots.add(FlSpot(i.toDouble(), (monthData[i] ?? 0).toDouble()));
       }
-
+      final color = colors[colorIndex % colors.length];
       lines.add(
         LineChartBarData(
           spots: spots,
           isCurved: true,
-          color: colors[colorIndex % colors.length],
+          color: color,
           barWidth: 3,
           dotData: FlDotData(
             show: true,
             getDotPainter: (spot, percent, barData, index) {
               return FlDotCirclePainter(
                 radius: 3,
-                color: colors[colorIndex % colors.length],
+                color: color,
                 strokeWidth: 1,
-                strokeColor: Colors.white,
+                strokeColor: theme.colorScheme.surface,
               );
             },
           ),
@@ -184,20 +186,20 @@ class SectionTwoCharts extends StatelessWidget {
     });
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Nesreće po tipu po mesecima',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 300,
             child: LineChart(
@@ -234,11 +236,11 @@ class SectionTwoCharts extends StatelessWidget {
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
                               months[value.toInt() - 1],
-                              style: const TextStyle(fontSize: 12),
+                              style: theme.textTheme.bodySmall,
                             ),
                           );
                         }
-                        return const Text('');
+                        return const SizedBox.shrink();
                       },
                     ),
                   ),
@@ -249,7 +251,7 @@ class SectionTwoCharts extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(fontSize: 12),
+                          style: theme.textTheme.bodySmall,
                         );
                       },
                     ),
@@ -257,15 +259,15 @@ class SectionTwoCharts extends StatelessWidget {
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: theme.colorScheme.outline),
                 ),
                 lineBarsData: lines,
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           Wrap(
-            spacing: 16,
+            spacing: AppSpacing.lg,
             children: typeMonthlyAccidents.keys.toList().asMap().entries.map((
               entry,
             ) {
@@ -280,8 +282,8 @@ class SectionTwoCharts extends StatelessWidget {
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Text(entry.value, style: const TextStyle(fontSize: 13)),
+                  const SizedBox(width: AppSpacing.sm),
+                  Text(entry.value, style: theme.textTheme.bodyMedium),
                 ],
               );
             }).toList(),
@@ -291,28 +293,27 @@ class SectionTwoCharts extends StatelessWidget {
     );
   }
 
-  Widget _buildStationChart() {
+  Widget _buildStationChart(BuildContext context) {
+    final theme = Theme.of(context);
     final sortedStations = stationAccidents.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-
-    // Take top 10
     final topStations = sortedStations.take(10).toList();
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Top 10 policijskih stanica po broju nesreća',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.lg),
           SizedBox(
             height: 400,
             child: BarChart(
@@ -338,14 +339,14 @@ class SectionTwoCharts extends StatelessWidget {
                               quarterTurns: -1,
                               child: Text(
                                 topStations[index].key,
-                                style: const TextStyle(fontSize: 11),
+                                style: theme.textTheme.bodySmall,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
                             ),
                           );
                         }
-                        return const Text('');
+                        return const SizedBox.shrink();
                       },
                     ),
                   ),
@@ -356,7 +357,7 @@ class SectionTwoCharts extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: const TextStyle(fontSize: 12),
+                          style: theme.textTheme.bodySmall,
                         );
                       },
                     ),
@@ -364,7 +365,7 @@ class SectionTwoCharts extends StatelessWidget {
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(color: Colors.grey.shade300),
+                  border: Border.all(color: theme.colorScheme.outline),
                 ),
                 barGroups: topStations.asMap().entries.map((entry) {
                   return BarChartGroupData(

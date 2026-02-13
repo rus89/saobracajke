@@ -22,26 +22,29 @@ class _MainScaffoldState extends State<MainScaffold> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        // Keeps state alive when switching tabs
-        index: _currentIndex,
-        children: _screens,
+      body: Semantics(
+        label: _currentIndex == 0 ? 'Pregled tab content' : 'Mapa tab content',
+        child: IndexedStack(
+          index: _currentIndex,
+          children: _screens,
+        ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        selectedItemColor: Colors.green.shade700,
-        unselectedItemColor: Colors.grey,
-        onTap: (index) => setState(() => _currentIndex = index),
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard_outlined),
-            label: "Pregled",
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.map_outlined),
-            label: "Mapa",
-          ),
-        ],
+      bottomNavigationBar: Semantics(
+        label: 'Main navigation. Tab ${_currentIndex + 1} of 2 selected.',
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: (index) => setState(() => _currentIndex = index),
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.dashboard_outlined),
+              label: 'Pregled',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.map_outlined),
+              label: 'Mapa',
+            ),
+          ],
+        ),
       ),
     );
   }

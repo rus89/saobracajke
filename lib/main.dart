@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:saobracajke/core/services/database_service.dart';
+import 'package:saobracajke/core/theme/app_theme.dart';
 import 'package:saobracajke/presentation/ui/main_scaffold.dart';
 
 void main() {
@@ -12,9 +13,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: const SplashScreen(),
-    );
+    return MaterialApp(theme: AppTheme.light, home: const SplashScreen());
   }
 }
 
@@ -62,15 +61,19 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: Center(
-        child: _isLoading
-            ? const _LoadingContent()
-            : _ErrorContent(
-                message: _errorMessage ?? 'An error occurred.',
-                onRetry: _bootstrapApp,
-              ),
+      backgroundColor: theme.colorScheme.surface,
+      body: Semantics(
+        label: _isLoading ? 'App is loading' : 'Database setup failed',
+        child: Center(
+          child: _isLoading
+              ? const _LoadingContent()
+              : _ErrorContent(
+                  message: _errorMessage ?? 'An error occurred.',
+                  onRetry: _bootstrapApp,
+                ),
+        ),
       ),
     );
   }
@@ -81,16 +84,22 @@ class _LoadingContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        CircularProgressIndicator(color: Colors.green),
-        SizedBox(height: 20),
-        Text(
-          'Setting up database...',
-          style: TextStyle(color: Colors.green),
-        ),
-      ],
+    final theme = Theme.of(context);
+    return Semantics(
+      label: 'Setting up database',
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          CircularProgressIndicator(color: theme.colorScheme.primary),
+          const SizedBox(height: 20),
+          Text(
+            'Setting up database...',
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -103,39 +112,43 @@ class _ErrorContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.error_outline, size: 64, color: Colors.red.shade700),
-          const SizedBox(height: 24),
-          Text(
-            'Database setup failed',
-            style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey.shade800,
+    final theme = Theme.of(context);
+    return Semantics(
+      label: 'Database setup failed. $message',
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
+            const SizedBox(height: 24),
+            Text(
+              'Database setup failed',
+              style: theme.textTheme.headlineMedium?.copyWith(
+                color: theme.colorScheme.onSurface,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            style: TextStyle(color: Colors.grey.shade700),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 32),
-          FilledButton.icon(
-            onPressed: onRetry,
-            icon: const Icon(Icons.refresh),
-            label: const Text('Try again'),
-            style: FilledButton.styleFrom(
-              backgroundColor: Colors.green.shade700,
-              foregroundColor: Colors.white,
+            const SizedBox(height: 12),
+            Text(
+              message,
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              textAlign: TextAlign.center,
             ),
-          ),
-        ],
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: onRetry,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Try again'),
+              style: FilledButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary,
+                foregroundColor: theme.colorScheme.onPrimary,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

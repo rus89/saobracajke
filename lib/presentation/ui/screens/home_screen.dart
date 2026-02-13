@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_one_header.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_three_charts.dart';
@@ -12,59 +13,63 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(dashboardProvider);
+    final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Saobraćajne Nezgode - Pregled'),
-        elevation: 0,
-      ),
+      appBar: AppBar(title: const Text('Saobraćajne Nezgode - Pregled')),
       body: state.isLoading
-          ? const Center(child: CircularProgressIndicator())
+          ? Semantics(
+              label: 'Loading dashboard data',
+              child: Center(
+                child: CircularProgressIndicator(
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+            )
           : SingleChildScrollView(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Year & Department Filter
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade50,
-                      border: Border(
-                        bottom: BorderSide(
-                          color: Colors.grey.shade200,
-                          width: 1,
+                  Semantics(
+                    label: 'Filter by year and police department',
+                    child: Container(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      decoration: BoxDecoration(
+                        color: theme.colorScheme.surfaceContainerHighest,
+                        border: Border(
+                          bottom: BorderSide(
+                            color: theme.colorScheme.outlineVariant,
+                            width: 1,
+                          ),
                         ),
                       ),
-                    ),
-                    child: YearDepartmentFilter(
-                      selectedYear: state.selectedYear,
-                      availableYears: state.availableYears,
-                      selectedDept: state.selectedDept,
-                      departments: state.departments,
-                      onYearChanged: (year) {
-                        if (year != null) {
-                          ref.read(dashboardProvider.notifier).setYear(year);
-                        }
-                      },
-                      onDepartmentChanged: (dept) {
-                        ref
-                            .read(dashboardProvider.notifier)
-                            .setDepartment(dept);
-                      },
-                    ),
-                  ),
-                  // Section 1: Key Metrics
-                  Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: Text(
-                      'Sekcija 1: Ključni pokazatelji',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
+                      child: YearDepartmentFilter(
+                        selectedYear: state.selectedYear,
+                        availableYears: state.availableYears,
+                        selectedDept: state.selectedDept,
+                        departments: state.departments,
+                        onYearChanged: (year) {
+                          if (year != null) {
+                            ref.read(dashboardProvider.notifier).setYear(year);
+                          }
+                        },
+                        onDepartmentChanged: (dept) {
+                          ref
+                              .read(dashboardProvider.notifier)
+                              .setDepartment(dept);
+                        },
                       ),
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.only(top: AppSpacing.lg),
+                    child: Text(
+                      'Sekcija 1: Ključni pokazatelji',
+                      style: theme.textTheme.titleLarge,
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     child: SectionOneHeader(
                       totalAccidents: state.totalAccidents,
                       delta: state.deltaAccidents,
@@ -76,19 +81,15 @@ class HomeScreen extends ConsumerWidget {
                       materialDamageAccidentsDelta: 0,
                     ),
                   ),
-                  // Placeholder for Section 2
                   Padding(
-                    padding: const EdgeInsets.only(top: 16),
+                    padding: const EdgeInsets.only(top: AppSpacing.lg),
                     child: Text(
                       'Sekcija 2: Trendovi i Analize',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: theme.textTheme.titleLarge,
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     child: SectionTwoCharts(
                       monthlyAccidents: state.monthlyAccidents,
                       typeMonthlyAccidents: state.typeMonthlyAccidents,
@@ -96,25 +97,22 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: 16),
+                    padding: const EdgeInsets.only(top: AppSpacing.lg),
                     child: Text(
                       'Sekcija 3: Vremenska Distribucija',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                      ),
+                      style: theme.textTheme.titleLarge,
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(AppSpacing.lg),
                     child: SectionThreeTemporal(
                       seasonCounts: state.seasonCounts,
                       weekendCounts: state.weekendCounts,
                       timeOfDayCounts: state.timeOfDayCounts,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.xl),
+                  const SizedBox(height: AppSpacing.xl),
                 ],
               ),
             ),

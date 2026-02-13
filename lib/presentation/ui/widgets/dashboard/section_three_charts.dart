@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:saobracajke/core/theme/app_spacing.dart';
+import 'package:saobracajke/core/theme/app_theme.dart';
 
 class SectionThreeTemporal extends StatelessWidget {
   final Map<String, int> seasonCounts;
@@ -15,29 +17,30 @@ class SectionThreeTemporal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        children: [
-          // Chart 1: Seasons
-          _buildSeasonChart(),
-          const SizedBox(height: 24),
-          // Chart 2: Weekend vs Weekday
-          _buildWeekendChart(),
-          const SizedBox(height: 24),
-          // Chart 3: Time of Day
-          _buildTimeOfDayChart(),
-        ],
+    return Semantics(
+      label: 'Temporal distribution: by season, weekday vs weekend, time of day',
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          children: [
+            _buildSeasonChart(context),
+            const SizedBox(height: AppSpacing.xxl),
+            _buildWeekendChart(context),
+            const SizedBox(height: AppSpacing.xxl),
+            _buildTimeOfDayChart(context),
+          ],
+        ),
       ),
     );
   }
 
-  Widget _buildSeasonChart() {
+  Widget _buildSeasonChart(BuildContext context) {
+    final theme = Theme.of(context);
     final colors = [
-      Colors.green.shade400, // Proljeće (Spring)
-      Colors.orange.shade400, // Ljeto (Summer)
-      Colors.brown.shade400, // Jesen (Autumn)
-      Colors.blue.shade400, // Zima (Winter)
+      AppTheme.primaryGreen.withValues(alpha: 0.8),
+      Colors.orange.shade400,
+      Colors.brown.shade400,
+      Colors.blue.shade400,
     ];
 
     final total = seasonCounts.values.fold(0, (sum, val) => sum + val);
@@ -54,31 +57,30 @@ class SectionThreeTemporal extends StatelessWidget {
           value: count.toDouble(),
           title: '$percentage%',
           radius: 100,
-          titleStyle: const TextStyle(
-            fontSize: 14,
+          titleStyle: theme.textTheme.titleSmall?.copyWith(
+            color: theme.colorScheme.surface,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          ) ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       );
       colorIndex++;
     });
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Nesreće po godišnjim dobima',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xxl),
           SizedBox(
             height: 250,
             child: Row(
@@ -116,23 +118,21 @@ class SectionThreeTemporal extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(3),
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: AppSpacing.sm),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       season,
-                                      style: const TextStyle(
-                                        fontSize: 13,
+                                      style: theme.textTheme.bodyMedium?.copyWith(
                                         fontWeight: FontWeight.w600,
                                       ),
                                     ),
                                     Text(
                                       '$count nesreća',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.grey.shade600,
+                                      style: theme.textTheme.bodySmall?.copyWith(
+                                        color: theme.colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                   ],
@@ -153,10 +153,11 @@ class SectionThreeTemporal extends StatelessWidget {
     );
   }
 
-  Widget _buildWeekendChart() {
+  Widget _buildWeekendChart(BuildContext context) {
+    final theme = Theme.of(context);
     final colors = [
-      Colors.blue.shade500, // Radni dan (Weekday)
-      Colors.purple.shade400, // Vikend (Weekend)
+      Colors.blue.shade500,
+      Colors.purple.shade400,
     ];
 
     final total = weekendCounts.values.fold(0, (sum, val) => sum + val);
@@ -177,11 +178,10 @@ class SectionThreeTemporal extends StatelessWidget {
             value: count.toDouble(),
             title: '$percentage%',
             radius: 100,
-            titleStyle: const TextStyle(
-              fontSize: 14,
+            titleStyle: theme.textTheme.titleSmall?.copyWith(
+              color: theme.colorScheme.surface,
               fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
+            ) ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
           ),
         );
       }
@@ -189,20 +189,20 @@ class SectionThreeTemporal extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Nesreće: Radni dani vs Vikend',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xxl),
           SizedBox(
             height: 250,
             child: Row(
@@ -239,23 +239,21 @@ class SectionThreeTemporal extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(3),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.sm),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
                                     key,
-                                    style: const TextStyle(
-                                      fontSize: 13,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   Text(
                                     '$count nesreća',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Colors.grey.shade600,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
                                 ],
@@ -275,12 +273,13 @@ class SectionThreeTemporal extends StatelessWidget {
     );
   }
 
-  Widget _buildTimeOfDayChart() {
+  Widget _buildTimeOfDayChart(BuildContext context) {
+    final theme = Theme.of(context);
     final colors = [
-      Colors.indigo.shade900, // Noć (Night)
-      Colors.amber.shade400, // Jutro (Morning)
-      Colors.orange.shade500, // Popodne (Afternoon)
-      Colors.deepPurple.shade400, // Veče (Evening)
+      Colors.indigo.shade900,
+      Colors.amber.shade400,
+      Colors.orange.shade500,
+      Colors.deepPurple.shade400,
     ];
 
     final total = timeOfDayCounts.values.fold(0, (sum, val) => sum + val);
@@ -297,31 +296,30 @@ class SectionThreeTemporal extends StatelessWidget {
           value: count.toDouble(),
           title: '$percentage%',
           radius: 100,
-          titleStyle: const TextStyle(
-            fontSize: 14,
+          titleStyle: theme.textTheme.titleSmall?.copyWith(
+            color: theme.colorScheme.surface,
             fontWeight: FontWeight.bold,
-            color: Colors.white,
-          ),
+          ) ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
         ),
       );
       colorIndex++;
     });
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade200),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
+          Text(
             'Nesreće po delu dana',
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            style: theme.textTheme.titleMedium,
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.xxl),
           SizedBox(
             height: 250,
             child: Row(
@@ -362,24 +360,21 @@ class SectionThreeTemporal extends StatelessWidget {
                                     borderRadius: BorderRadius.circular(3),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: AppSpacing.sm),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         timeOfDay,
-                                        style: const TextStyle(
-                                          fontSize: 13,
+                                        style: theme.textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.w600,
                                         ),
                                       ),
                                       Text(
                                         '$count nesreća',
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          color: Colors.grey.shade600,
+                                        style: theme.textTheme.bodySmall?.copyWith(
+                                          color: theme.colorScheme.onSurfaceVariant,
                                         ),
                                       ),
                                     ],

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:saobracajke/core/theme/app_spacing.dart';
 
 /// Reusable year and department filter used by [HomeScreen] and [MapScreen].
 /// Drives the same dashboard filter state via callbacks.
+/// Uses theme and minimum touch targets for accessibility.
 class YearDepartmentFilter extends StatelessWidget {
   const YearDepartmentFilter({
     super.key,
@@ -26,56 +28,70 @@ class YearDepartmentFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final spacing = compact ? 8.0 : 12.0;
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        DropdownButtonFormField<int>(
-          initialValue: selectedYear,
-          decoration: InputDecoration(
-            labelText: 'Izaberite godinu',
-            prefixIcon: const Icon(Icons.calendar_today),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(compact ? 4 : 8),
+    final theme = Theme.of(context);
+    final spacing = compact ? AppSpacing.sm : AppSpacing.md;
+    return Semantics(
+      label: 'Filter by year and police department',
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          DropdownButtonFormField<int>(
+            value: selectedYear,
+            decoration: InputDecoration(
+              labelText: 'Izaberite godinu',
+              prefixIcon: const Icon(Icons.calendar_today),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(compact ? 4 : 8),
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surface,
+              isDense: compact,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: compact ? AppSpacing.sm : AppSpacing.md,
+              ),
             ),
-            filled: !compact,
-            fillColor: compact ? null : Colors.white,
-            isDense: compact,
+            items: availableYears
+                .map(
+                  (year) => DropdownMenuItem(
+                    value: year,
+                    child: Text(year.toString()),
+                  ),
+                )
+                .toList(),
+            onChanged: onYearChanged,
           ),
-          items: availableYears
-              .map(
-                (year) =>
-                    DropdownMenuItem(value: year, child: Text(year.toString())),
-              )
-              .toList(),
-          onChanged: onYearChanged,
-        ),
-        SizedBox(height: spacing),
-        DropdownButtonFormField<String?>(
-          initialValue: selectedDept,
-          decoration: InputDecoration(
-            labelText: 'Izaberite policijsku upravu',
-            prefixIcon: const Icon(Icons.location_city),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(compact ? 4 : 8),
+          SizedBox(height: spacing),
+          DropdownButtonFormField<String?>(
+            value: selectedDept,
+            decoration: InputDecoration(
+              labelText: 'Izaberite policijsku upravu',
+              prefixIcon: const Icon(Icons.location_city),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(compact ? 4 : 8),
+              ),
+              filled: true,
+              fillColor: theme.colorScheme.surface,
+              isDense: compact,
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: compact ? AppSpacing.sm : AppSpacing.md,
+              ),
             ),
-            filled: !compact,
-            fillColor: compact ? null : Colors.white,
-            isDense: compact,
+            items: [
+              const DropdownMenuItem<String?>(
+                value: null,
+                child: Text('Sve policijske uprave'),
+              ),
+              ...departments.map(
+                (dept) =>
+                    DropdownMenuItem<String?>(value: dept, child: Text(dept)),
+              ),
+            ],
+            onChanged: onDepartmentChanged,
           ),
-          items: [
-            const DropdownMenuItem<String?>(
-              value: null,
-              child: Text('Sve policijske uprave'),
-            ),
-            ...departments.map(
-              (dept) =>
-                  DropdownMenuItem<String?>(value: dept, child: Text(dept)),
-            ),
-          ],
-          onChanged: onDepartmentChanged,
-        ),
-      ],
+        ],
+      ),
     );
   }
 }

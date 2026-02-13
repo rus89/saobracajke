@@ -49,7 +49,7 @@ void main() {
         expect(model.officialDesc, isNull);
       });
 
-      test('throws on invalid date format', () {
+      test('uses fallback date when date is invalid (no throw)', () {
         final map = {
           'accident_id': 'A1',
           'dept_name': 'D',
@@ -60,10 +60,11 @@ void main() {
           'longitude': 0.0,
           'participants': '',
         };
-        expect(() => AccidentModel.fromSql(map), throwsFormatException);
+        final model = AccidentModel.fromSql(map);
+        expect(model.date, DateTime.utc(1970, 1, 1));
       });
 
-      test('throws when latitude is int (SQLite may return int for numeric columns)', () {
+      test('coerces int latitude/longitude from SQLite to double', () {
         final map = {
           'accident_id': 'A1',
           'dept_name': 'D',
@@ -71,10 +72,27 @@ void main() {
           'type_name': 'T',
           'date_and_time': '2023-01-01 00:00:00',
           'latitude': 44,
+          'longitude': 20,
+          'participants': '',
+        };
+        final model = AccidentModel.fromSql(map);
+        expect(model.lat, 44.0);
+        expect(model.lng, 20.0);
+      });
+
+      test('normalizes type to canonical key (e.g. injuries variant)', () {
+        final map = {
+          'accident_id': 'A1',
+          'dept_name': 'D',
+          'station_name': 'S',
+          'type_name': 'Sa povređenim',
+          'date_and_time': '2023-01-01 00:00:00',
+          'latitude': 44.0,
           'longitude': 20.0,
           'participants': '',
         };
-        expect(() => AccidentModel.fromSql(map), throwsA(isA<TypeError>()));
+        final model = AccidentModel.fromSql(map);
+        expect(model.type, 'Sa povredjenim');
       });
     });
   });

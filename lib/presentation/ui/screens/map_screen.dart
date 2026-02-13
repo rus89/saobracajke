@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/presentation/logic/traffic_provider.dart';
 
@@ -33,15 +34,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   //----------------------------------------------------------------------------
-  Color _getMarkerColor(String type) {
-    if (type.contains('poginulim')) {
-      return Colors.red;
-    } else if (type.contains('povredjenim')) {
-      return Colors.orange;
-    } else {
-      return Colors.green;
-    }
-  }
+  Color _getMarkerColor(String type) => AccidentTypes.markerColor(type);
 
   //----------------------------------------------------------------------------
   Widget _buildMarker(String type, int count) {
@@ -302,11 +295,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
-          _buildLegendItem(Colors.red, 'Sa poginulim'),
+          _buildLegendItem(
+              AccidentTypes.markerColor(AccidentTypes.fatalities),
+              AccidentTypes.displayLabel(AccidentTypes.fatalities)),
           const SizedBox(height: 4),
-          _buildLegendItem(Colors.orange, 'Sa povređenim'),
+          _buildLegendItem(
+              AccidentTypes.markerColor(AccidentTypes.injuries),
+              AccidentTypes.displayLabel(AccidentTypes.injuries)),
           const SizedBox(height: 4),
-          _buildLegendItem(Colors.green, 'Materijalna šteta'),
+          _buildLegendItem(
+              AccidentTypes.markerColor(AccidentTypes.materialDamage),
+              AccidentTypes.displayLabel(AccidentTypes.materialDamage)),
         ],
       ),
     );

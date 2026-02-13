@@ -1,6 +1,7 @@
 import 'package:sqflite/sqflite.dart';
 
 import '../../core/services/database_service.dart';
+import '../../domain/accident_types.dart';
 import '../../domain/models/accident_model.dart';
 
 class TrafficRepository {
@@ -80,9 +81,10 @@ class TrafficRepository {
     ''';
 
     final result = await db.rawQuery(sql, args);
-    return Map.fromEntries(
+    final raw = Map.fromEntries(
       result.map((row) => MapEntry(row['name'] as String, row['cnt'] as int)),
     );
+    return AccidentTypes.normalizeCounts(raw);
   }
 
   // AGGREGATE: Get top 10 cities/stations for a year
@@ -375,24 +377,17 @@ class TrafficRepository {
     final result = await db.rawQuery(sql, args);
     final Map<String, Map<int, int>> typeMonthCounts = {};
 
-    // Initialize all types and months with 0
-    final types = await db.rawQuery(
-      'SELECT DISTINCT name FROM types ORDER BY name',
-    );
-    for (var typeRow in types) {
-      final typeName = typeRow['name'] as String;
-      typeMonthCounts[typeName] = {};
-      for (int i = 1; i <= 12; i++) {
-        typeMonthCounts[typeName]![i] = 0;
-      }
-    }
-
-    // Fill in actual values
     for (var row in result) {
-      final typeName = row['name'] as String;
+      final rawName = row['name'] as String;
+      final canonicalType = AccidentTypes.normalize(rawName);
       final month = row['month'] as int;
       final count = row['cnt'] as int;
-      typeMonthCounts[typeName]?[month] = count;
+      typeMonthCounts.putIfAbsent(
+        canonicalType,
+        () => {for (int i = 1; i <= 12; i++) i: 0},
+      );
+      typeMonthCounts[canonicalType]![month] =
+          (typeMonthCounts[canonicalType]![month] ?? 0) + count;
     }
 
     return typeMonthCounts;

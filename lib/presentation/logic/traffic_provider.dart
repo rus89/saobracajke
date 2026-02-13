@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart';
 import '../../data/repositories/traffic_repository.dart';
+import '../../domain/accident_types.dart';
 import '../../domain/models/accident_model.dart';
 
 class TrafficState {
@@ -49,9 +50,10 @@ class TrafficState {
   // Computed properties
   int get deltaAccidents => totalAccidents - totalAccidentsPrevYear;
 
-  int get fatalitiesCount => accidentTypeCounts['Sa poginulim'] ?? 0;
-  int get injuriesCount => accidentTypeCounts['Sa povredjenim'] ?? 0;
-  int get materialDamageCount => accidentTypeCounts['Sa mat.stetom'] ?? 0;
+  int get fatalitiesCount => accidentTypeCounts[AccidentTypes.fatalities] ?? 0;
+  int get injuriesCount => accidentTypeCounts[AccidentTypes.injuries] ?? 0;
+  int get materialDamageCount =>
+      accidentTypeCounts[AccidentTypes.materialDamage] ?? 0;
 
   TrafficState copyWith({
     List<AccidentModel>? accidents,

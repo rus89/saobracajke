@@ -1,0 +1,6 @@
+# Copy to key.properties and fill in. key.properties is gitignored.
+# See https://docs.flutter.dev/deployment/android#signing-the-app
+storePassword=
+keyPassword=
+keyAlias=
+storeFile=

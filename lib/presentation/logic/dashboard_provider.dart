@@ -18,6 +18,7 @@ class DashboardState {
   final int totalAccidents;
   final int totalAccidentsPrevYear;
   final Map<String, int> accidentTypeCounts;
+  final Map<String, int> accidentTypeCountsPrevYear;
   final Map<String, int> topCities;
   final Map<String, int> seasonCounts;
   final Map<String, int> timeOfDayCounts;
@@ -36,6 +37,7 @@ class DashboardState {
     this.totalAccidents = 0,
     this.totalAccidentsPrevYear = 0,
     this.accidentTypeCounts = const {},
+    this.accidentTypeCountsPrevYear = const {},
     this.topCities = const {},
     this.seasonCounts = const {},
     this.timeOfDayCounts = const {},
@@ -51,6 +53,16 @@ class DashboardState {
   int get materialDamageCount =>
       accidentTypeCounts[AccidentTypes.materialDamage] ?? 0;
 
+  int get _fatalitiesPrev =>
+      accidentTypeCountsPrevYear[AccidentTypes.fatalities] ?? 0;
+  int get _injuriesPrev =>
+      accidentTypeCountsPrevYear[AccidentTypes.injuries] ?? 0;
+  int get _materialDamagePrev =>
+      accidentTypeCountsPrevYear[AccidentTypes.materialDamage] ?? 0;
+  int get fatalitiesDelta => fatalitiesCount - _fatalitiesPrev;
+  int get injuriesDelta => injuriesCount - _injuriesPrev;
+  int get materialDamageDelta => materialDamageCount - _materialDamagePrev;
+
   DashboardState copyWith({
     List<String>? departments,
     List<int>? availableYears,
@@ -61,6 +73,7 @@ class DashboardState {
     int? totalAccidents,
     int? totalAccidentsPrevYear,
     Map<String, int>? accidentTypeCounts,
+    Map<String, int>? accidentTypeCountsPrevYear,
     Map<String, int>? topCities,
     Map<String, int>? seasonCounts,
     Map<String, int>? timeOfDayCounts,
@@ -86,6 +99,8 @@ class DashboardState {
       totalAccidentsPrevYear:
           totalAccidentsPrevYear ?? this.totalAccidentsPrevYear,
       accidentTypeCounts: accidentTypeCounts ?? this.accidentTypeCounts,
+      accidentTypeCountsPrevYear: accidentTypeCountsPrevYear ??
+          this.accidentTypeCountsPrevYear,
       topCities: topCities ?? this.topCities,
       seasonCounts: seasonCounts ?? this.seasonCounts,
       timeOfDayCounts: timeOfDayCounts ?? this.timeOfDayCounts,
@@ -139,6 +154,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         _repo.getTotalAccidentsForYear(year, department: dept),
         _repo.getTotalAccidentsForYear(year - 1, department: dept),
         _repo.getAccidentTypeCountsForYear(year, department: dept),
+        _repo.getAccidentTypeCountsForYear(year - 1, department: dept),
         _repo.getTopCitiesForYear(year, department: dept),
         _repo.getAccidentsBySeasonForYear(year, department: dept),
         _repo.getAccidentsByTimeOfDayForYear(year, department: dept),
@@ -155,13 +171,14 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         totalAccidents: results[0] as int,
         totalAccidentsPrevYear: results[1] as int,
         accidentTypeCounts: results[2] as Map<String, int>,
-        topCities: results[3] as Map<String, int>,
-        seasonCounts: results[4] as Map<String, int>,
-        timeOfDayCounts: results[5] as Map<String, int>,
-        weekendCounts: results[6] as Map<String, int>,
-        monthlyAccidents: results[7] as Map<int, int>,
-        typeMonthlyAccidents: results[8] as Map<String, Map<int, int>>,
-        stationAccidents: results[9] as Map<String, int>,
+        accidentTypeCountsPrevYear: results[3] as Map<String, int>,
+        topCities: results[4] as Map<String, int>,
+        seasonCounts: results[5] as Map<String, int>,
+        timeOfDayCounts: results[6] as Map<String, int>,
+        weekendCounts: results[7] as Map<String, int>,
+        monthlyAccidents: results[8] as Map<int, int>,
+        typeMonthlyAccidents: results[9] as Map<String, Map<int, int>>,
+        stationAccidents: results[10] as Map<String, int>,
       );
     } catch (e) {
       state = state.copyWith(

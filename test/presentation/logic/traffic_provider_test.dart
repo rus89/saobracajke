@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saobracajke/core/di/repository_providers.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
+import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/repositories/traffic_repository.dart';
 import 'package:saobracajke/presentation/logic/accidents_provider.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
@@ -41,6 +42,24 @@ void main() {
       expect(state.fatalitiesCount, 3);
       expect(state.injuriesCount, 7);
       expect(state.materialDamageCount, 5);
+    });
+
+    test('fatalitiesDelta, injuriesDelta, materialDamageDelta are current minus prev year', () {
+      const state = DashboardState(
+        accidentTypeCounts: {
+          AccidentTypes.fatalities: 10,
+          AccidentTypes.injuries: 20,
+          AccidentTypes.materialDamage: 30,
+        },
+        accidentTypeCountsPrevYear: {
+          AccidentTypes.fatalities: 8,
+          AccidentTypes.injuries: 18,
+          AccidentTypes.materialDamage: 25,
+        },
+      );
+      expect(state.fatalitiesDelta, 2);
+      expect(state.injuriesDelta, 2);
+      expect(state.materialDamageDelta, 5);
     });
   });
 
@@ -215,6 +234,20 @@ void main() {
       final state = c.read(dashboardProvider);
       expect(state.errorMessage, isNull);
       expect(state.departments, isNotEmpty);
+    });
+
+    test('after init, YoY deltas for fatalities, injuries, material damage match current minus prev year',
+        () async {
+      final repo = YoYDeltasFakeTrafficRepository();
+      final c = ProviderContainer(
+        overrides: [repositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(c.dispose);
+      await waitForInit(c);
+      final state = c.read(dashboardProvider);
+      expect(state.fatalitiesDelta, 2);
+      expect(state.injuriesDelta, 2);
+      expect(state.materialDamageDelta, 5);
     });
   });
 
@@ -444,5 +477,29 @@ class ThrowingOnceInitFakeTrafficRepository extends FakeTrafficRepository {
     _getDepartmentsCalls++;
     if (_getDepartmentsCalls == 1) throw Exception('First init failed');
     return super.getDepartments();
+  }
+}
+
+class YoYDeltasFakeTrafficRepository extends FakeTrafficRepository {
+  @override
+  Future<Map<String, int>> getAccidentTypeCountsForYear(
+    int year, {
+    String? department,
+  }) async {
+    if (year == 2023) {
+      return {
+        AccidentTypes.fatalities: 10,
+        AccidentTypes.injuries: 20,
+        AccidentTypes.materialDamage: 30,
+      };
+    }
+    if (year == 2022) {
+      return {
+        AccidentTypes.fatalities: 8,
+        AccidentTypes.injuries: 18,
+        AccidentTypes.materialDamage: 25,
+      };
+    }
+    return {};
   }
 }

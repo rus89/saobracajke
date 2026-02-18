@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:saobracajke/core/theme/app_theme.dart';
 
 /// Canonical accident type keys used across the app (charts, map, counts).
 /// Normalizes DB string variance (e.g. "Sa povredjenim" vs "Sa povređenim").
@@ -35,9 +36,9 @@ class AccidentTypes {
   /// Returns marker color for a (possibly raw) type string.
   static Color markerColor(String type) {
     final n = normalize(type);
-    if (n == fatalities) return Colors.red;
-    if (n == injuries) return Colors.orange;
-    return Colors.green;
+    if (n == fatalities) return AppTheme.semanticFatalities;
+    if (n == injuries) return AppTheme.semanticInjuries;
+    return AppTheme.semanticMaterialDamage;
   }
 
   /// Display label for a canonical type key (for legend).

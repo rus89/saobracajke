@@ -22,6 +22,11 @@ class AppTheme {
   static const Color errorContainer = Color(0xFFFFEBEE);
   static const Color onError = Color(0xFFFFFFFF);
 
+  // ---------- Semantic (accident type) colors ----------
+  static const Color semanticFatalities = Color(0xFFC62828);
+  static const Color semanticInjuries = Color(0xFFE65100);
+  static const Color semanticMaterialDamage = Color(0xFF1565C0);
+
   /// Light theme for the app.
   static ThemeData get light {
     const colorScheme = ColorScheme.light(

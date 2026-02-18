@@ -155,9 +155,9 @@ class SectionTwoCharts extends StatelessWidget {
     final narrow = width < 400;
     final chartHeight = narrow ? 220.0 : 300.0;
     final colors = [
-      theme.colorScheme.error,
-      Colors.orange.shade600,
-      AppTheme.primaryGreen,
+      AppTheme.semanticFatalities,
+      AppTheme.semanticInjuries,
+      AppTheme.semanticMaterialDamage,
     ];
 
     int colorIndex = 0;

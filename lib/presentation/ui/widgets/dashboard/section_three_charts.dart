@@ -42,9 +42,9 @@ class SectionThreeTemporal extends StatelessWidget {
     final narrow = MediaQuery.sizeOf(context).width < _narrowBreakpoint;
     final colors = [
       AppTheme.primaryGreen.withValues(alpha: 0.8),
-      Colors.orange.shade400,
-      Colors.brown.shade400,
-      Colors.blue.shade400,
+      AppTheme.semanticInjuries.withValues(alpha: 0.9),
+      AppTheme.semanticFatalities.withValues(alpha: 0.9),
+      AppTheme.semanticMaterialDamage.withValues(alpha: 0.9),
     ];
 
     final total = seasonCounts.values.fold(0, (sum, val) => sum + val);
@@ -239,7 +239,10 @@ class SectionThreeTemporal extends StatelessWidget {
   Widget _buildWeekendChart(BuildContext context) {
     final theme = Theme.of(context);
     final narrow = MediaQuery.sizeOf(context).width < _narrowBreakpoint;
-    final colors = [Colors.blue.shade500, Colors.purple.shade400];
+    final colors = [
+      AppTheme.semanticMaterialDamage,
+      AppTheme.primaryGreen,
+    ];
 
     final total = weekendCounts.values.fold(0, (sum, val) => sum + val);
     if (total == 0) return const SizedBox.shrink();
@@ -428,10 +431,10 @@ class SectionThreeTemporal extends StatelessWidget {
     final theme = Theme.of(context);
     final narrow = MediaQuery.sizeOf(context).width < _narrowBreakpoint;
     final colors = [
-      Colors.indigo.shade900,
-      Colors.amber.shade400,
-      Colors.orange.shade500,
-      Colors.deepPurple.shade400,
+      AppTheme.primaryGreen,
+      AppTheme.semanticInjuries,
+      AppTheme.semanticFatalities,
+      AppTheme.semanticMaterialDamage,
     ];
 
     final total = timeOfDayCounts.values.fold(0, (sum, val) => sum + val);

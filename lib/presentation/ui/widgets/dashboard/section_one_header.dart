@@ -3,6 +3,21 @@ import 'package:intl/intl.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 
+class _MiniStatArgs {
+  final String label;
+  final int count;
+  final int delta;
+  final Color color;
+  final IconData icon;
+  _MiniStatArgs({
+    required this.label,
+    required this.count,
+    required this.delta,
+    required this.color,
+    required this.icon,
+  });
+}
+
 class SectionOneHeader extends StatelessWidget {
   final int totalAccidents;
   final int delta;
@@ -105,7 +120,7 @@ class SectionOneHeader extends StatelessWidget {
                         ),
                         const SizedBox(width: AppSpacing.xs),
                         Text(
-                          'vs prošlu godinu',
+                          'vs prošle godine',
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: trendColor,
                             fontWeight: FontWeight.w500,
@@ -118,41 +133,87 @@ class SectionOneHeader extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.xl),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildMiniStat(
-                    context: context,
+            LayoutBuilder(
+              builder: (context, constraints) {
+                const breakpoint = 600.0;
+                final narrow = constraints.maxWidth < breakpoint;
+                final miniStats = [
+                  _MiniStatArgs(
                     label: 'POVREĐENI',
                     count: injuries,
                     delta: injuriesDelta,
                     color: Colors.orange,
                     icon: Icons.personal_injury,
                   ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: _buildMiniStat(
-                    context: context,
+                  _MiniStatArgs(
                     label: 'POGINULI',
                     count: fatalities,
                     delta: fatalitiesDelta,
                     color: Colors.red,
                     icon: Icons.heart_broken,
                   ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: _buildMiniStat(
-                    context: context,
+                  _MiniStatArgs(
                     label: 'SA MATERIJALNOM ŠTETOM',
                     count: materialDamageAccidents,
                     delta: materialDamageAccidentsDelta,
                     color: Colors.blue,
                     icon: Icons.build,
                   ),
-                ),
-              ],
+                ];
+                if (narrow) {
+                  return Column(
+                    children: [
+                      for (var i = 0; i < miniStats.length; i++) ...[
+                        if (i > 0) const SizedBox(height: AppSpacing.md),
+                        _buildMiniStat(
+                          context: context,
+                          label: miniStats[i].label,
+                          count: miniStats[i].count,
+                          delta: miniStats[i].delta,
+                          color: miniStats[i].color,
+                          icon: miniStats[i].icon,
+                        ),
+                      ],
+                    ],
+                  );
+                }
+                return Row(
+                  children: [
+                    Expanded(
+                      child: _buildMiniStat(
+                        context: context,
+                        label: miniStats[0].label,
+                        count: miniStats[0].count,
+                        delta: miniStats[0].delta,
+                        color: miniStats[0].color,
+                        icon: miniStats[0].icon,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: _buildMiniStat(
+                        context: context,
+                        label: miniStats[1].label,
+                        count: miniStats[1].count,
+                        delta: miniStats[1].delta,
+                        color: miniStats[1].color,
+                        icon: miniStats[1].icon,
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: _buildMiniStat(
+                        context: context,
+                        label: miniStats[2].label,
+                        count: miniStats[2].count,
+                        delta: miniStats[2].delta,
+                        color: miniStats[2].color,
+                        icon: miniStats[2].icon,
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ],
         ),

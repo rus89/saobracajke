@@ -17,7 +17,8 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(title: const Text('Saobraćajne Nezgode - Pregled')),
-      body: state.isLoading
+      body: SafeArea(
+        child: state.isLoading
           ? Semantics(
               label: 'Loading dashboard data',
               child: Center(
@@ -62,7 +63,8 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.lg),
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
                     child: Text(
                       'Sekcija 1: Ključni pokazatelji',
                       style: theme.textTheme.titleLarge,
@@ -82,7 +84,8 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.lg),
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
                     child: Text(
                       'Sekcija 2: Trendovi i Analize',
                       style: theme.textTheme.titleLarge,
@@ -97,7 +100,8 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.only(top: AppSpacing.lg),
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
                     child: Text(
                       'Sekcija 3: Vremenska Distribucija',
                       style: theme.textTheme.titleLarge,
@@ -116,6 +120,7 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
+      ),
     );
   }
 }

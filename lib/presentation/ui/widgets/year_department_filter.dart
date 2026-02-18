@@ -36,6 +36,7 @@ class YearDepartmentFilter extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           DropdownButtonFormField<int>(
+            isExpanded: true,
             initialValue: selectedYear,
             decoration: InputDecoration(
               labelText: 'Izaberite godinu',
@@ -63,6 +64,7 @@ class YearDepartmentFilter extends StatelessWidget {
           ),
           SizedBox(height: spacing),
           DropdownButtonFormField<String?>(
+            isExpanded: true,
             initialValue: selectedDept,
             decoration: InputDecoration(
               labelText: 'Izaberite policijsku upravu',

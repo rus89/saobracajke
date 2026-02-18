@@ -37,6 +37,9 @@ class SectionTwoCharts extends StatelessWidget {
 
   Widget _buildMonthlyChart(BuildContext context) {
     final theme = Theme.of(context);
+    final width = MediaQuery.sizeOf(context).width;
+    final narrow = width < 400;
+    final chartHeight = narrow ? 220.0 : 300.0;
     final spots = <FlSpot>[];
     for (int i = 1; i <= 12; i++) {
       spots.add(FlSpot(i.toDouble(), (monthlyAccidents[i] ?? 0).toDouble()));
@@ -55,7 +58,7 @@ class SectionTwoCharts extends StatelessWidget {
           Text('Nesreće po mesecima', style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
-            height: 300,
+            height: chartHeight,
             child: LineChart(
               LineChartData(
                 gridData: FlGridData(show: true),
@@ -148,6 +151,9 @@ class SectionTwoCharts extends StatelessWidget {
 
   Widget _buildTypeMonthlyChart(BuildContext context) {
     final theme = Theme.of(context);
+    final width = MediaQuery.sizeOf(context).width;
+    final narrow = width < 400;
+    final chartHeight = narrow ? 220.0 : 300.0;
     final colors = [
       theme.colorScheme.error,
       Colors.orange.shade600,
@@ -201,7 +207,7 @@ class SectionTwoCharts extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
-            height: 300,
+            height: chartHeight,
             child: LineChart(
               LineChartData(
                 gridData: FlGridData(show: true),
@@ -295,6 +301,10 @@ class SectionTwoCharts extends StatelessWidget {
 
   Widget _buildStationChart(BuildContext context) {
     final theme = Theme.of(context);
+    final width = MediaQuery.sizeOf(context).width;
+    final narrow = width < 400;
+    final chartHeight = narrow ? 280.0 : 400.0;
+    final bottomReserved = narrow ? 56.0 : 80.0;
     final sortedStations = stationAccidents.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final topStations = sortedStations.take(10).toList();
@@ -315,7 +325,7 @@ class SectionTwoCharts extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           SizedBox(
-            height: 400,
+            height: chartHeight,
             child: BarChart(
               BarChartData(
                 gridData: FlGridData(show: true, drawVerticalLine: false),
@@ -329,7 +339,7 @@ class SectionTwoCharts extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
-                      reservedSize: 80,
+                      reservedSize: bottomReserved,
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
                         if (index >= 0 && index < topStations.length) {

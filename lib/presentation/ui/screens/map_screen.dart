@@ -159,27 +159,35 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 ),
                 Positioned(bottom: 20, left: 20, child: _buildLegend(context)),
                 Positioned(
-                  top: 10,
-                  left: 10,
-                  right: 10,
-                  child: Card(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: SafeArea(
+                    bottom: false,
                     child: Padding(
-                      padding: const EdgeInsets.all(AppSpacing.md),
-                      child: YearDepartmentFilter(
-                        selectedYear: dashboardState.selectedYear,
-                        availableYears: dashboardState.availableYears,
-                        selectedDept: dashboardState.selectedDept,
-                        departments: dashboardState.departments,
-                        compact: true,
-                        onYearChanged: (year) {
-                          if (year == null) return;
-                          ref.read(dashboardProvider.notifier).setYear(year);
-                        },
-                        onDepartmentChanged: (dept) {
-                          ref
-                              .read(dashboardProvider.notifier)
-                              .setDepartment(dept);
-                        },
+                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                      child: Card(
+                        child: Padding(
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          child: YearDepartmentFilter(
+                            selectedYear: dashboardState.selectedYear,
+                            availableYears: dashboardState.availableYears,
+                            selectedDept: dashboardState.selectedDept,
+                            departments: dashboardState.departments,
+                            compact: true,
+                            onYearChanged: (year) {
+                              if (year == null) return;
+                              ref
+                                  .read(dashboardProvider.notifier)
+                                  .setYear(year);
+                            },
+                            onDepartmentChanged: (dept) {
+                              ref
+                                  .read(dashboardProvider.notifier)
+                                  .setDepartment(dept);
+                            },
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -257,16 +265,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              'Legenda',
-              style: theme.textTheme.labelLarge,
-            ),
+            Text('Legenda', style: theme.textTheme.labelLarge),
             const SizedBox(height: AppSpacing.sm),
-            _buildLegendItem(context, AccidentTypes.markerColor(AccidentTypes.fatalities), AccidentTypes.displayLabel(AccidentTypes.fatalities)),
+            _buildLegendItem(
+              context,
+              AccidentTypes.markerColor(AccidentTypes.fatalities),
+              AccidentTypes.displayLabel(AccidentTypes.fatalities),
+            ),
             const SizedBox(height: AppSpacing.xs),
-            _buildLegendItem(context, AccidentTypes.markerColor(AccidentTypes.injuries), AccidentTypes.displayLabel(AccidentTypes.injuries)),
+            _buildLegendItem(
+              context,
+              AccidentTypes.markerColor(AccidentTypes.injuries),
+              AccidentTypes.displayLabel(AccidentTypes.injuries),
+            ),
             const SizedBox(height: AppSpacing.xs),
-            _buildLegendItem(context, AccidentTypes.markerColor(AccidentTypes.materialDamage), AccidentTypes.displayLabel(AccidentTypes.materialDamage)),
+            _buildLegendItem(
+              context,
+              AccidentTypes.markerColor(AccidentTypes.materialDamage),
+              AccidentTypes.displayLabel(AccidentTypes.materialDamage),
+            ),
           ],
         ),
       ),
@@ -328,13 +345,33 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
-                _buildDetailRow(ctx, Icons.calendar_today, 'Datum', '${accident.date.day}.${accident.date.month}.${accident.date.year}'),
+                _buildDetailRow(
+                  ctx,
+                  Icons.calendar_today,
+                  'Datum',
+                  '${accident.date.day}.${accident.date.month}.${accident.date.year}',
+                ),
                 const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(ctx, Icons.access_time, 'Vreme', '${accident.date.hour}:${accident.date.minute.toString().padLeft(2, '0')}'),
+                _buildDetailRow(
+                  ctx,
+                  Icons.access_time,
+                  'Vreme',
+                  '${accident.date.hour}:${accident.date.minute.toString().padLeft(2, '0')}',
+                ),
                 const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(ctx, Icons.location_city, 'Stanica', accident.station),
+                _buildDetailRow(
+                  ctx,
+                  Icons.location_city,
+                  'Stanica',
+                  accident.station,
+                ),
                 const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(ctx, Icons.people, 'Učesnici', accident.participants),
+                _buildDetailRow(
+                  ctx,
+                  Icons.people,
+                  'Učesnici',
+                  accident.participants,
+                ),
                 if (accident.officialDesc != null) ...[
                   const SizedBox(height: AppSpacing.md),
                   const Divider(),
@@ -360,7 +397,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   //----------------------------------------------------------------------------
-  Widget _buildDetailRow(BuildContext context, IconData icon, String label, String value) {
+  Widget _buildDetailRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value,
+  ) {
     final theme = Theme.of(context);
     return Row(
       children: [

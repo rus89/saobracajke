@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
+import 'package:saobracajke/core/theme/app_theme.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_one_header.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_three_charts.dart';
@@ -86,14 +87,7 @@ class HomeScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
-                    child: Text(
-                      'Sekcija 1: Ključni pokazatelji',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ),
+                  _SectionHeader(title: 'Sekcija 1: Ključni pokazatelji'),
                   Padding(
                     padding: const EdgeInsets.all(AppSpacing.lg),
                     child: SectionOneHeader(
@@ -107,14 +101,7 @@ class HomeScreen extends ConsumerWidget {
                       materialDamageAccidentsDelta: state.materialDamageDelta,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
-                    child: Text(
-                      'Sekcija 2: Trendovi i Analize',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ),
+                  _SectionHeader(title: 'Sekcija 2: Trendovi i Analize'),
                   Padding(
                     padding: const EdgeInsets.all(AppSpacing.lg),
                     child: SectionTwoCharts(
@@ -123,14 +110,7 @@ class HomeScreen extends ConsumerWidget {
                       stationAccidents: state.stationAccidents,
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                        AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
-                    child: Text(
-                      'Sekcija 3: Vremenska Distribucija',
-                      style: theme.textTheme.titleLarge,
-                    ),
-                  ),
+                  _SectionHeader(title: 'Sekcija 3: Vremenska Distribucija'),
                   Padding(
                     padding: const EdgeInsets.all(AppSpacing.lg),
                     child: SectionThreeTemporal(
@@ -147,6 +127,48 @@ class HomeScreen extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  const _SectionHeader({required this.title});
+
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        0,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                width: 4,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: AppTheme.primaryGreen,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Text(title, style: AppTheme.sectionTitleStyle),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Divider(height: 1, thickness: 1),
+        ],
       ),
     );
   }

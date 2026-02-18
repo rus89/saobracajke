@@ -50,10 +50,12 @@ class AppTheme {
       colorScheme: colorScheme,
       textTheme: textTheme,
       scaffoldBackgroundColor: surfaceContainer,
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         elevation: 0,
         centerTitle: false,
         scrolledUnderElevation: 1,
+        backgroundColor: surfaceContainerLow,
+        titleTextStyle: textTheme.titleMedium,
       ),
       // Minimum 48x48 touch targets for accessibility.
       iconButtonTheme: IconButtonThemeData(
@@ -99,10 +101,14 @@ class AppTheme {
         margin: EdgeInsets.zero,
         clipBehavior: Clip.antiAlias,
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         type: BottomNavigationBarType.fixed,
         selectedItemColor: primaryGreen,
         unselectedItemColor: onSurfaceVariant,
+        selectedLabelStyle: textTheme.labelLarge?.copyWith(
+          fontWeight: FontWeight.w700,
+        ),
+        unselectedLabelStyle: textTheme.labelMedium,
         elevation: 8,
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
@@ -185,4 +191,12 @@ class AppTheme {
       ),
     );
   }
+
+  /// Section headers on dashboard (e.g. "Sekcija 1: Ključni pokazatelji").
+  static const TextStyle sectionTitleStyle = TextStyle(
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    color: onSurfaceVariant,
+    letterSpacing: 1.2,
+  );
 }

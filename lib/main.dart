@@ -94,6 +94,13 @@ class _LoadingContent extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          Text(
+            'Saobraćajne Nezgode',
+            style: theme.textTheme.headlineMedium?.copyWith(
+              color: theme.colorScheme.primary,
+            ),
+          ),
+          const SizedBox(height: 24),
           CircularProgressIndicator(color: theme.colorScheme.primary),
           const SizedBox(height: 20),
           Text(

@@ -126,6 +126,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     if (state.selectedYear == null) return;
     final year = state.selectedYear!;
     final dept = state.selectedDept;
+    state = state.copyWith(isLoading: true);
     try {
       final results = await Future.wait([
         _repo.getTotalAccidentsForYear(year, department: dept),
@@ -142,6 +143,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
             : Future.value(<String, int>{}),
       ]);
       state = state.copyWith(
+        isLoading: false,
         totalAccidents: results[0] as int,
         totalAccidentsPrevYear: results[1] as int,
         accidentTypeCounts: results[2] as Map<String, int>,
@@ -155,6 +157,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       );
     } catch (e) {
       debugPrint('Error loading dashboard data: $e');
+      state = state.copyWith(isLoading: false);
     }
   }
 

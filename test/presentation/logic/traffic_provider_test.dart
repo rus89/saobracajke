@@ -57,11 +57,12 @@ void main() {
 
     tearDown(() => container.dispose());
 
-    Future<void> waitForInit() async {
-      container.read(dashboardProvider);
+    Future<void> waitForInit([ProviderContainer? c]) async {
+      final cont = c ?? container;
+      cont.read(dashboardProvider);
       for (var i = 0; i < 100; i++) {
         await Future.delayed(const Duration(milliseconds: 20));
-        if (!container.read(dashboardProvider).isLoading) return;
+        if (!cont.read(dashboardProvider).isLoading) return;
       }
       throw StateError('Timeout waiting for DashboardNotifier init');
     }
@@ -92,6 +93,66 @@ void main() {
       notifier.setDepartment('Belgrade');
       expect(container.read(dashboardProvider).selectedDept, 'Belgrade');
       expect(fakeRepo.getTotalAccidentsForYearCalls, isNotEmpty);
+    });
+
+    test('setYear sets isLoading true then false when dashboard data reloads',
+        () async {
+      final slowFake = SlowFakeTrafficRepository();
+      final slowContainer = ProviderContainer(
+        overrides: [repositoryProvider.overrideWithValue(slowFake)],
+      );
+      addTearDown(slowContainer.dispose);
+      await waitForInit(slowContainer);
+      expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
+
+      slowContainer.read(dashboardProvider.notifier).setYear(2022);
+      await Future.delayed(Duration.zero);
+      expect(
+        slowContainer.read(dashboardProvider).isLoading,
+        isTrue,
+        reason: 'Loading should be true while reloading after filter change',
+      );
+
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        if (!slowContainer.read(dashboardProvider).isLoading) break;
+      }
+      expect(
+        slowContainer.read(dashboardProvider).isLoading,
+        isFalse,
+        reason: 'Loading should be false after reload completes',
+      );
+      expect(slowContainer.read(dashboardProvider).selectedYear, 2022);
+    });
+
+    test('setDepartment sets isLoading true then false when dashboard data reloads',
+        () async {
+      final slowFake = SlowFakeTrafficRepository();
+      final slowContainer = ProviderContainer(
+        overrides: [repositoryProvider.overrideWithValue(slowFake)],
+      );
+      addTearDown(slowContainer.dispose);
+      await waitForInit(slowContainer);
+      expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
+
+      slowContainer.read(dashboardProvider.notifier).setDepartment('Belgrade');
+      await Future.delayed(Duration.zero);
+      expect(
+        slowContainer.read(dashboardProvider).isLoading,
+        isTrue,
+        reason: 'Loading should be true while reloading after filter change',
+      );
+
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        if (!slowContainer.read(dashboardProvider).isLoading) break;
+      }
+      expect(
+        slowContainer.read(dashboardProvider).isLoading,
+        isFalse,
+        reason: 'Loading should be false after reload completes',
+      );
+      expect(slowContainer.read(dashboardProvider).selectedDept, 'Belgrade');
     });
   });
 
@@ -124,6 +185,88 @@ void main() {
       expect(accidents.first.id, 'test-id');
     });
   });
+}
+
+class SlowFakeTrafficRepository extends FakeTrafficRepository {
+  static const _delay = Duration(milliseconds: 50);
+
+  @override
+  Future<int> getTotalAccidentsForYear(int year, {String? department}) async {
+    await Future.delayed(_delay);
+    return super.getTotalAccidentsForYear(year, department: department);
+  }
+
+  @override
+  Future<Map<String, int>> getAccidentTypeCountsForYear(
+    int year, {
+    String? department,
+  }) async {
+    await Future.delayed(_delay);
+    return super.getAccidentTypeCountsForYear(year, department: department);
+  }
+
+  @override
+  Future<Map<String, int>> getTopCitiesForYear(
+    int year, {
+    String? department,
+  }) async {
+    await Future.delayed(_delay);
+    return super.getTopCitiesForYear(year, department: department);
+  }
+
+  @override
+  Future<Map<String, int>> getAccidentsBySeasonForYear(
+    int year, {
+    String? department,
+  }) async {
+    await Future.delayed(_delay);
+    return super.getAccidentsBySeasonForYear(year, department: department);
+  }
+
+  @override
+  Future<Map<String, int>> getAccidentsByTimeOfDayForYear(
+    int year, {
+    String? department,
+  }) async {
+    await Future.delayed(_delay);
+    return super.getAccidentsByTimeOfDayForYear(year, department: department);
+  }
+
+  @override
+  Future<Map<String, int>> getAccidentsByWeekendForYear(
+    int year, {
+    String? department,
+  }) async {
+    await Future.delayed(_delay);
+    return super.getAccidentsByWeekendForYear(year, department: department);
+  }
+
+  @override
+  Future<Map<int, int>> getAccidentsByMonthForYear(
+    int year, {
+    String? department,
+  }) async {
+    await Future.delayed(_delay);
+    return super.getAccidentsByMonthForYear(year, department: department);
+  }
+
+  @override
+  Future<Map<String, Map<int, int>>> getAccidentTypesByMonthForYear(
+    int year, {
+    String? department,
+  }) async {
+    await Future.delayed(_delay);
+    return super.getAccidentTypesByMonthForYear(year, department: department);
+  }
+
+  @override
+  Future<Map<String, int>> getAccidentsByStationForDepartment(
+    int year,
+    String department,
+  ) async {
+    await Future.delayed(_delay);
+    return super.getAccidentsByStationForDepartment(year, department);
+  }
 }
 
 class FakeTrafficRepository implements TrafficRepository {

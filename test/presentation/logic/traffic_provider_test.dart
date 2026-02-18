@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saobracajke/core/di/repository_providers.dart';
-import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/domain/accident_types.dart';
+import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/domain/repositories/traffic_repository.dart';
 import 'package:saobracajke/presentation/logic/accidents_provider.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
@@ -44,23 +44,26 @@ void main() {
       expect(state.materialDamageCount, 5);
     });
 
-    test('fatalitiesDelta, injuriesDelta, materialDamageDelta are current minus prev year', () {
-      const state = DashboardState(
-        accidentTypeCounts: {
-          AccidentTypes.fatalities: 10,
-          AccidentTypes.injuries: 20,
-          AccidentTypes.materialDamage: 30,
-        },
-        accidentTypeCountsPrevYear: {
-          AccidentTypes.fatalities: 8,
-          AccidentTypes.injuries: 18,
-          AccidentTypes.materialDamage: 25,
-        },
-      );
-      expect(state.fatalitiesDelta, 2);
-      expect(state.injuriesDelta, 2);
-      expect(state.materialDamageDelta, 5);
-    });
+    test(
+      'fatalitiesDelta, injuriesDelta, materialDamageDelta are current minus prev year',
+      () {
+        const state = DashboardState(
+          accidentTypeCounts: {
+            AccidentTypes.fatalities: 10,
+            AccidentTypes.injuries: 20,
+            AccidentTypes.materialDamage: 30,
+          },
+          accidentTypeCountsPrevYear: {
+            AccidentTypes.fatalities: 8,
+            AccidentTypes.injuries: 18,
+            AccidentTypes.materialDamage: 25,
+          },
+        );
+        expect(state.fatalitiesDelta, 2);
+        expect(state.injuriesDelta, 2);
+        expect(state.materialDamageDelta, 5);
+      },
+    );
   });
 
   group('DashboardNotifier', () {
@@ -114,141 +117,158 @@ void main() {
       expect(fakeRepo.getTotalAccidentsForYearCalls, isNotEmpty);
     });
 
-    test('setYear sets isLoading true then false when dashboard data reloads',
-        () async {
-      final slowFake = SlowFakeTrafficRepository();
-      final slowContainer = ProviderContainer(
-        overrides: [repositoryProvider.overrideWithValue(slowFake)],
-      );
-      addTearDown(slowContainer.dispose);
-      await waitForInit(slowContainer);
-      expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
+    test(
+      'setYear sets isLoading true then false when dashboard data reloads',
+      () async {
+        final slowFake = SlowFakeTrafficRepository();
+        final slowContainer = ProviderContainer(
+          overrides: [repositoryProvider.overrideWithValue(slowFake)],
+        );
+        addTearDown(slowContainer.dispose);
+        await waitForInit(slowContainer);
+        expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
 
-      slowContainer.read(dashboardProvider.notifier).setYear(2022);
-      await Future.delayed(Duration.zero);
-      expect(
-        slowContainer.read(dashboardProvider).isLoading,
-        isTrue,
-        reason: 'Loading should be true while reloading after filter change',
-      );
+        slowContainer.read(dashboardProvider.notifier).setYear(2022);
+        await Future.delayed(Duration.zero);
+        expect(
+          slowContainer.read(dashboardProvider).isLoading,
+          isTrue,
+          reason: 'Loading should be true while reloading after filter change',
+        );
 
-      for (var i = 0; i < 100; i++) {
-        await Future.delayed(const Duration(milliseconds: 20));
-        if (!slowContainer.read(dashboardProvider).isLoading) break;
-      }
-      expect(
-        slowContainer.read(dashboardProvider).isLoading,
-        isFalse,
-        reason: 'Loading should be false after reload completes',
-      );
-      expect(slowContainer.read(dashboardProvider).selectedYear, 2022);
-    });
+        for (var i = 0; i < 100; i++) {
+          await Future.delayed(const Duration(milliseconds: 20));
+          if (!slowContainer.read(dashboardProvider).isLoading) break;
+        }
+        expect(
+          slowContainer.read(dashboardProvider).isLoading,
+          isFalse,
+          reason: 'Loading should be false after reload completes',
+        );
+        expect(slowContainer.read(dashboardProvider).selectedYear, 2022);
+      },
+    );
 
-    test('setDepartment sets isLoading true then false when dashboard data reloads',
-        () async {
-      final slowFake = SlowFakeTrafficRepository();
-      final slowContainer = ProviderContainer(
-        overrides: [repositoryProvider.overrideWithValue(slowFake)],
-      );
-      addTearDown(slowContainer.dispose);
-      await waitForInit(slowContainer);
-      expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
+    test(
+      'setDepartment sets isLoading true then false when dashboard data reloads',
+      () async {
+        final slowFake = SlowFakeTrafficRepository();
+        final slowContainer = ProviderContainer(
+          overrides: [repositoryProvider.overrideWithValue(slowFake)],
+        );
+        addTearDown(slowContainer.dispose);
+        await waitForInit(slowContainer);
+        expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
 
-      slowContainer.read(dashboardProvider.notifier).setDepartment('Belgrade');
-      await Future.delayed(Duration.zero);
-      expect(
-        slowContainer.read(dashboardProvider).isLoading,
-        isTrue,
-        reason: 'Loading should be true while reloading after filter change',
-      );
+        slowContainer
+            .read(dashboardProvider.notifier)
+            .setDepartment('Belgrade');
+        await Future.delayed(Duration.zero);
+        expect(
+          slowContainer.read(dashboardProvider).isLoading,
+          isTrue,
+          reason: 'Loading should be true while reloading after filter change',
+        );
 
-      for (var i = 0; i < 100; i++) {
-        await Future.delayed(const Duration(milliseconds: 20));
-        if (!slowContainer.read(dashboardProvider).isLoading) break;
-      }
-      expect(
-        slowContainer.read(dashboardProvider).isLoading,
-        isFalse,
-        reason: 'Loading should be false after reload completes',
-      );
-      expect(slowContainer.read(dashboardProvider).selectedDept, 'Belgrade');
-    });
+        for (var i = 0; i < 100; i++) {
+          await Future.delayed(const Duration(milliseconds: 20));
+          if (!slowContainer.read(dashboardProvider).isLoading) break;
+        }
+        expect(
+          slowContainer.read(dashboardProvider).isLoading,
+          isFalse,
+          reason: 'Loading should be false after reload completes',
+        );
+        expect(slowContainer.read(dashboardProvider).selectedDept, 'Belgrade');
+      },
+    );
 
-    test('when repo throws during init, state contains error message', () async {
-      final throwingRepo = ThrowingInitFakeTrafficRepository();
-      final c = ProviderContainer(
-        overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
-      );
-      addTearDown(c.dispose);
-      c.read(dashboardProvider);
-      for (var i = 0; i < 100; i++) {
-        await Future.delayed(const Duration(milliseconds: 20));
-        if (!c.read(dashboardProvider).isLoading) break;
-      }
-      final state = c.read(dashboardProvider);
-      expect(state.isLoading, isFalse);
-      expect(state.errorMessage, isNotNull);
-      expect(state.errorMessage!.isNotEmpty, isTrue);
-    });
+    test(
+      'when repo throws during init, state contains error message',
+      () async {
+        final throwingRepo = ThrowingInitFakeTrafficRepository();
+        final c = ProviderContainer(
+          overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
+        );
+        addTearDown(c.dispose);
+        c.read(dashboardProvider);
+        for (var i = 0; i < 100; i++) {
+          await Future.delayed(const Duration(milliseconds: 20));
+          if (!c.read(dashboardProvider).isLoading) break;
+        }
+        final state = c.read(dashboardProvider);
+        expect(state.isLoading, isFalse);
+        expect(state.errorMessage, isNotNull);
+        expect(state.errorMessage!.isNotEmpty, isTrue);
+      },
+    );
 
-    test('when repo throws during load after setYear, state contains error message',
-        () async {
-      final throwingRepo = ThrowingLoadFakeTrafficRepository(throwForYear: 2022);
-      final c = ProviderContainer(
-        overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
-      );
-      addTearDown(c.dispose);
-      await waitForInit(c);
-      expect(c.read(dashboardProvider).errorMessage, isNull);
+    test(
+      'when repo throws during load after setYear, state contains error message',
+      () async {
+        final throwingRepo = ThrowingLoadFakeTrafficRepository(
+          throwForYear: 2022,
+        );
+        final c = ProviderContainer(
+          overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
+        );
+        addTearDown(c.dispose);
+        await waitForInit(c);
+        expect(c.read(dashboardProvider).errorMessage, isNull);
 
-      c.read(dashboardProvider.notifier).setYear(2022);
-      for (var i = 0; i < 100; i++) {
-        await Future.delayed(const Duration(milliseconds: 20));
-        final s = c.read(dashboardProvider);
-        if (!s.isLoading && s.errorMessage != null) break;
-      }
-      final state = c.read(dashboardProvider);
-      expect(state.errorMessage, isNotNull);
-      expect(state.errorMessage!.isNotEmpty, isTrue);
-    });
+        c.read(dashboardProvider.notifier).setYear(2022);
+        for (var i = 0; i < 100; i++) {
+          await Future.delayed(const Duration(milliseconds: 20));
+          final s = c.read(dashboardProvider);
+          if (!s.isLoading && s.errorMessage != null) break;
+        }
+        final state = c.read(dashboardProvider);
+        expect(state.errorMessage, isNotNull);
+        expect(state.errorMessage!.isNotEmpty, isTrue);
+      },
+    );
 
-    test('retry clears error and reloads; when repo then succeeds, state has no error',
-        () async {
-      final repo = ThrowingOnceInitFakeTrafficRepository();
-      final c = ProviderContainer(
-        overrides: [repositoryProvider.overrideWithValue(repo)],
-      );
-      addTearDown(c.dispose);
-      c.read(dashboardProvider);
-      for (var i = 0; i < 100; i++) {
-        await Future.delayed(const Duration(milliseconds: 20));
-        if (!c.read(dashboardProvider).isLoading) break;
-      }
-      expect(c.read(dashboardProvider).errorMessage, isNotNull);
+    test(
+      'retry clears error and reloads; when repo then succeeds, state has no error',
+      () async {
+        final repo = ThrowingOnceInitFakeTrafficRepository();
+        final c = ProviderContainer(
+          overrides: [repositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(c.dispose);
+        c.read(dashboardProvider);
+        for (var i = 0; i < 100; i++) {
+          await Future.delayed(const Duration(milliseconds: 20));
+          if (!c.read(dashboardProvider).isLoading) break;
+        }
+        expect(c.read(dashboardProvider).errorMessage, isNotNull);
 
-      c.read(dashboardProvider.notifier).retry();
-      for (var i = 0; i < 100; i++) {
-        await Future.delayed(const Duration(milliseconds: 20));
-        if (!c.read(dashboardProvider).isLoading) break;
-      }
-      final state = c.read(dashboardProvider);
-      expect(state.errorMessage, isNull);
-      expect(state.departments, isNotEmpty);
-    });
+        c.read(dashboardProvider.notifier).retry();
+        for (var i = 0; i < 100; i++) {
+          await Future.delayed(const Duration(milliseconds: 20));
+          if (!c.read(dashboardProvider).isLoading) break;
+        }
+        final state = c.read(dashboardProvider);
+        expect(state.errorMessage, isNull);
+        expect(state.departments, isNotEmpty);
+      },
+    );
 
-    test('after init, YoY deltas for fatalities, injuries, material damage match current minus prev year',
-        () async {
-      final repo = YoYDeltasFakeTrafficRepository();
-      final c = ProviderContainer(
-        overrides: [repositoryProvider.overrideWithValue(repo)],
-      );
-      addTearDown(c.dispose);
-      await waitForInit(c);
-      final state = c.read(dashboardProvider);
-      expect(state.fatalitiesDelta, 2);
-      expect(state.injuriesDelta, 2);
-      expect(state.materialDamageDelta, 5);
-    });
+    test(
+      'after init, YoY deltas for fatalities, injuries, material damage match current minus prev year',
+      () async {
+        final repo = YoYDeltasFakeTrafficRepository();
+        final c = ProviderContainer(
+          overrides: [repositoryProvider.overrideWithValue(repo)],
+        );
+        addTearDown(c.dispose);
+        await waitForInit(c);
+        final state = c.read(dashboardProvider);
+        expect(state.fatalitiesDelta, 2);
+        expect(state.injuriesDelta, 2);
+        expect(state.materialDamageDelta, 5);
+      },
+    );
   });
 
   group('accidentsProvider', () {

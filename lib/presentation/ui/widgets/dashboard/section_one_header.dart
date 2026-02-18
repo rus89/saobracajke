@@ -4,11 +4,6 @@ import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 
 class _MiniStatArgs {
-  final String label;
-  final int count;
-  final int delta;
-  final Color color;
-  final IconData icon;
   _MiniStatArgs({
     required this.label,
     required this.count,
@@ -16,18 +11,15 @@ class _MiniStatArgs {
     required this.color,
     required this.icon,
   });
+
+  final String label;
+  final int count;
+  final int delta;
+  final Color color;
+  final IconData icon;
 }
 
 class SectionOneHeader extends StatelessWidget {
-  final int totalAccidents;
-  final int delta;
-  final int fatalities;
-  final int fatalitiesDelta;
-  final int injuries;
-  final int injuriesDelta;
-  final int materialDamageAccidents;
-  final int materialDamageAccidentsDelta;
-
   const SectionOneHeader({
     super.key,
     required this.totalAccidents,
@@ -39,6 +31,15 @@ class SectionOneHeader extends StatelessWidget {
     required this.materialDamageAccidents,
     required this.materialDamageAccidentsDelta,
   });
+
+  final int totalAccidents;
+  final int delta;
+  final int fatalities;
+  final int fatalitiesDelta;
+  final int injuries;
+  final int injuriesDelta;
+  final int materialDamageAccidents;
+  final int materialDamageAccidentsDelta;
 
   @override
   Widget build(BuildContext context) {

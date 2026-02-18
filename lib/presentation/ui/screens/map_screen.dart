@@ -116,7 +116,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     // Group accidents by location for clustering
     final accidents = accidentsAsync.value ?? [];
     final markers = <Marker>[];
-    for (var accident in accidents) {
+    for (final accident in accidents) {
       markers.add(
         Marker(
           point: LatLng(accident.lat, accident.lng),
@@ -184,7 +184,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         size: const Size(50, 50),
                         markers: markers,
                         builder: (context, markers) {
-                          return Container(
+                          return DecoratedBox(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: theme.colorScheme.primary,

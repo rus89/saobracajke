@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:saobracajke/data/repositories/traffic_repository.dart'
     as data_repo;
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 void main() {
   late Database db;
@@ -88,9 +88,7 @@ void main() {
   });
 
   data_repo.SqliteTrafficRepository createRepo() {
-    return data_repo.SqliteTrafficRepository(
-      databaseProvider: () async => db,
-    );
+    return data_repo.SqliteTrafficRepository(databaseProvider: () async => db);
   }
 
   group('SqliteTrafficRepository (in-memory DB)', () {
@@ -112,13 +110,17 @@ void main() {
       expect(total, 2);
     });
 
-    test('getTotalAccidentsForYear with department filter returns filtered count',
-        () async {
-      final repo = createRepo();
-      final total =
-          await repo.getTotalAccidentsForYear(2023, department: 'Belgrade');
-      expect(total, 1);
-    });
+    test(
+      'getTotalAccidentsForYear with department filter returns filtered count',
+      () async {
+        final repo = createRepo();
+        final total = await repo.getTotalAccidentsForYear(
+          2023,
+          department: 'Belgrade',
+        );
+        expect(total, 1);
+      },
+    );
 
     test('getAccidentTypeCountsForYear returns type counts', () async {
       final repo = createRepo();

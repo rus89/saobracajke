@@ -1,13 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 
 class SectionThreeTemporal extends StatelessWidget {
-  final Map<String, int> seasonCounts;
-  final Map<String, int> weekendCounts;
-  final Map<String, int> timeOfDayCounts;
-
   const SectionThreeTemporal({
     super.key,
     required this.seasonCounts,
@@ -15,10 +11,15 @@ class SectionThreeTemporal extends StatelessWidget {
     required this.timeOfDayCounts,
   });
 
+  final Map<String, int> seasonCounts;
+  final Map<String, int> weekendCounts;
+  final Map<String, int> timeOfDayCounts;
+
   @override
   Widget build(BuildContext context) {
     return Semantics(
-      label: 'Temporal distribution: by season, weekday vs weekend, time of day',
+      label:
+          'Temporal distribution: by season, weekday vs weekend, time of day',
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
@@ -60,10 +61,16 @@ class SectionThreeTemporal extends StatelessWidget {
           value: count.toDouble(),
           title: '$percentage%',
           radius: 100,
-          titleStyle: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.surface,
-            fontWeight: FontWeight.bold,
-          ) ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+          titleStyle:
+              theme.textTheme.titleSmall?.copyWith(
+                color: theme.colorScheme.surface,
+                fontWeight: FontWeight.bold,
+              ) ??
+              const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
         ),
       );
       colorIndex++;
@@ -101,48 +108,48 @@ class SectionThreeTemporal extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    ...seasonCounts.entries.toList().asMap().entries.map(
-                      (entry) {
-                        final index = entry.key;
-                        final season = entry.value.key;
-                        final count = entry.value.value;
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 16,
-                                height: 16,
-                                decoration: BoxDecoration(
-                                  color: colors[index % colors.length],
-                                  borderRadius: BorderRadius.circular(3),
-                                ),
+                    ...seasonCounts.entries.toList().asMap().entries.map((
+                      entry,
+                    ) {
+                      final index = entry.key;
+                      final season = entry.value.key;
+                      final count = entry.value.value;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: colors[index % colors.length],
+                                borderRadius: BorderRadius.circular(3),
                               ),
-                              const SizedBox(width: AppSpacing.sm),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      season,
-                                      style: theme.textTheme.bodyMedium?.copyWith(
-                                        fontWeight: FontWeight.w600,
-                                      ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    season,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
                                     ),
-                                    Text(
-                                      '$count nesreća',
-                                      style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.onSurfaceVariant,
-                                      ),
+                                  ),
+                                  Text(
+                                    '$count nesreća',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                   ],
                 )
               : SizedBox(
@@ -165,53 +172,65 @@ class SectionThreeTemporal extends StatelessWidget {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: seasonCounts.entries.toList().asMap().entries.map(
-                            (entry) {
-                              final index = entry.key;
-                              final season = entry.value.key;
-                              final count = entry.value.value;
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(vertical: 4),
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 16,
-                                      height: 16,
-                                      decoration: BoxDecoration(
-                                        color: colors[index % colors.length],
-                                        borderRadius: BorderRadius.circular(3),
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppSpacing.sm),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            season,
-                                            style: theme.textTheme.bodyMedium?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                            ),
+                          children: seasonCounts.entries
+                              .toList()
+                              .asMap()
+                              .entries
+                              .map((entry) {
+                                final index = entry.key;
+                                final season = entry.value.key;
+                                final count = entry.value.value;
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        width: 16,
+                                        height: 16,
+                                        decoration: BoxDecoration(
+                                          color: colors[index % colors.length],
+                                          borderRadius: BorderRadius.circular(
+                                            3,
                                           ),
-                                          Text(
-                                            '$count nesreća',
-                                            style: theme.textTheme.bodySmall?.copyWith(
-                                              color: theme.colorScheme.onSurfaceVariant,
-                                            ),
-                                          ),
-                                        ],
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          ).toList(),
+                                      const SizedBox(width: AppSpacing.sm),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              season,
+                                              style: theme.textTheme.bodyMedium
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                            ),
+                                            Text(
+                                              '$count nesreća',
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                    color: theme
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              })
+                              .toList(),
                         ),
                       ),
                     ],
                   ),
-          ),
+                ),
         ],
       ),
     );
@@ -220,10 +239,7 @@ class SectionThreeTemporal extends StatelessWidget {
   Widget _buildWeekendChart(BuildContext context) {
     final theme = Theme.of(context);
     final narrow = MediaQuery.sizeOf(context).width < _narrowBreakpoint;
-    final colors = [
-      Colors.blue.shade500,
-      Colors.purple.shade400,
-    ];
+    final colors = [Colors.blue.shade500, Colors.purple.shade400];
 
     final total = weekendCounts.values.fold(0, (sum, val) => sum + val);
     if (total == 0) return const SizedBox.shrink();
@@ -233,7 +249,7 @@ class SectionThreeTemporal extends StatelessWidget {
 
     // Ensure consistent order: Weekday first, Weekend second
     final orderedKeys = ['Radni dan', 'Vikend'];
-    for (var key in orderedKeys) {
+    for (final key in orderedKeys) {
       final count = weekendCounts[key] ?? 0;
       if (count > 0) {
         final percentage = (count / total * 100).toStringAsFixed(1);
@@ -243,10 +259,16 @@ class SectionThreeTemporal extends StatelessWidget {
             value: count.toDouble(),
             title: '$percentage%',
             radius: 100,
-            titleStyle: theme.textTheme.titleSmall?.copyWith(
-              color: theme.colorScheme.surface,
-              fontWeight: FontWeight.bold,
-            ) ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+            titleStyle:
+                theme.textTheme.titleSmall?.copyWith(
+                  color: theme.colorScheme.surface,
+                  fontWeight: FontWeight.bold,
+                ) ??
+                const TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
           ),
         );
       }
@@ -366,19 +388,24 @@ class SectionThreeTemporal extends StatelessWidget {
                                   const SizedBox(width: AppSpacing.sm),
                                   Expanded(
                                     child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         Text(
                                           key,
-                                          style: theme.textTheme.bodyMedium?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
+                                          style: theme.textTheme.bodyMedium
+                                              ?.copyWith(
+                                                fontWeight: FontWeight.w600,
+                                              ),
                                         ),
                                         Text(
                                           '$count nesreća',
-                                          style: theme.textTheme.bodySmall?.copyWith(
-                                            color: theme.colorScheme.onSurfaceVariant,
-                                          ),
+                                          style: theme.textTheme.bodySmall
+                                              ?.copyWith(
+                                                color: theme
+                                                    .colorScheme
+                                                    .onSurfaceVariant,
+                                              ),
                                         ),
                                       ],
                                     ),
@@ -421,10 +448,16 @@ class SectionThreeTemporal extends StatelessWidget {
           value: count.toDouble(),
           title: '$percentage%',
           radius: 100,
-          titleStyle: theme.textTheme.titleSmall?.copyWith(
-            color: theme.colorScheme.surface,
-            fontWeight: FontWeight.bold,
-          ) ?? const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+          titleStyle:
+              theme.textTheme.titleSmall?.copyWith(
+                color: theme.colorScheme.surface,
+                fontWeight: FontWeight.bold,
+              ) ??
+              const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
         ),
       );
       colorIndex++;
@@ -440,10 +473,7 @@ class SectionThreeTemporal extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Nesreće po delu dana',
-            style: theme.textTheme.titleMedium,
-          ),
+          Text('Nesreće po delu dana', style: theme.textTheme.titleMedium),
           const SizedBox(height: AppSpacing.xxl),
           narrow
               ? Column(
@@ -462,50 +492,48 @@ class SectionThreeTemporal extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    ...timeOfDayCounts.entries
-                        .toList()
-                        .asMap()
-                        .entries
-                        .map((entry) {
-                          final index = entry.key;
-                          final timeOfDay = entry.value.key;
-                          final count = entry.value.value;
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 16,
-                                  height: 16,
-                                  decoration: BoxDecoration(
-                                    color: colors[index % colors.length],
-                                    borderRadius: BorderRadius.circular(3),
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        timeOfDay,
-                                        style: theme.textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      Text(
-                                        '$count nesreća',
-                                        style: theme.textTheme.bodySmall?.copyWith(
-                                          color: theme.colorScheme.onSurfaceVariant,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
+                    ...timeOfDayCounts.entries.toList().asMap().entries.map((
+                      entry,
+                    ) {
+                      final index = entry.key;
+                      final timeOfDay = entry.value.key;
+                      final count = entry.value.value;
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 16,
+                              height: 16,
+                              decoration: BoxDecoration(
+                                color: colors[index % colors.length],
+                                borderRadius: BorderRadius.circular(3),
+                              ),
                             ),
-                          );
-                        }),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    timeOfDay,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$count nesreća',
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
                   ],
                 )
               : SizedBox(
@@ -537,7 +565,9 @@ class SectionThreeTemporal extends StatelessWidget {
                                 final timeOfDay = entry.value.key;
                                 final count = entry.value.value;
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 4,
+                                  ),
                                   child: Row(
                                     children: [
                                       Container(
@@ -545,25 +575,32 @@ class SectionThreeTemporal extends StatelessWidget {
                                         height: 16,
                                         decoration: BoxDecoration(
                                           color: colors[index % colors.length],
-                                          borderRadius: BorderRadius.circular(3),
+                                          borderRadius: BorderRadius.circular(
+                                            3,
+                                          ),
                                         ),
                                       ),
                                       const SizedBox(width: AppSpacing.sm),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               timeOfDay,
-                                              style: theme.textTheme.bodyMedium?.copyWith(
-                                                fontWeight: FontWeight.w600,
-                                              ),
+                                              style: theme.textTheme.bodyMedium
+                                                  ?.copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
                                             ),
                                             Text(
                                               '$count nesreća',
-                                              style: theme.textTheme.bodySmall?.copyWith(
-                                                color: theme.colorScheme.onSurfaceVariant,
-                                              ),
+                                              style: theme.textTheme.bodySmall
+                                                  ?.copyWith(
+                                                    color: theme
+                                                        .colorScheme
+                                                        .onSurfaceVariant,
+                                                  ),
                                             ),
                                           ],
                                         ),

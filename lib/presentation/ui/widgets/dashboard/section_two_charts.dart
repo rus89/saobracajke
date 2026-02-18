@@ -4,16 +4,16 @@ import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 
 class SectionTwoCharts extends StatelessWidget {
-  final Map<int, int> monthlyAccidents;
-  final Map<String, Map<int, int>> typeMonthlyAccidents;
-  final Map<String, int> stationAccidents;
-
   const SectionTwoCharts({
     super.key,
     required this.monthlyAccidents,
     required this.typeMonthlyAccidents,
     required this.stationAccidents,
   });
+
+  final Map<int, int> monthlyAccidents;
+  final Map<String, Map<int, int>> typeMonthlyAccidents;
+  final Map<String, int> stationAccidents;
 
   @override
   Widget build(BuildContext context) {

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:saobracajke/core/di/repository_providers.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/domain/repositories/traffic_repository.dart';
@@ -8,37 +8,30 @@ import 'package:saobracajke/presentation/ui/screens/map_screen.dart';
 
 void main() {
   group('MapScreen accident list error state', () {
-    testWidgets('shows error message and retry when accident list fails to load',
-        (WidgetTester tester) async {
+    testWidgets(
+      'shows error message and retry when accident list fails to load',
+      (WidgetTester tester) async {
+        final fakeRepo = _FakeRepoGetAccidentsAlwaysThrows();
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [repositoryProvider.overrideWithValue(fakeRepo)],
+            child: MaterialApp(home: const MapScreen()),
+          ),
+        );
+
+        await _waitForAccidentsToSettle(tester);
+
+        expect(find.text('Nije moguće učitati listu nesreća.'), findsOneWidget);
+        expect(find.text('Pokušaj ponovo'), findsOneWidget);
+      },
+    );
+
+    testWidgets('retry button triggers reload', (WidgetTester tester) async {
       final fakeRepo = _FakeRepoGetAccidentsAlwaysThrows();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [
-            repositoryProvider.overrideWithValue(fakeRepo),
-          ],
-          child: MaterialApp(
-            home: const MapScreen(),
-          ),
-        ),
-      );
-
-      await _waitForAccidentsToSettle(tester);
-
-      expect(find.text('Nije moguće učitati listu nesreća.'), findsOneWidget);
-      expect(find.text('Pokušaj ponovo'), findsOneWidget);
-    });
-
-    testWidgets('retry button triggers reload',
-        (WidgetTester tester) async {
-      final fakeRepo = _FakeRepoGetAccidentsAlwaysThrows();
-      await tester.pumpWidget(
-        ProviderScope(
-          overrides: [
-            repositoryProvider.overrideWithValue(fakeRepo),
-          ],
-          child: MaterialApp(
-            home: const MapScreen(),
-          ),
+          overrides: [repositoryProvider.overrideWithValue(fakeRepo)],
+          child: MaterialApp(home: const MapScreen()),
         ),
       );
 
@@ -55,7 +48,9 @@ void main() {
 Future<void> _waitForAccidentsToSettle(WidgetTester tester) async {
   for (var i = 0; i < 50; i++) {
     await tester.pump(const Duration(milliseconds: 50));
-    await tester.runAsync(() => Future.delayed(const Duration(milliseconds: 20)));
+    await tester.runAsync(
+      () => Future.delayed(const Duration(milliseconds: 20)),
+    );
   }
 }
 
@@ -74,57 +69,49 @@ class _FakeRepoGetAccidentsAlwaysThrows implements TrafficRepository {
   Future<Map<String, int>> getAccidentTypeCountsForYear(
     int year, {
     String? department,
-  }) async =>
-      {'Sa povredjenim': 5};
+  }) async => {'Sa povredjenim': 5};
 
   @override
   Future<Map<String, int>> getTopCitiesForYear(
     int year, {
     String? department,
-  }) async =>
-      {};
+  }) async => {};
 
   @override
   Future<Map<String, int>> getAccidentsBySeasonForYear(
     int year, {
     String? department,
-  }) async =>
-      {};
+  }) async => {};
 
   @override
   Future<Map<String, int>> getAccidentsByTimeOfDayForYear(
     int year, {
     String? department,
-  }) async =>
-      {};
+  }) async => {};
 
   @override
   Future<Map<String, int>> getAccidentsByWeekendForYear(
     int year, {
     String? department,
-  }) async =>
-      {};
+  }) async => {};
 
   @override
   Future<Map<int, int>> getAccidentsByMonthForYear(
     int year, {
     String? department,
-  }) async =>
-      {};
+  }) async => {};
 
   @override
   Future<Map<String, Map<int, int>>> getAccidentTypesByMonthForYear(
     int year, {
     String? department,
-  }) async =>
-      {};
+  }) async => {};
 
   @override
   Future<Map<String, int>> getAccidentsByStationForDepartment(
     int year,
     String department,
-  ) async =>
-      {};
+  ) async => {};
 
   @override
   Future<List<AccidentModel>> getAccidents({

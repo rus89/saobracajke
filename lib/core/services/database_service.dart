@@ -1,9 +1,10 @@
 import 'dart:io';
+
+import 'package:archive/archive.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:archive/archive.dart';
 
 //-------------------------------------------------------------------------------
 /// Thrown when database extraction or opening fails during bootstrap.
@@ -20,12 +21,14 @@ class DatabaseBootstrapException implements Exception {
 
 //-------------------------------------------------------------------------------
 class DatabaseService {
+  factory DatabaseService() => _instance;
+
+  DatabaseService._internal();
+
   static const String _dbName = "serbian_traffic.db";
   static const String _zipName = "serbian_traffic.db.zip";
 
   static final DatabaseService _instance = DatabaseService._internal();
-  factory DatabaseService() => _instance;
-  DatabaseService._internal();
 
   Database? _database;
 
@@ -81,10 +84,7 @@ class DatabaseService {
     }
 
     try {
-      return await openDatabase(
-        path,
-        readOnly: true,
-      );
+      return await openDatabase(path, readOnly: true);
     } catch (e, st) {
       debugPrint("❌ Database open failed: $e");
       debugPrint("$st");

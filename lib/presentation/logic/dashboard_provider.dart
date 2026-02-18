@@ -7,26 +7,6 @@ import '../../domain/repositories/traffic_repository.dart';
 /// Dashboard-only state: filters, metadata, and chart aggregates.
 /// Map/list accident list is held by [accidentsProvider].
 class DashboardState {
-  final List<String> departments;
-  final List<int> availableYears;
-  final bool isLoading;
-  final String? errorMessage;
-
-  final String? selectedDept;
-  final int? selectedYear;
-
-  final int totalAccidents;
-  final int totalAccidentsPrevYear;
-  final Map<String, int> accidentTypeCounts;
-  final Map<String, int> accidentTypeCountsPrevYear;
-  final Map<String, int> topCities;
-  final Map<String, int> seasonCounts;
-  final Map<String, int> timeOfDayCounts;
-  final Map<String, int> weekendCounts;
-  final Map<int, int> monthlyAccidents;
-  final Map<String, Map<int, int>> typeMonthlyAccidents;
-  final Map<String, int> stationAccidents;
-
   const DashboardState({
     this.departments = const [],
     this.availableYears = const [],
@@ -46,6 +26,25 @@ class DashboardState {
     this.typeMonthlyAccidents = const {},
     this.stationAccidents = const {},
   });
+  final List<String> departments;
+  final List<int> availableYears;
+  final bool isLoading;
+  final String? errorMessage;
+
+  final String? selectedDept;
+  final int? selectedYear;
+
+  final int totalAccidents;
+  final int totalAccidentsPrevYear;
+  final Map<String, int> accidentTypeCounts;
+  final Map<String, int> accidentTypeCountsPrevYear;
+  final Map<String, int> topCities;
+  final Map<String, int> seasonCounts;
+  final Map<String, int> timeOfDayCounts;
+  final Map<String, int> weekendCounts;
+  final Map<int, int> monthlyAccidents;
+  final Map<String, Map<int, int>> typeMonthlyAccidents;
+  final Map<String, int> stationAccidents;
 
   int get deltaAccidents => totalAccidents - totalAccidentsPrevYear;
   int get fatalitiesCount => accidentTypeCounts[AccidentTypes.fatalities] ?? 0;
@@ -99,8 +98,8 @@ class DashboardState {
       totalAccidentsPrevYear:
           totalAccidentsPrevYear ?? this.totalAccidentsPrevYear,
       accidentTypeCounts: accidentTypeCounts ?? this.accidentTypeCounts,
-      accidentTypeCountsPrevYear: accidentTypeCountsPrevYear ??
-          this.accidentTypeCountsPrevYear,
+      accidentTypeCountsPrevYear:
+          accidentTypeCountsPrevYear ?? this.accidentTypeCountsPrevYear,
       topCities: topCities ?? this.topCities,
       seasonCounts: seasonCounts ?? this.seasonCounts,
       timeOfDayCounts: timeOfDayCounts ?? this.timeOfDayCounts,
@@ -115,13 +114,13 @@ class DashboardState {
 /// Manages dashboard filters and aggregates only. Does not load accident list;
 /// [accidentsProvider] reacts to filter changes and loads map/list data.
 class DashboardNotifier extends StateNotifier<DashboardState> {
-  final TrafficRepository _repo;
-
   DashboardNotifier(TrafficRepository repo)
-    : _repo = repo,
-      super(const DashboardState()) {
+      : _repo = repo,
+        super(const DashboardState()) {
     _initialize();
   }
+
+  final TrafficRepository _repo;
 
   Future<void> _initialize() async {
     state = state.copyWith(isLoading: true, errorMessage: null);
@@ -139,7 +138,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e is Exception ? e.toString() : 'Error initializing dashboard: $e',
+        errorMessage: e is Exception
+            ? e.toString()
+            : 'Error initializing dashboard: $e',
       );
     }
   }
@@ -183,7 +184,9 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     } catch (e) {
       state = state.copyWith(
         isLoading: false,
-        errorMessage: e is Exception ? e.toString() : 'Error loading dashboard data: $e',
+        errorMessage: e is Exception
+            ? e.toString()
+            : 'Error loading dashboard data: $e',
       );
     }
   }

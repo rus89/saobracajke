@@ -1,1 +1,30 @@
+# ABOUTME: Project-wide analyzer and linter configuration.
+# ABOUTME: Extends flutter_lints with stricter rules; see dart.dev/tools/linter-rules.
+
 include: package:flutter_lints/flutter.yaml
+
+analyzer:
+  errors:
+    invalid_annotation_target: warning
+    missing_required_param: error
+    missing_return: error
+
+linter:
+  rules:
+    avoid_multiple_declarations_per_line: true
+    avoid_returning_this: true
+    combinators_ordering: true
+    directives_ordering: true
+    join_return_with_assignment: true
+    literal_only_boolean_expressions: true
+    no_self_assignments: true
+    prefer_asserts_with_message: true
+    prefer_final_in_for_each: true
+    prefer_final_locals: true
+    prefer_null_aware_method_calls: true
+    sort_constructors_first: true
+    sort_unnamed_constructors_first: true
+    unawaited_futures: true
+    unnecessary_await_in_return: true
+    use_colored_box: true
+    use_decorated_box: true

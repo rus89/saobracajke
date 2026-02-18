@@ -6,11 +6,10 @@ import '../../domain/models/accident_model.dart';
 import '../../domain/repositories/traffic_repository.dart';
 
 class SqliteTrafficRepository implements TrafficRepository {
+  SqliteTrafficRepository({Future<Database> Function()? databaseProvider})
+    : _databaseProvider = databaseProvider;
   final Future<Database> Function()? _databaseProvider;
   final DatabaseService _dbService = DatabaseService();
-
-  SqliteTrafficRepository({Future<Database> Function()? databaseProvider})
-      : _databaseProvider = databaseProvider;
 
   Future<Database> get _db async =>
       _databaseProvider != null ? _databaseProvider() : _dbService.database;
@@ -36,7 +35,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
-    List<dynamic> args = [year.toString()];
+    final List<dynamic> args = [year.toString()];
 
     if (department != null && department.isNotEmpty) {
       whereClause += " AND d.name = ?";
@@ -63,7 +62,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
-    List<dynamic> args = [year.toString()];
+    final List<dynamic> args = [year.toString()];
 
     if (department != null && department.isNotEmpty) {
       whereClause += " AND d.name = ?";
@@ -83,7 +82,7 @@ class SqliteTrafficRepository implements TrafficRepository {
 
     final result = await db.rawQuery(sql, args);
     final raw = Map.fromEntries(
-      result.map((row) => MapEntry(row['name'] as String, row['cnt'] as int)),
+      result.map((final row) => MapEntry(row['name'] as String, row['cnt'] as int)),
     );
     return AccidentTypes.normalizeCounts(raw);
   }
@@ -96,7 +95,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
-    List<dynamic> args = [year.toString()];
+    final List<dynamic> args = [year.toString()];
 
     if (department != null && department.isNotEmpty) {
       whereClause += " AND d.name = ?";
@@ -117,7 +116,7 @@ class SqliteTrafficRepository implements TrafficRepository {
 
     final result = await db.rawQuery(sql, args);
     return Map.fromEntries(
-      result.map((row) => MapEntry(row['name'] as String, row['cnt'] as int)),
+      result.map((final row) => MapEntry(row['name'] as String, row['cnt'] as int)),
     );
   }
 
@@ -129,7 +128,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
-    List<dynamic> args = [year.toString()];
+    final List<dynamic> args = [year.toString()];
 
     String deptJoin = '';
     if (department != null && department.isNotEmpty) {
@@ -157,7 +156,7 @@ class SqliteTrafficRepository implements TrafficRepository {
 
     final result = await db.rawQuery(sql, args);
     return Map.fromEntries(
-      result.map((row) => MapEntry(row['season'] as String, row['cnt'] as int)),
+      result.map((final row) => MapEntry(row['season'] as String, row['cnt'] as int)),
     );
   }
 
@@ -169,7 +168,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
-    List<dynamic> args = [year.toString()];
+    final List<dynamic> args = [year.toString()];
 
     String deptJoin = '';
     if (department != null && department.isNotEmpty) {
@@ -198,7 +197,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final result = await db.rawQuery(sql, args);
     return Map.fromEntries(
       result.map(
-        (row) => MapEntry(row['time_period'] as String, row['cnt'] as int),
+        (final row) => MapEntry(row['time_period'] as String, row['cnt'] as int),
       ),
     );
   }
@@ -211,7 +210,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
-    List<dynamic> args = [year.toString()];
+    final List<dynamic> args = [year.toString()];
 
     String deptJoin = '';
     if (department != null && department.isNotEmpty) {
@@ -238,7 +237,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final result = await db.rawQuery(sql, args);
     return Map.fromEntries(
       result.map(
-        (row) => MapEntry(row['day_type'] as String, row['cnt'] as int),
+        (final row) => MapEntry(row['day_type'] as String, row['cnt'] as int),
       ),
     );
   }
@@ -254,7 +253,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "1=1";
-    List<dynamic> args = [];
+    final List<dynamic> args = [];
 
     if (startDate != null && endDate != null) {
       whereClause += " AND a.date_and_time BETWEEN ? AND ?";
@@ -300,7 +299,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     ''';
 
     final result = await db.rawQuery(sql, args);
-    return result.map((row) => AccidentModel.fromSql(row)).toList();
+    return result.map((final row) => AccidentModel.fromSql(row)).toList();
   }
 
   @override
@@ -311,7 +310,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
-    List<dynamic> args = [year.toString()];
+    final List<dynamic> args = [year.toString()];
 
     if (department != null && department.isNotEmpty) {
       whereClause += " AND d.name = ?";
@@ -331,7 +330,7 @@ class SqliteTrafficRepository implements TrafficRepository {
   ''';
 
     final result = await db.rawQuery(sql, args);
-    final Map<int, int> monthCounts = {};
+    final monthCounts = <int, int>{};
 
     // Initialize all months with 0
     for (int i = 1; i <= 12; i++) {
@@ -339,7 +338,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     }
 
     // Fill in actual values
-    for (var row in result) {
+    for (final row in result) {
       monthCounts[row['month'] as int] = row['cnt'] as int;
     }
 
@@ -354,7 +353,7 @@ class SqliteTrafficRepository implements TrafficRepository {
     final db = await _db;
 
     String whereClause = "strftime('%Y', a.date_and_time) = ?";
-    List<dynamic> args = [year.toString()];
+    final List<dynamic> args = [year.toString()];
 
     if (department != null && department.isNotEmpty) {
       whereClause += " AND d.name = ?";
@@ -376,9 +375,9 @@ class SqliteTrafficRepository implements TrafficRepository {
   ''';
 
     final result = await db.rawQuery(sql, args);
-    final Map<String, Map<int, int>> typeMonthCounts = {};
+    final typeMonthCounts = <String, Map<int, int>>{};
 
-    for (var row in result) {
+    for (final row in result) {
       final rawName = row['name'] as String;
       final canonicalType = AccidentTypes.normalize(rawName);
       final month = row['month'] as int;
@@ -415,7 +414,7 @@ class SqliteTrafficRepository implements TrafficRepository {
 
     final result = await db.rawQuery(sql, [year.toString(), department]);
     return Map.fromEntries(
-      result.map((row) => MapEntry(row['name'] as String, row['cnt'] as int)),
+      result.map((final row) => MapEntry(row['name'] as String, row['cnt'] as int)),
     );
   }
 }

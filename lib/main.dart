@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:saobracajke/core/services/database_service.dart';
@@ -44,8 +46,10 @@ class _SplashScreenState extends State<SplashScreen> {
     try {
       await DatabaseService().database;
       if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const MainScaffold()),
+      unawaited(
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const MainScaffold()),
+        ),
       );
     } catch (e) {
       if (!mounted) return;

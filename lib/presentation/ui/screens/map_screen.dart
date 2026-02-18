@@ -61,6 +61,58 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final dashboardState = ref.watch(dashboardProvider);
     final accidentsAsync = ref.watch(accidentsProvider);
 
+    final theme = Theme.of(context);
+
+    if (accidentsAsync.hasError) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Mapa Nesreća'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: () => _showFilterDialog(),
+              tooltip: 'Filteri',
+              style: IconButton.styleFrom(
+                minimumSize: const Size(
+                  AppSpacing.minTouchTarget,
+                  AppSpacing.minTouchTarget,
+                ),
+              ),
+            ),
+          ],
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.error_outline,
+                  size: 64,
+                  color: theme.colorScheme.error,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  'Nije moguće učitati listu nesreća.',
+                  style: theme.textTheme.titleMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: AppSpacing.xl),
+                FilledButton.icon(
+                  onPressed: () {
+                    ref.invalidate(accidentsProvider);
+                  },
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Pokušaj ponovo'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     // Group accidents by location for clustering
     final accidents = accidentsAsync.value ?? [];
     final markers = <Marker>[];
@@ -82,7 +134,6 @@ class _MapScreenState extends ConsumerState<MapScreen> {
 
     final isLoading = accidentsAsync.isLoading;
 
-    final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Mapa Nesreća'),

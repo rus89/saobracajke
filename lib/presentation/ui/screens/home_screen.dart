@@ -15,19 +15,43 @@ class HomeScreen extends ConsumerWidget {
     final state = ref.watch(dashboardProvider);
     final theme = Theme.of(context);
 
+    final notifier = ref.read(dashboardProvider.notifier);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Saobraćajne Nezgode - Pregled')),
       body: SafeArea(
-        child: state.isLoading
-          ? Semantics(
-              label: 'Loading dashboard data',
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: theme.colorScheme.primary,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (state.errorMessage != null)
+              MaterialBanner(
+                content: Text(state.errorMessage!),
+                backgroundColor: theme.colorScheme.errorContainer,
+                leading: Icon(
+                  Icons.error_outline,
+                  color: theme.colorScheme.onErrorContainer,
                 ),
+                actions: [
+                  TextButton(
+                    onPressed: () => notifier.retry(),
+                    child: Text(
+                      'Pokušaj ponovo',
+                      style: TextStyle(color: theme.colorScheme.onErrorContainer),
+                    ),
+                  ),
+                ],
               ),
-            )
-          : SingleChildScrollView(
+            Expanded(
+              child: state.isLoading
+                ? Semantics(
+                    label: 'Loading dashboard data',
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: theme.colorScheme.primary,
+                      ),
+                    ),
+                  )
+                : SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -120,6 +144,9 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ),
             ),
+            ),
+          ],
+        ),
       ),
     );
   }

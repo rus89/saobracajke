@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/legacy.dart';
 
 import '../../core/di/repository_providers.dart';
@@ -11,6 +10,7 @@ class DashboardState {
   final List<String> departments;
   final List<int> availableYears;
   final bool isLoading;
+  final String? errorMessage;
 
   final String? selectedDept;
   final int? selectedYear;
@@ -30,6 +30,7 @@ class DashboardState {
     this.departments = const [],
     this.availableYears = const [],
     this.isLoading = false,
+    this.errorMessage,
     this.selectedDept,
     this.selectedYear,
     this.totalAccidents = 0,
@@ -54,6 +55,7 @@ class DashboardState {
     List<String>? departments,
     List<int>? availableYears,
     bool? isLoading,
+    Object? errorMessage = '_UNSET_',
     String? selectedDept = '_UNSET_',
     Object? selectedYear = '_UNSET_',
     int? totalAccidents,
@@ -71,6 +73,9 @@ class DashboardState {
       departments: departments ?? this.departments,
       availableYears: availableYears ?? this.availableYears,
       isLoading: isLoading ?? this.isLoading,
+      errorMessage: errorMessage != '_UNSET_'
+          ? errorMessage as String?
+          : this.errorMessage,
       selectedDept: selectedDept != '_UNSET_'
           ? selectedDept
           : this.selectedDept,
@@ -104,7 +109,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
   }
 
   Future<void> _initialize() async {
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final depts = await _repo.getDepartments();
       final years = await _repo.getAvailableYears();
@@ -115,10 +120,12 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         selectedYear: defaultYear,
       );
       await _loadDashboardData();
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false, errorMessage: null);
     } catch (e) {
-      debugPrint('Error initializing dashboard: $e');
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e is Exception ? e.toString() : 'Error initializing dashboard: $e',
+      );
     }
   }
 
@@ -126,7 +133,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     if (state.selectedYear == null) return;
     final year = state.selectedYear!;
     final dept = state.selectedDept;
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, errorMessage: null);
     try {
       final results = await Future.wait([
         _repo.getTotalAccidentsForYear(year, department: dept),
@@ -144,6 +151,7 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
       ]);
       state = state.copyWith(
         isLoading: false,
+        errorMessage: null,
         totalAccidents: results[0] as int,
         totalAccidentsPrevYear: results[1] as int,
         accidentTypeCounts: results[2] as Map<String, int>,
@@ -156,8 +164,19 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
         stationAccidents: results[9] as Map<String, int>,
       );
     } catch (e) {
-      debugPrint('Error loading dashboard data: $e');
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: e is Exception ? e.toString() : 'Error loading dashboard data: $e',
+      );
+    }
+  }
+
+  void retry() {
+    state = state.copyWith(errorMessage: null);
+    if (state.selectedYear == null || state.departments.isEmpty) {
+      _initialize();
+    } else {
+      _loadDashboardData();
     }
   }
 

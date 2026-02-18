@@ -154,6 +154,68 @@ void main() {
       );
       expect(slowContainer.read(dashboardProvider).selectedDept, 'Belgrade');
     });
+
+    test('when repo throws during init, state contains error message', () async {
+      final throwingRepo = ThrowingInitFakeTrafficRepository();
+      final c = ProviderContainer(
+        overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
+      );
+      addTearDown(c.dispose);
+      c.read(dashboardProvider);
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        if (!c.read(dashboardProvider).isLoading) break;
+      }
+      final state = c.read(dashboardProvider);
+      expect(state.isLoading, isFalse);
+      expect(state.errorMessage, isNotNull);
+      expect(state.errorMessage!.isNotEmpty, isTrue);
+    });
+
+    test('when repo throws during load after setYear, state contains error message',
+        () async {
+      final throwingRepo = ThrowingLoadFakeTrafficRepository(throwForYear: 2022);
+      final c = ProviderContainer(
+        overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
+      );
+      addTearDown(c.dispose);
+      await waitForInit(c);
+      expect(c.read(dashboardProvider).errorMessage, isNull);
+
+      c.read(dashboardProvider.notifier).setYear(2022);
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        final s = c.read(dashboardProvider);
+        if (!s.isLoading && s.errorMessage != null) break;
+      }
+      final state = c.read(dashboardProvider);
+      expect(state.errorMessage, isNotNull);
+      expect(state.errorMessage!.isNotEmpty, isTrue);
+    });
+
+    test('retry clears error and reloads; when repo then succeeds, state has no error',
+        () async {
+      final repo = ThrowingOnceInitFakeTrafficRepository();
+      final c = ProviderContainer(
+        overrides: [repositoryProvider.overrideWithValue(repo)],
+      );
+      addTearDown(c.dispose);
+      c.read(dashboardProvider);
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        if (!c.read(dashboardProvider).isLoading) break;
+      }
+      expect(c.read(dashboardProvider).errorMessage, isNotNull);
+
+      c.read(dashboardProvider.notifier).retry();
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        if (!c.read(dashboardProvider).isLoading) break;
+      }
+      final state = c.read(dashboardProvider);
+      expect(state.errorMessage, isNull);
+      expect(state.departments, isNotEmpty);
+    });
   });
 
   group('accidentsProvider', () {
@@ -353,5 +415,34 @@ class FakeTrafficRepository implements TrafficRepository {
         officialDesc: null,
       ),
     ];
+  }
+}
+
+class ThrowingInitFakeTrafficRepository extends FakeTrafficRepository {
+  @override
+  Future<List<String>> getDepartments() async {
+    throw Exception('Init failed');
+  }
+}
+
+class ThrowingLoadFakeTrafficRepository extends FakeTrafficRepository {
+  ThrowingLoadFakeTrafficRepository({required this.throwForYear});
+  final int throwForYear;
+
+  @override
+  Future<int> getTotalAccidentsForYear(int year, {String? department}) async {
+    if (year == throwForYear) throw Exception('Load failed');
+    return super.getTotalAccidentsForYear(year, department: department);
+  }
+}
+
+class ThrowingOnceInitFakeTrafficRepository extends FakeTrafficRepository {
+  int _getDepartmentsCalls = 0;
+
+  @override
+  Future<List<String>> getDepartments() async {
+    _getDepartmentsCalls++;
+    if (_getDepartmentsCalls == 1) throw Exception('First init failed');
+    return super.getDepartments();
   }
 }

@@ -200,14 +200,14 @@ class DashboardNotifier extends StateNotifier<DashboardState> {
     }
   }
 
-  void setYear(int year) {
-    state = state.copyWith(selectedYear: year);
-    _loadDashboardData();
+  Future<void> setYear(int year) async {
+    state = state.copyWith(selectedYear: year, isLoading: true);
+    await _loadDashboardData();
   }
 
-  void setDepartment(String? dept) {
-    state = state.copyWith(selectedDept: dept);
-    _loadDashboardData();
+  Future<void> setDepartment(String? dept) async {
+    state = state.copyWith(selectedDept: dept, isLoading: true);
+    await _loadDashboardData();
   }
 }
 

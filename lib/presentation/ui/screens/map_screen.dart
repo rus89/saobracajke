@@ -8,6 +8,7 @@ import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/presentation/logic/accidents_provider.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
+import 'package:saobracajke/presentation/ui/widgets/shimmer_skeleton.dart';
 import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart';
 
 //-------------------------------------------------------------------------------
@@ -152,13 +153,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         ],
       ),
       body: isLoading
-          ? Semantics(
-              label: 'Loading map data',
-              child: Center(
-                child: CircularProgressIndicator(
-                  color: theme.colorScheme.primary,
-                ),
-              ),
+          ? const Semantics(
+              label: 'Učitavanje mape',
+              child: MapSkeleton(),
             )
           : Stack(
               children: [

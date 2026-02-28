@@ -6,6 +6,7 @@ import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_one_header.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_three_charts.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_two_charts.dart';
+import 'package:saobracajke/presentation/ui/widgets/shimmer_skeleton.dart';
 import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -44,13 +45,9 @@ class HomeScreen extends ConsumerWidget {
               ),
             Expanded(
               child: state.isLoading
-                ? Semantics(
-                    label: 'Loading dashboard data',
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
+                ? const Semantics(
+                    label: 'Učitavanje podataka',
+                    child: DashboardSkeleton(),
                   )
                 : SingleChildScrollView(
               child: Column(

@@ -31,3 +31,4 @@ flutter:
   uses-material-design: true
   assets:
     - assets/db/serbian_traffic.db.zip
+    - assets/icon/icon.png

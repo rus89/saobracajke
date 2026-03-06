@@ -2,6 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
+import 'package:saobracajke/presentation/ui/widgets/empty_state.dart';
 
 class SectionTwoCharts extends StatelessWidget {
   const SectionTwoCharts({
@@ -14,6 +15,16 @@ class SectionTwoCharts extends StatelessWidget {
   final Map<int, int> monthlyAccidents;
   final Map<String, Map<int, int>> typeMonthlyAccidents;
   final Map<String, int> stationAccidents;
+
+  static const _months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'Maj', 'Jun',
+    'Jul', 'Avg', 'Sep', 'Okt', 'Nov', 'Dec',
+  ];
+
+  static const _monthsFull = [
+    'Januar', 'Februar', 'Mart', 'April', 'Maj', 'Jun',
+    'Jul', 'Avgust', 'Septembar', 'Oktobar', 'Novembar', 'Decembar',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +39,7 @@ class SectionTwoCharts extends StatelessWidget {
             const SizedBox(height: AppSpacing.xxl),
             _buildTypeMonthlyChart(context),
             const SizedBox(height: AppSpacing.xxl),
-            if (stationAccidents.isNotEmpty) _buildStationChart(context),
+            _buildStationChart(context),
           ],
         ),
       ),
@@ -62,6 +73,31 @@ class SectionTwoCharts extends StatelessWidget {
             child: LineChart(
               LineChartData(
                 gridData: FlGridData(show: true),
+                lineTouchData: LineTouchData(
+                  handleBuiltInTouches: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => theme.colorScheme.inverseSurface,
+                    getTooltipItems: (spots) => spots.map((s) {
+                      final monthIndex = s.x.toInt();
+                      if (monthIndex >= 1 && monthIndex <= 12) {
+                        return LineTooltipItem(
+                          '${_monthsFull[monthIndex - 1]}: ${s.y.toInt()}',
+                          TextStyle(
+                            color: theme.colorScheme.onInverseSurface,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        );
+                      }
+                      return LineTooltipItem(
+                        '${s.y.toInt()}',
+                        TextStyle(
+                          color: theme.colorScheme.onInverseSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
                 titlesData: FlTitlesData(
                   rightTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -74,25 +110,11 @@ class SectionTwoCharts extends StatelessWidget {
                       showTitles: true,
                       reservedSize: 30,
                       getTitlesWidget: (value, meta) {
-                        const months = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'Maj',
-                          'Jun',
-                          'Jul',
-                          'Avg',
-                          'Sep',
-                          'Okt',
-                          'Nov',
-                          'Dec',
-                        ];
                         if (value.toInt() >= 1 && value.toInt() <= 12) {
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
-                              months[value.toInt() - 1],
+                              _months[value.toInt() - 1],
                               style: theme.textTheme.bodySmall,
                             ),
                           );
@@ -211,6 +233,25 @@ class SectionTwoCharts extends StatelessWidget {
             child: LineChart(
               LineChartData(
                 gridData: FlGridData(show: true),
+                lineTouchData: LineTouchData(
+                  handleBuiltInTouches: true,
+                  touchTooltipData: LineTouchTooltipData(
+                    getTooltipColor: (_) => theme.colorScheme.inverseSurface,
+                    getTooltipItems: (spots) {
+                      final typeKeys = typeMonthlyAccidents.keys.toList();
+                      return spots.map((s) {
+                        final typeName = typeKeys[s.barIndex];
+                        return LineTooltipItem(
+                          '$typeName: ${s.y.toInt()}',
+                          TextStyle(
+                            color: colors[s.barIndex % colors.length],
+                            fontWeight: FontWeight.w600,
+                          ),
+                        );
+                      }).toList();
+                    },
+                  ),
+                ),
                 titlesData: FlTitlesData(
                   rightTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -223,25 +264,11 @@ class SectionTwoCharts extends StatelessWidget {
                       showTitles: true,
                       reservedSize: 30,
                       getTitlesWidget: (value, meta) {
-                        const months = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'Maj',
-                          'Jun',
-                          'Jul',
-                          'Avg',
-                          'Sep',
-                          'Okt',
-                          'Nov',
-                          'Dec',
-                        ];
                         if (value.toInt() >= 1 && value.toInt() <= 12) {
                           return Padding(
                             padding: const EdgeInsets.only(top: 8.0),
                             child: Text(
-                              months[value.toInt() - 1],
+                              _months[value.toInt() - 1],
                               style: theme.textTheme.bodySmall,
                             ),
                           );
@@ -309,6 +336,31 @@ class SectionTwoCharts extends StatelessWidget {
       ..sort((a, b) => b.value.compareTo(a.value));
     final topStations = sortedStations.take(10).toList();
 
+    if (topStations.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Top 10 policijskih stanica po broju nesreća',
+              style: theme.textTheme.titleMedium,
+            ),
+            const EmptyState(
+              icon: Icons.bar_chart,
+              title: 'Nema podataka o stanicama',
+              subtitle: 'Promenite filtere da biste videli podatke.',
+            ),
+          ],
+        ),
+      );
+    }
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
@@ -329,6 +381,23 @@ class SectionTwoCharts extends StatelessWidget {
             child: BarChart(
               BarChartData(
                 gridData: FlGridData(show: true, drawVerticalLine: false),
+                barTouchData: BarTouchData(
+                  enabled: true,
+                  touchTooltipData: BarTouchTooltipData(
+                    getTooltipColor: (_) => theme.colorScheme.inverseSurface,
+                    getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                      final stationName = topStations[group.x].key;
+                      final count = rod.toY.toInt();
+                      return BarTooltipItem(
+                        '$stationName\n$count nesreća',
+                        TextStyle(
+                          color: theme.colorScheme.onInverseSurface,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      );
+                    },
+                  ),
+                ),
                 titlesData: FlTitlesData(
                   rightTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -383,7 +452,7 @@ class SectionTwoCharts extends StatelessWidget {
                     barRods: [
                       BarChartRodData(
                         toY: entry.value.value.toDouble(),
-                        color: Colors.purple.shade600,
+                        color: AppTheme.primaryGreenDark,
                         width: 20,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(6),

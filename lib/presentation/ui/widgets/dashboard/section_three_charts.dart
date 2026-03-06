@@ -2,8 +2,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
+import 'package:saobracajke/presentation/ui/widgets/empty_state.dart';
 
-class SectionThreeTemporal extends StatelessWidget {
+class SectionThreeTemporal extends StatefulWidget {
   const SectionThreeTemporal({
     super.key,
     required this.seasonCounts,
@@ -14,6 +15,25 @@ class SectionThreeTemporal extends StatelessWidget {
   final Map<String, int> seasonCounts;
   final Map<String, int> weekendCounts;
   final Map<String, int> timeOfDayCounts;
+
+  @override
+  State<SectionThreeTemporal> createState() => _SectionThreeTemporalState();
+}
+
+class _SectionThreeTemporalState extends State<SectionThreeTemporal> {
+  static const _narrowBreakpoint = 500.0;
+
+  int _seasonTouched = -1;
+  int _weekendTouched = -1;
+  int _timeTouched = -1;
+
+  @override
+  void didUpdateWidget(covariant SectionThreeTemporal oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _seasonTouched = -1;
+    _weekendTouched = -1;
+    _timeTouched = -1;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +55,6 @@ class SectionThreeTemporal extends StatelessWidget {
     );
   }
 
-  static const _narrowBreakpoint = 500.0;
-
   Widget _buildSeasonChart(BuildContext context) {
     final theme = Theme.of(context);
     final narrow = MediaQuery.sizeOf(context).width < _narrowBreakpoint;
@@ -47,20 +65,44 @@ class SectionThreeTemporal extends StatelessWidget {
       AppTheme.semanticMaterialDamage.withValues(alpha: 0.9),
     ];
 
-    final total = seasonCounts.values.fold(0, (sum, val) => sum + val);
-    if (total == 0) return const SizedBox.shrink();
+    final total = widget.seasonCounts.values.fold(0, (sum, val) => sum + val);
+    if (total == 0) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nesreće po godišnjim dobima',
+              style: theme.textTheme.titleMedium,
+            ),
+            const EmptyState(
+              icon: Icons.pie_chart_outline,
+              title: 'Nema podataka',
+              subtitle: 'Nema nesreća za prikazivanje u ovom periodu.',
+            ),
+          ],
+        ),
+      );
+    }
 
     final sections = <PieChartSectionData>[];
     int colorIndex = 0;
 
-    seasonCounts.forEach((season, count) {
+    widget.seasonCounts.forEach((season, count) {
       final percentage = (count / total * 100).toStringAsFixed(1);
+      final isTouched = _seasonTouched == colorIndex;
       sections.add(
         PieChartSectionData(
           color: colors[colorIndex % colors.length],
           value: count.toDouble(),
           title: '$percentage%',
-          radius: 100,
+          radius: isTouched ? 110 : 100,
           titleStyle:
               theme.textTheme.titleSmall?.copyWith(
                 color: theme.colorScheme.surface,
@@ -75,6 +117,25 @@ class SectionThreeTemporal extends StatelessWidget {
       );
       colorIndex++;
     });
+
+    final pieData = PieChartData(
+      pieTouchData: PieTouchData(
+        touchCallback: (FlTouchEvent event, PieTouchResponse? response) {
+          setState(() {
+            if (!event.isInterestedForInteractions ||
+                response?.touchedSection == null) {
+              _seasonTouched = -1;
+              return;
+            }
+            _seasonTouched = response!.touchedSection!.touchedSectionIndex;
+          });
+        },
+      ),
+      sections: sections,
+      sectionsSpace: 2,
+      centerSpaceRadius: 0,
+      borderData: FlBorderData(show: false),
+    );
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -98,17 +159,10 @@ class SectionThreeTemporal extends StatelessWidget {
                   children: [
                     SizedBox(
                       height: 160,
-                      child: PieChart(
-                        PieChartData(
-                          sections: sections,
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 0,
-                          borderData: FlBorderData(show: false),
-                        ),
-                      ),
+                      child: PieChart(pieData),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    ...seasonCounts.entries.toList().asMap().entries.map((
+                    ...widget.seasonCounts.entries.toList().asMap().entries.map((
                       entry,
                     ) {
                       final index = entry.key;
@@ -158,21 +212,14 @@ class SectionThreeTemporal extends StatelessWidget {
                     children: [
                       Expanded(
                         flex: 3,
-                        child: PieChart(
-                          PieChartData(
-                            sections: sections,
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 0,
-                            borderData: FlBorderData(show: false),
-                          ),
-                        ),
+                        child: PieChart(pieData),
                       ),
                       Expanded(
                         flex: 2,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: seasonCounts.entries
+                          children: widget.seasonCounts.entries
                               .toList()
                               .asMap()
                               .entries
@@ -244,24 +291,54 @@ class SectionThreeTemporal extends StatelessWidget {
       AppTheme.primaryGreen,
     ];
 
-    final total = weekendCounts.values.fold(0, (sum, val) => sum + val);
-    if (total == 0) return const SizedBox.shrink();
+    final total = widget.weekendCounts.values.fold(0, (sum, val) => sum + val);
+    if (total == 0) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nesreće: Radni dani vs Vikend',
+              style: theme.textTheme.titleMedium,
+            ),
+            const EmptyState(
+              icon: Icons.pie_chart_outline,
+              title: 'Nema podataka',
+              subtitle: 'Nema nesreća za prikazivanje u ovom periodu.',
+            ),
+          ],
+        ),
+      );
+    }
 
     final sections = <PieChartSectionData>[];
-    int colorIndex = 0;
+    // Track section index separately because we skip entries with count == 0.
+    int sectionIndex = 0;
 
     // Ensure consistent order: Weekday first, Weekend second
     final orderedKeys = ['Radni dan', 'Vikend'];
-    for (final key in orderedKeys) {
-      final count = weekendCounts[key] ?? 0;
+    // Map from colorIndex to sectionIndex for touch matching
+    final colorForSection = <int, int>{};
+
+    for (int colorIndex = 0; colorIndex < orderedKeys.length; colorIndex++) {
+      final key = orderedKeys[colorIndex];
+      final count = widget.weekendCounts[key] ?? 0;
       if (count > 0) {
         final percentage = (count / total * 100).toStringAsFixed(1);
+        final isTouched = _weekendTouched == sectionIndex;
+        colorForSection[colorIndex] = sectionIndex;
         sections.add(
           PieChartSectionData(
             color: colors[colorIndex],
             value: count.toDouble(),
             title: '$percentage%',
-            radius: 100,
+            radius: isTouched ? 110 : 100,
             titleStyle:
                 theme.textTheme.titleSmall?.copyWith(
                   color: theme.colorScheme.surface,
@@ -274,9 +351,28 @@ class SectionThreeTemporal extends StatelessWidget {
                 ),
           ),
         );
+        sectionIndex++;
       }
-      colorIndex++;
     }
+
+    final pieData = PieChartData(
+      pieTouchData: PieTouchData(
+        touchCallback: (FlTouchEvent event, PieTouchResponse? response) {
+          setState(() {
+            if (!event.isInterestedForInteractions ||
+                response?.touchedSection == null) {
+              _weekendTouched = -1;
+              return;
+            }
+            _weekendTouched = response!.touchedSection!.touchedSectionIndex;
+          });
+        },
+      ),
+      sections: sections,
+      sectionsSpace: 2,
+      centerSpaceRadius: 0,
+      borderData: FlBorderData(show: false),
+    );
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -300,20 +396,13 @@ class SectionThreeTemporal extends StatelessWidget {
                   children: [
                     SizedBox(
                       height: 160,
-                      child: PieChart(
-                        PieChartData(
-                          sections: sections,
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 0,
-                          borderData: FlBorderData(show: false),
-                        ),
-                      ),
+                      child: PieChart(pieData),
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     ...orderedKeys.asMap().entries.map((entry) {
                       final index = entry.key;
                       final key = entry.value;
-                      final count = weekendCounts[key] ?? 0;
+                      final count = widget.weekendCounts[key] ?? 0;
                       return Padding(
                         padding: const EdgeInsets.symmetric(vertical: 4),
                         child: Row(
@@ -358,14 +447,7 @@ class SectionThreeTemporal extends StatelessWidget {
                     children: [
                       Expanded(
                         flex: 3,
-                        child: PieChart(
-                          PieChartData(
-                            sections: sections,
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 0,
-                            borderData: FlBorderData(show: false),
-                          ),
-                        ),
+                        child: PieChart(pieData),
                       ),
                       Expanded(
                         flex: 2,
@@ -375,7 +457,7 @@ class SectionThreeTemporal extends StatelessWidget {
                           children: orderedKeys.asMap().entries.map((entry) {
                             final index = entry.key;
                             final key = entry.value;
-                            final count = weekendCounts[key] ?? 0;
+                            final count = widget.weekendCounts[key] ?? 0;
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 4),
                               child: Row(
@@ -437,20 +519,45 @@ class SectionThreeTemporal extends StatelessWidget {
       AppTheme.semanticMaterialDamage,
     ];
 
-    final total = timeOfDayCounts.values.fold(0, (sum, val) => sum + val);
-    if (total == 0) return const SizedBox.shrink();
+    final total =
+        widget.timeOfDayCounts.values.fold(0, (sum, val) => sum + val);
+    if (total == 0) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Nesreće po delu dana',
+              style: theme.textTheme.titleMedium,
+            ),
+            const EmptyState(
+              icon: Icons.pie_chart_outline,
+              title: 'Nema podataka',
+              subtitle: 'Nema nesreća za prikazivanje u ovom periodu.',
+            ),
+          ],
+        ),
+      );
+    }
 
     final sections = <PieChartSectionData>[];
     int colorIndex = 0;
 
-    timeOfDayCounts.forEach((timeOfDay, count) {
+    widget.timeOfDayCounts.forEach((timeOfDay, count) {
       final percentage = (count / total * 100).toStringAsFixed(1);
+      final isTouched = _timeTouched == colorIndex;
       sections.add(
         PieChartSectionData(
           color: colors[colorIndex % colors.length],
           value: count.toDouble(),
           title: '$percentage%',
-          radius: 100,
+          radius: isTouched ? 110 : 100,
           titleStyle:
               theme.textTheme.titleSmall?.copyWith(
                 color: theme.colorScheme.surface,
@@ -465,6 +572,25 @@ class SectionThreeTemporal extends StatelessWidget {
       );
       colorIndex++;
     });
+
+    final pieData = PieChartData(
+      pieTouchData: PieTouchData(
+        touchCallback: (FlTouchEvent event, PieTouchResponse? response) {
+          setState(() {
+            if (!event.isInterestedForInteractions ||
+                response?.touchedSection == null) {
+              _timeTouched = -1;
+              return;
+            }
+            _timeTouched = response!.touchedSection!.touchedSectionIndex;
+          });
+        },
+      ),
+      sections: sections,
+      sectionsSpace: 2,
+      centerSpaceRadius: 0,
+      borderData: FlBorderData(show: false),
+    );
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -485,17 +611,14 @@ class SectionThreeTemporal extends StatelessWidget {
                   children: [
                     SizedBox(
                       height: 160,
-                      child: PieChart(
-                        PieChartData(
-                          sections: sections,
-                          sectionsSpace: 2,
-                          centerSpaceRadius: 0,
-                          borderData: FlBorderData(show: false),
-                        ),
-                      ),
+                      child: PieChart(pieData),
                     ),
                     const SizedBox(height: AppSpacing.lg),
-                    ...timeOfDayCounts.entries.toList().asMap().entries.map((
+                    ...widget.timeOfDayCounts.entries
+                        .toList()
+                        .asMap()
+                        .entries
+                        .map((
                       entry,
                     ) {
                       final index = entry.key;
@@ -545,21 +668,14 @@ class SectionThreeTemporal extends StatelessWidget {
                     children: [
                       Expanded(
                         flex: 3,
-                        child: PieChart(
-                          PieChartData(
-                            sections: sections,
-                            sectionsSpace: 2,
-                            centerSpaceRadius: 0,
-                            borderData: FlBorderData(show: false),
-                          ),
-                        ),
+                        child: PieChart(pieData),
                       ),
                       Expanded(
                         flex: 2,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: timeOfDayCounts.entries
+                          children: widget.timeOfDayCounts.entries
                               .toList()
                               .asMap()
                               .entries

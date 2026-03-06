@@ -8,6 +8,7 @@ import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/presentation/logic/accidents_provider.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
+import 'package:saobracajke/presentation/ui/widgets/empty_state.dart';
 import 'package:saobracajke/presentation/ui/widgets/shimmer_skeleton.dart';
 import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart';
 
@@ -205,6 +206,20 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ),
                   ],
                 ),
+                if (accidents.isEmpty && !isLoading)
+                  Positioned.fill(
+                    child: Container(
+                      color: theme.colorScheme.surface.withValues(alpha: 0.85),
+                      child: const Center(
+                        child: EmptyState(
+                          icon: Icons.map_outlined,
+                          title: 'Nema nesreća za prikaz',
+                          subtitle:
+                              'Promenite filtere da biste videli nesreće na mapi.',
+                        ),
+                      ),
+                    ),
+                  ),
                 Positioned(bottom: 20, left: 20, child: _buildLegend(context)),
                 Positioned(
                   top: 0,
@@ -356,87 +371,100 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
       builder: (ctx) {
-        return Semantics(
-          label: 'Accident details: ${accident.type}, ${accident.department}',
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on,
-                      color: _getMarkerColor(accident.type),
-                      size: 30,
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            accident.type,
-                            style: theme.textTheme.titleLarge,
-                          ),
-                          Text(
-                            accident.department,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(ctx).height * 0.7,
+          ),
+          child: Semantics(
+            label:
+                'Accident details: ${accident.type}, ${accident.department}',
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                0,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.location_on,
+                        color: _getMarkerColor(accident.type),
+                        size: 30,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              accident.type,
+                              style: theme.textTheme.titleLarge,
                             ),
-                          ),
-                        ],
+                            Text(
+                              accident.department,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _buildDetailRow(
+                    ctx,
+                    Icons.calendar_today,
+                    'Datum',
+                    '${accident.date.day}.${accident.date.month}.${accident.date.year}',
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildDetailRow(
+                    ctx,
+                    Icons.access_time,
+                    'Vreme',
+                    '${accident.date.hour}:${accident.date.minute.toString().padLeft(2, '0')}',
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildDetailRow(
+                    ctx,
+                    Icons.location_city,
+                    'Stanica',
+                    accident.station,
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  _buildDetailRow(
+                    ctx,
+                    Icons.people,
+                    'Učesnici',
+                    accident.participants,
+                  ),
+                  if (accident.officialDesc != null) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    const Divider(),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      'Opis:',
+                      style: theme.textTheme.labelMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                _buildDetailRow(
-                  ctx,
-                  Icons.calendar_today,
-                  'Datum',
-                  '${accident.date.day}.${accident.date.month}.${accident.date.year}',
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(
-                  ctx,
-                  Icons.access_time,
-                  'Vreme',
-                  '${accident.date.hour}:${accident.date.minute.toString().padLeft(2, '0')}',
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(
-                  ctx,
-                  Icons.location_city,
-                  'Stanica',
-                  accident.station,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(
-                  ctx,
-                  Icons.people,
-                  'Učesnici',
-                  accident.participants,
-                ),
-                if (accident.officialDesc != null) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  const Divider(),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'Opis:',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
+                    const SizedBox(height: AppSpacing.xs),
+                    Text(
+                      accident.officialDesc!,
+                      style: theme.textTheme.bodyMedium,
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    accident.officialDesc!,
-                    style: theme.textTheme.bodyMedium,
-                  ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
         );

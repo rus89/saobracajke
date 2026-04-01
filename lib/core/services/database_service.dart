@@ -1,3 +1,5 @@
+// ABOUTME: Singleton service that extracts the SQLite database from a bundled zip asset on first launch.
+// ABOUTME: Opens the database read-only and throws DatabaseBootstrapException on failure.
 import 'dart:io';
 
 import 'package:archive/archive.dart';

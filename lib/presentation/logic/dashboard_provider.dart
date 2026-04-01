@@ -1,3 +1,5 @@
+// ABOUTME: Dashboard state management: filters (year, department) and all chart/aggregate data.
+// ABOUTME: DashboardNotifier loads data from TrafficRepository and exposes year-over-year deltas.
 import 'package:flutter_riverpod/legacy.dart';
 
 import '../../core/di/repository_providers.dart';

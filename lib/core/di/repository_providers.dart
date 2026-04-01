@@ -1,3 +1,5 @@
+// ABOUTME: Riverpod dependency injection for repository layer.
+// ABOUTME: Provides the concrete TrafficRepository implementation, overridable in tests.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/traffic_repository.dart' as data;
 import '../../domain/repositories/traffic_repository.dart';

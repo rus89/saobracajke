@@ -1,3 +1,5 @@
+// ABOUTME: Interactive map screen displaying traffic accident markers clustered on OpenStreetMap tiles.
+// ABOUTME: Supports filtering by year/department, color-coded markers by accident type, and detail bottom sheets.
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';

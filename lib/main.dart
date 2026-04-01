@@ -1,3 +1,5 @@
+// ABOUTME: App entry point and MaterialApp configuration.
+// ABOUTME: Handles database initialization via splash screen before showing main UI.
 import 'dart:async';
 
 import 'package:flutter/material.dart';

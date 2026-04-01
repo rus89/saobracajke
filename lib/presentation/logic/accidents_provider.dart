@@ -1,3 +1,5 @@
+// ABOUTME: FutureProvider that loads the accident list for the map/list screens.
+// ABOUTME: Reactively refetches when dashboard year or department filters change.
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/di/repository_providers.dart';

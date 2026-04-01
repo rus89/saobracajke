@@ -1,3 +1,5 @@
+// ABOUTME: Abstract contract for traffic accident data access.
+// ABOUTME: Defines queries for aggregates (by year, type, season, etc.) and filtered accident lists.
 import '../models/accident_model.dart';
 
 /// Contract for traffic/accident data access.

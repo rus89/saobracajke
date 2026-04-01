@@ -1,3 +1,5 @@
+// ABOUTME: Centralized spacing constants for consistent layout across the app.
+// ABOUTME: Includes padding, gap, and minimum touch target size tokens.
 /// Centralized spacing tokens for consistent layout.
 /// Use these instead of magic numbers for padding and gaps.
 class AppSpacing {

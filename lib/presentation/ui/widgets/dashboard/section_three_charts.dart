@@ -1,3 +1,5 @@
+// ABOUTME: Dashboard section 3: temporal distribution pie charts.
+// ABOUTME: Shows accidents by season, weekday vs weekend, and time of day.
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';

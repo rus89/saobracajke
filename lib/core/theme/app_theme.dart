@@ -1,3 +1,5 @@
+// ABOUTME: Centralized Material 3 theme definition for the app.
+// ABOUTME: Defines color tokens, typography, semantic accident-type colors, and component themes.
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 

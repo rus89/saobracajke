@@ -1,3 +1,5 @@
+// ABOUTME: Dashboard section 1: total accident count with year-over-year trend badge.
+// ABOUTME: Shows mini-stat cards for injuries, fatalities, and material damage with deltas.
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';

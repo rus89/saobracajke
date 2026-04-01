@@ -1,3 +1,5 @@
+// ABOUTME: Dashboard section 2: monthly accident line charts and top police stations bar chart.
+// ABOUTME: Includes total monthly trend, per-type monthly breakdown, and station ranking.
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';

@@ -1,3 +1,5 @@
+// ABOUTME: Dashboard home screen showing key accident metrics, trend charts, and temporal distribution.
+// ABOUTME: Reads DashboardState via Riverpod and renders three chart sections with year/department filters.
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';

@@ -1,3 +1,5 @@
+// ABOUTME: Canonical accident type constants and normalization logic.
+// ABOUTME: Maps variant DB strings to stable keys and provides display labels and marker colors.
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 

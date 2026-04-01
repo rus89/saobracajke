@@ -1,3 +1,5 @@
+// ABOUTME: Domain model representing a single traffic accident record.
+// ABOUTME: Includes factory for SQLite row parsing with safe type coercion and date parsing.
 import '../accident_types.dart';
 
 class AccidentModel {

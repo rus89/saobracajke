@@ -1,3 +1,5 @@
+// ABOUTME: Reusable filter widget with year and police department dropdown selectors.
+// ABOUTME: Used by both the dashboard home screen and the map overlay card.
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 

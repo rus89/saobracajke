@@ -1,3 +1,5 @@
+// ABOUTME: Root scaffold with bottom navigation bar switching between dashboard and map tabs.
+// ABOUTME: Uses IndexedStack to preserve tab state across navigation.
 import 'package:flutter/material.dart';
 import 'package:saobracajke/presentation/ui/screens/home_screen.dart';
 import 'package:saobracajke/presentation/ui/screens/map_screen.dart';

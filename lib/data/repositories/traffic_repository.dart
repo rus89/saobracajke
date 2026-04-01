@@ -1,3 +1,5 @@
+// ABOUTME: SQLite-backed implementation of the TrafficRepository interface.
+// ABOUTME: Queries the local accidents database for dashboard aggregates and filtered accident lists.
 import 'package:sqflite/sqflite.dart';
 
 import '../../core/services/database_service.dart';

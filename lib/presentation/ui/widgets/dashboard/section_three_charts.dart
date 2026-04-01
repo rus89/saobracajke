@@ -82,7 +82,7 @@ class SectionThreeTemporal extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
@@ -125,7 +125,7 @@ class SectionThreeTemporal extends StatelessWidget {
                               height: 16,
                               decoration: BoxDecoration(
                                 color: colors[index % colors.length],
-                                borderRadius: BorderRadius.circular(3),
+                                borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
                               ),
                             ),
                             const SizedBox(width: AppSpacing.sm),
@@ -194,7 +194,7 @@ class SectionThreeTemporal extends StatelessWidget {
                                         decoration: BoxDecoration(
                                           color: colors[index % colors.length],
                                           borderRadius: BorderRadius.circular(
-                                            3,
+                                            AppSpacing.radiusXs,
                                           ),
                                         ),
                                       ),
@@ -284,7 +284,7 @@ class SectionThreeTemporal extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
@@ -325,7 +325,7 @@ class SectionThreeTemporal extends StatelessWidget {
                               height: 16,
                               decoration: BoxDecoration(
                                 color: colors[index],
-                                borderRadius: BorderRadius.circular(3),
+                                borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
                               ),
                             ),
                             const SizedBox(width: AppSpacing.sm),
@@ -387,7 +387,7 @@ class SectionThreeTemporal extends StatelessWidget {
                                     height: 16,
                                     decoration: BoxDecoration(
                                       color: colors[index],
-                                      borderRadius: BorderRadius.circular(3),
+                                      borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
                                     ),
                                   ),
                                   const SizedBox(width: AppSpacing.sm),
@@ -472,7 +472,7 @@ class SectionThreeTemporal extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
@@ -512,7 +512,7 @@ class SectionThreeTemporal extends StatelessWidget {
                               height: 16,
                               decoration: BoxDecoration(
                                 color: colors[index % colors.length],
-                                borderRadius: BorderRadius.circular(3),
+                                borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
                               ),
                             ),
                             const SizedBox(width: AppSpacing.sm),
@@ -581,7 +581,7 @@ class SectionThreeTemporal extends StatelessWidget {
                                         decoration: BoxDecoration(
                                           color: colors[index % colors.length],
                                           borderRadius: BorderRadius.circular(
-                                            3,
+                                            AppSpacing.radiusXs,
                                           ),
                                         ),
                                       ),

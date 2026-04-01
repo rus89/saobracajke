@@ -51,7 +51,7 @@ class SectionTwoCharts extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
@@ -197,7 +197,7 @@ class SectionTwoCharts extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
@@ -287,7 +287,7 @@ class SectionTwoCharts extends StatelessWidget {
                     height: 12,
                     decoration: BoxDecoration(
                       color: colors[entry.key % colors.length],
-                      borderRadius: BorderRadius.circular(2),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -315,7 +315,7 @@ class SectionTwoCharts extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
         border: Border.all(color: theme.colorScheme.outlineVariant),
       ),
       child: Column(
@@ -388,8 +388,8 @@ class SectionTwoCharts extends StatelessWidget {
                         color: Colors.purple.shade600,
                         width: 20,
                         borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(6),
-                          topRight: Radius.circular(6),
+                          topLeft: Radius.circular(AppSpacing.radiusSm),
+                          topRight: Radius.circular(AppSpacing.radiusSm),
                         ),
                       ),
                     ],

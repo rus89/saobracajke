@@ -67,7 +67,7 @@ class SectionOneHeader extends StatelessWidget {
               padding: const EdgeInsets.all(AppSpacing.xxl),
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
                 boxShadow: [
                   BoxShadow(
                     color: theme.colorScheme.shadow.withValues(alpha: 0.06),
@@ -101,7 +101,7 @@ class SectionOneHeader extends StatelessWidget {
                     ),
                     decoration: BoxDecoration(
                       color: trendBg,
-                      borderRadius: BorderRadius.circular(30),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusPill),
                     ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -240,7 +240,7 @@ class SectionOneHeader extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
         border: Border.all(color: theme.colorScheme.outlineVariant),
         boxShadow: [
           BoxShadow(
@@ -259,7 +259,7 @@ class SectionOneHeader extends StatelessWidget {
                 padding: const EdgeInsets.all(AppSpacing.sm),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                 ),
                 child: Icon(icon, size: 20, color: color),
               ),
@@ -271,7 +271,7 @@ class SectionOneHeader extends StatelessWidget {
                 ),
                 decoration: BoxDecoration(
                   color: deltaColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                 ),
                 child: Text(
                   '${isUp ? '+' : ''}$delta',

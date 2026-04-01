@@ -15,7 +15,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(dashboardProvider);
+    final asyncState = ref.watch(dashboardProvider);
     final theme = Theme.of(context);
 
     final notifier = ref.read(dashboardProvider.notifier);
@@ -23,111 +23,126 @@ class HomeScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Saobraćajne Nezgode - Pregled')),
       body: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (state.errorMessage != null)
-              MaterialBanner(
-                content: Text(state.errorMessage!),
-                backgroundColor: theme.colorScheme.errorContainer,
-                leading: Icon(
-                  Icons.error_outline,
-                  color: theme.colorScheme.onErrorContainer,
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => notifier.retry(),
-                    child: Text(
-                      'Pokušaj ponovo',
-                      style: TextStyle(color: theme.colorScheme.onErrorContainer),
-                    ),
-                  ),
-                ],
+        child: asyncState.when(
+          loading: () => Semantics(
+            label: 'Loading dashboard data',
+            child: Center(
+              child: CircularProgressIndicator(
+                color: theme.colorScheme.primary,
               ),
-            Expanded(
-              child: state.isLoading
-                ? Semantics(
-                    label: 'Loading dashboard data',
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: theme.colorScheme.primary,
+            ),
+          ),
+          error: (error, _) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                MaterialBanner(
+                  content: Text(error.toString()),
+                  backgroundColor: theme.colorScheme.errorContainer,
+                  leading: Icon(
+                    Icons.error_outline,
+                    color: theme.colorScheme.onErrorContainer,
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => notifier.retry(),
+                      child: Text(
+                        'Pokušaj ponovo',
+                        style: TextStyle(
+                          color: theme.colorScheme.onErrorContainer,
+                        ),
                       ),
                     ),
-                  )
-                : SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Semantics(
-                    label: 'Filter by year and police department',
-                    child: Container(
-                      padding: const EdgeInsets.all(AppSpacing.lg),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.surfaceContainerHighest,
-                        border: Border(
-                          bottom: BorderSide(
-                            color: theme.colorScheme.outlineVariant,
-                            width: 1,
+                  ],
+                ),
+              ],
+            ),
+          ),
+          data: (state) => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (asyncState.isLoading) const LinearProgressIndicator(),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Semantics(
+                        label: 'Filter by year and police department',
+                        child: Container(
+                          padding: const EdgeInsets.all(AppSpacing.lg),
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.surfaceContainerHighest,
+                            border: Border(
+                              bottom: BorderSide(
+                                color: theme.colorScheme.outlineVariant,
+                                width: 1,
+                              ),
+                            ),
+                          ),
+                          child: YearDepartmentFilter(
+                            selectedYear: state.selectedYear,
+                            availableYears: state.availableYears,
+                            selectedDept: state.selectedDept,
+                            departments: state.departments,
+                            onYearChanged: (year) {
+                              if (year != null) {
+                                ref
+                                    .read(dashboardProvider.notifier)
+                                    .setYear(year);
+                              }
+                            },
+                            onDepartmentChanged: (dept) {
+                              ref
+                                  .read(dashboardProvider.notifier)
+                                  .setDepartment(dept);
+                            },
                           ),
                         ),
                       ),
-                      child: YearDepartmentFilter(
-                        selectedYear: state.selectedYear,
-                        availableYears: state.availableYears,
-                        selectedDept: state.selectedDept,
-                        departments: state.departments,
-                        onYearChanged: (year) {
-                          if (year != null) {
-                            ref.read(dashboardProvider.notifier).setYear(year);
-                          }
-                        },
-                        onDepartmentChanged: (dept) {
-                          ref
-                              .read(dashboardProvider.notifier)
-                              .setDepartment(dept);
-                        },
+                      _SectionHeader(title: 'Sekcija 1: Ključni pokazatelji'),
+                      Padding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        child: SectionOneHeader(
+                          totalAccidents: state.totalAccidents,
+                          delta: state.deltaAccidents,
+                          fatalities: state.fatalitiesCount,
+                          fatalitiesDelta: state.fatalitiesDelta,
+                          injuries: state.injuriesCount,
+                          injuriesDelta: state.injuriesDelta,
+                          materialDamageAccidents: state.materialDamageCount,
+                          materialDamageAccidentsDelta:
+                              state.materialDamageDelta,
+                        ),
                       ),
-                    ),
+                      _SectionHeader(title: 'Sekcija 2: Trendovi i Analize'),
+                      Padding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        child: SectionTwoCharts(
+                          monthlyAccidents: state.monthlyAccidents,
+                          typeMonthlyAccidents: state.typeMonthlyAccidents,
+                          stationAccidents: state.stationAccidents,
+                        ),
+                      ),
+                      _SectionHeader(
+                        title: 'Sekcija 3: Vremenska Distribucija',
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(AppSpacing.lg),
+                        child: SectionThreeTemporal(
+                          seasonCounts: state.seasonCounts,
+                          weekendCounts: state.weekendCounts,
+                          timeOfDayCounts: state.timeOfDayCounts,
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      const SizedBox(height: AppSpacing.xl),
+                    ],
                   ),
-                  _SectionHeader(title: 'Sekcija 1: Ključni pokazatelji'),
-                  Padding(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
-                    child: SectionOneHeader(
-                      totalAccidents: state.totalAccidents,
-                      delta: state.deltaAccidents,
-                      fatalities: state.fatalitiesCount,
-                      fatalitiesDelta: state.fatalitiesDelta,
-                      injuries: state.injuriesCount,
-                      injuriesDelta: state.injuriesDelta,
-                      materialDamageAccidents: state.materialDamageCount,
-                      materialDamageAccidentsDelta: state.materialDamageDelta,
-                    ),
-                  ),
-                  _SectionHeader(title: 'Sekcija 2: Trendovi i Analize'),
-                  Padding(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
-                    child: SectionTwoCharts(
-                      monthlyAccidents: state.monthlyAccidents,
-                      typeMonthlyAccidents: state.typeMonthlyAccidents,
-                      stationAccidents: state.stationAccidents,
-                    ),
-                  ),
-                  _SectionHeader(title: 'Sekcija 3: Vremenska Distribucija'),
-                  Padding(
-                    padding: const EdgeInsets.all(AppSpacing.lg),
-                    child: SectionThreeTemporal(
-                      seasonCounts: state.seasonCounts,
-                      weekendCounts: state.weekendCounts,
-                      timeOfDayCounts: state.timeOfDayCounts,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  const SizedBox(height: AppSpacing.xl),
-                ],
+                ),
               ),
-            ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -163,9 +178,7 @@ class _SectionHeader extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(title, style: AppTheme.sectionTitleStyle),
-              ),
+              Expanded(child: Text(title, style: AppTheme.sectionTitleStyle)),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),

@@ -1,6 +1,6 @@
 // ABOUTME: Dashboard state management: filters (year, department) and all chart/aggregate data.
 // ABOUTME: DashboardNotifier loads data from TrafficRepository and exposes year-over-year deltas.
-import 'package:flutter_riverpod/legacy.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/di/repository_providers.dart';
 import '../../domain/accident_types.dart';
@@ -12,8 +12,6 @@ class DashboardState {
   const DashboardState({
     this.departments = const [],
     this.availableYears = const [],
-    this.isLoading = false,
-    this.errorMessage,
     this.selectedDept,
     this.selectedYear,
     this.totalAccidents = 0,
@@ -30,8 +28,6 @@ class DashboardState {
   });
   final List<String> departments;
   final List<int> availableYears;
-  final bool isLoading;
-  final String? errorMessage;
 
   final String? selectedDept;
   final int? selectedYear;
@@ -67,8 +63,6 @@ class DashboardState {
   DashboardState copyWith({
     List<String>? departments,
     List<int>? availableYears,
-    bool? isLoading,
-    Object? errorMessage = '_UNSET_',
     String? selectedDept = '_UNSET_',
     Object? selectedYear = '_UNSET_',
     int? totalAccidents,
@@ -86,10 +80,6 @@ class DashboardState {
     return DashboardState(
       departments: departments ?? this.departments,
       availableYears: availableYears ?? this.availableYears,
-      isLoading: isLoading ?? this.isLoading,
-      errorMessage: errorMessage != '_UNSET_'
-          ? errorMessage as String?
-          : this.errorMessage,
       selectedDept: selectedDept != '_UNSET_'
           ? selectedDept
           : this.selectedDept,
@@ -115,105 +105,93 @@ class DashboardState {
 
 /// Manages dashboard filters and aggregates only. Does not load accident list;
 /// [accidentsProvider] reacts to filter changes and loads map/list data.
-class DashboardNotifier extends StateNotifier<DashboardState> {
-  DashboardNotifier(TrafficRepository repo)
-      : _repo = repo,
-        super(const DashboardState()) {
-    _initialize();
+class DashboardNotifier extends AsyncNotifier<DashboardState> {
+  late final TrafficRepository _repo;
+
+  @override
+  Future<DashboardState> build() async {
+    _repo = ref.read(repositoryProvider);
+    return _initialize();
   }
 
-  final TrafficRepository _repo;
+  Future<DashboardState> _initialize() async {
+    final depts = await _repo.getDepartments();
+    final years = await _repo.getAvailableYears();
+    final defaultYear = years.isNotEmpty ? years.first : DateTime.now().year;
+    final baseState = DashboardState(
+      departments: depts,
+      availableYears: years,
+      selectedYear: defaultYear,
+    );
+    return _loadDashboardData(baseState);
+  }
 
-  Future<void> _initialize() async {
-    state = state.copyWith(isLoading: true, errorMessage: null);
+  Future<DashboardState> _loadDashboardData(DashboardState current) async {
+    if (current.selectedYear == null) return current;
+    final year = current.selectedYear!;
+    final dept = current.selectedDept;
+    final results = await Future.wait([
+      _repo.getTotalAccidentsForYear(year, department: dept),
+      _repo.getTotalAccidentsForYear(year - 1, department: dept),
+      _repo.getAccidentTypeCountsForYear(year, department: dept),
+      _repo.getAccidentTypeCountsForYear(year - 1, department: dept),
+      _repo.getTopCitiesForYear(year, department: dept),
+      _repo.getAccidentsBySeasonForYear(year, department: dept),
+      _repo.getAccidentsByTimeOfDayForYear(year, department: dept),
+      _repo.getAccidentsByWeekendForYear(year, department: dept),
+      _repo.getAccidentsByMonthForYear(year, department: dept),
+      _repo.getAccidentTypesByMonthForYear(year, department: dept),
+      dept != null
+          ? _repo.getAccidentsByStationForDepartment(year, dept)
+          : Future.value(<String, int>{}),
+    ]);
+    return current.copyWith(
+      totalAccidents: results[0] as int,
+      totalAccidentsPrevYear: results[1] as int,
+      accidentTypeCounts: results[2] as Map<String, int>,
+      accidentTypeCountsPrevYear: results[3] as Map<String, int>,
+      topCities: results[4] as Map<String, int>,
+      seasonCounts: results[5] as Map<String, int>,
+      timeOfDayCounts: results[6] as Map<String, int>,
+      weekendCounts: results[7] as Map<String, int>,
+      monthlyAccidents: results[8] as Map<int, int>,
+      typeMonthlyAccidents: results[9] as Map<String, Map<int, int>>,
+      stationAccidents: results[10] as Map<String, int>,
+    );
+  }
+
+  /// Transitions to loading (preserving previous data), runs [action],
+  /// and sets the result or error (again preserving previous data).
+  Future<void> _runGuarded(Future<DashboardState> Function() action) async {
+    final previous = state;
+    // ignore: invalid_use_of_internal_member
+    state = const AsyncLoading<DashboardState>().copyWithPrevious(previous);
     try {
-      final depts = await _repo.getDepartments();
-      final years = await _repo.getAvailableYears();
-      final defaultYear = years.isNotEmpty ? years.first : DateTime.now().year;
-      state = state.copyWith(
-        departments: depts,
-        availableYears: years,
-        selectedYear: defaultYear,
-      );
-      await _loadDashboardData();
-      state = state.copyWith(isLoading: false, errorMessage: null);
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e is Exception
-            ? e.toString()
-            : 'Error initializing dashboard: $e',
-      );
+      state = AsyncData(await action());
+    } catch (e, st) {
+      // ignore: invalid_use_of_internal_member
+      state = AsyncError<DashboardState>(e, st).copyWithPrevious(previous);
     }
   }
 
-  Future<void> _loadDashboardData() async {
-    if (state.selectedYear == null) return;
-    final year = state.selectedYear!;
-    final dept = state.selectedDept;
-    state = state.copyWith(isLoading: true, errorMessage: null);
-    try {
-      final results = await Future.wait([
-        _repo.getTotalAccidentsForYear(year, department: dept),
-        _repo.getTotalAccidentsForYear(year - 1, department: dept),
-        _repo.getAccidentTypeCountsForYear(year, department: dept),
-        _repo.getAccidentTypeCountsForYear(year - 1, department: dept),
-        _repo.getTopCitiesForYear(year, department: dept),
-        _repo.getAccidentsBySeasonForYear(year, department: dept),
-        _repo.getAccidentsByTimeOfDayForYear(year, department: dept),
-        _repo.getAccidentsByWeekendForYear(year, department: dept),
-        _repo.getAccidentsByMonthForYear(year, department: dept),
-        _repo.getAccidentTypesByMonthForYear(year, department: dept),
-        dept != null
-            ? _repo.getAccidentsByStationForDepartment(year, dept)
-            : Future.value(<String, int>{}),
-      ]);
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: null,
-        totalAccidents: results[0] as int,
-        totalAccidentsPrevYear: results[1] as int,
-        accidentTypeCounts: results[2] as Map<String, int>,
-        accidentTypeCountsPrevYear: results[3] as Map<String, int>,
-        topCities: results[4] as Map<String, int>,
-        seasonCounts: results[5] as Map<String, int>,
-        timeOfDayCounts: results[6] as Map<String, int>,
-        weekendCounts: results[7] as Map<String, int>,
-        monthlyAccidents: results[8] as Map<int, int>,
-        typeMonthlyAccidents: results[9] as Map<String, Map<int, int>>,
-        stationAccidents: results[10] as Map<String, int>,
-      );
-    } catch (e) {
-      state = state.copyWith(
-        isLoading: false,
-        errorMessage: e is Exception
-            ? e.toString()
-            : 'Error loading dashboard data: $e',
-      );
-    }
-  }
-
-  void retry() {
-    state = state.copyWith(errorMessage: null);
-    if (state.selectedYear == null || state.departments.isEmpty) {
-      _initialize();
-    } else {
-      _loadDashboardData();
-    }
-  }
+  Future<void> retry() => _runGuarded(_initialize);
 
   Future<void> setYear(int year) async {
-    state = state.copyWith(selectedYear: year, isLoading: true);
-    await _loadDashboardData();
+    final current = state.value;
+    if (current == null) return;
+    final updated = current.copyWith(selectedYear: year);
+    return _runGuarded(() => _loadDashboardData(updated));
   }
 
   Future<void> setDepartment(String? dept) async {
-    state = state.copyWith(selectedDept: dept, isLoading: true);
-    await _loadDashboardData();
+    final current = state.value;
+    if (current == null) return;
+    final updated = current.copyWith(selectedDept: dept);
+    return _runGuarded(() => _loadDashboardData(updated));
   }
 }
 
 final dashboardProvider =
-    StateNotifierProvider<DashboardNotifier, DashboardState>((ref) {
-      return DashboardNotifier(ref.read(repositoryProvider));
-    });
+    AsyncNotifierProvider<DashboardNotifier, DashboardState>(
+      DashboardNotifier.new,
+    );

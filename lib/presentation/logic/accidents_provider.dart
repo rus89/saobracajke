@@ -10,7 +10,9 @@ import 'dashboard_provider.dart';
 /// Single source of truth: when [dashboardProvider]'s year or department
 /// changes, this provider refetches automatically. No manual load triggers.
 final accidentsProvider = FutureProvider<List<AccidentModel>>((ref) async {
-  final dashboard = ref.watch(dashboardProvider);
+  final dashboardAsync = ref.watch(dashboardProvider);
+  final dashboard = dashboardAsync.value;
+  if (dashboard == null) return [];
   final year = dashboard.selectedYear ?? DateTime.now().year;
   final dept = dashboard.selectedDept;
   final repo = ref.read(repositoryProvider);

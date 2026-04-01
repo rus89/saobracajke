@@ -60,7 +60,8 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   //----------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
-    final dashboardState = ref.watch(dashboardProvider);
+    final dashboardAsync = ref.watch(dashboardProvider);
+    final dashboardState = dashboardAsync.value;
     final accidentsAsync = ref.watch(accidentsProvider);
 
     final theme = Theme.of(context);
@@ -223,10 +224,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                         child: Padding(
                           padding: const EdgeInsets.all(AppSpacing.md),
                           child: YearDepartmentFilter(
-                            selectedYear: dashboardState.selectedYear,
-                            availableYears: dashboardState.availableYears,
-                            selectedDept: dashboardState.selectedDept,
-                            departments: dashboardState.departments,
+                            selectedYear: dashboardState?.selectedYear,
+                            availableYears: dashboardState?.availableYears ?? const [],
+                            selectedDept: dashboardState?.selectedDept,
+                            departments: dashboardState?.departments ?? const [],
                             compact: true,
                             onYearChanged: (year) {
                               if (year == null) return;

@@ -79,12 +79,13 @@ void main() {
 
     tearDown(() => container.dispose());
 
-    Future<void> waitForInit([ProviderContainer? c]) async {
+    Future<void> waitForData([ProviderContainer? c]) async {
       final cont = c ?? container;
       cont.read(dashboardProvider);
       for (var i = 0; i < 100; i++) {
         await Future.delayed(const Duration(milliseconds: 20));
-        if (!cont.read(dashboardProvider).isLoading) return;
+        final asyncVal = cont.read(dashboardProvider);
+        if (asyncVal.hasValue && !asyncVal.isLoading) return;
       }
       throw StateError('Timeout waiting for DashboardNotifier init');
     }
@@ -92,28 +93,43 @@ void main() {
     test(
       'after init, state has departments, years, default year, and loading false',
       () async {
-        await waitForInit();
-        final state = container.read(dashboardProvider);
+        await waitForData();
+        final asyncVal = container.read(dashboardProvider);
+        expect(asyncVal.hasValue, isTrue);
+        expect(asyncVal.isLoading, isFalse);
+        final state = asyncVal.requireValue;
         expect(state.departments, ['Dept1']);
         expect(state.availableYears, [2023]);
         expect(state.selectedYear, 2023);
-        expect(state.isLoading, isFalse);
       },
     );
 
     test('setYear updates selectedYear and reloads dashboard', () async {
-      await waitForInit();
+      await waitForData();
       final notifier = container.read(dashboardProvider.notifier);
       notifier.setYear(2022);
-      expect(container.read(dashboardProvider).selectedYear, 2022);
+      // After calling setYear, the year should update
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        final asyncVal = container.read(dashboardProvider);
+        if (asyncVal.hasValue && !asyncVal.isLoading) break;
+      }
+      final state = container.read(dashboardProvider).requireValue;
+      expect(state.selectedYear, 2022);
       expect(fakeRepo.getTotalAccidentsForYearCalls, contains(2022));
     });
 
     test('setDepartment updates selectedDept and reloads dashboard', () async {
-      await waitForInit();
+      await waitForData();
       final notifier = container.read(dashboardProvider.notifier);
       notifier.setDepartment('Belgrade');
-      expect(container.read(dashboardProvider).selectedDept, 'Belgrade');
+      for (var i = 0; i < 100; i++) {
+        await Future.delayed(const Duration(milliseconds: 20));
+        final asyncVal = container.read(dashboardProvider);
+        if (asyncVal.hasValue && !asyncVal.isLoading) break;
+      }
+      final state = container.read(dashboardProvider).requireValue;
+      expect(state.selectedDept, 'Belgrade');
       expect(fakeRepo.getTotalAccidentsForYearCalls, isNotEmpty);
     });
 
@@ -125,7 +141,7 @@ void main() {
           overrides: [repositoryProvider.overrideWithValue(slowFake)],
         );
         addTearDown(slowContainer.dispose);
-        await waitForInit(slowContainer);
+        await waitForData(slowContainer);
         expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
 
         slowContainer.read(dashboardProvider.notifier).setYear(2022);
@@ -145,7 +161,10 @@ void main() {
           isFalse,
           reason: 'Loading should be false after reload completes',
         );
-        expect(slowContainer.read(dashboardProvider).selectedYear, 2022);
+        expect(
+          slowContainer.read(dashboardProvider).requireValue.selectedYear,
+          2022,
+        );
       },
     );
 
@@ -157,7 +176,7 @@ void main() {
           overrides: [repositoryProvider.overrideWithValue(slowFake)],
         );
         addTearDown(slowContainer.dispose);
-        await waitForInit(slowContainer);
+        await waitForData(slowContainer);
         expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
 
         slowContainer
@@ -179,12 +198,15 @@ void main() {
           isFalse,
           reason: 'Loading should be false after reload completes',
         );
-        expect(slowContainer.read(dashboardProvider).selectedDept, 'Belgrade');
+        expect(
+          slowContainer.read(dashboardProvider).requireValue.selectedDept,
+          'Belgrade',
+        );
       },
     );
 
     test(
-      'when repo throws during init, state contains error message',
+      'when repo throws during init, state contains error',
       () async {
         final throwingRepo = ThrowingInitFakeTrafficRepository();
         final c = ProviderContainer(
@@ -196,35 +218,35 @@ void main() {
           await Future.delayed(const Duration(milliseconds: 20));
           if (!c.read(dashboardProvider).isLoading) break;
         }
-        final state = c.read(dashboardProvider);
-        expect(state.isLoading, isFalse);
-        expect(state.errorMessage, isNotNull);
-        expect(state.errorMessage!.isNotEmpty, isTrue);
+        final asyncVal = c.read(dashboardProvider);
+        expect(asyncVal.isLoading, isFalse);
+        expect(asyncVal.hasError, isTrue);
+        expect(asyncVal.error, isNotNull);
       },
     );
 
     test(
-      'when repo throws during load after setYear, state contains error message',
+      'when repo throws during load after setYear, state contains error',
       () async {
         final throwingRepo = ThrowingLoadFakeTrafficRepository(
-          throwForYear: 2022,
+          throwForYear: 2020,
         );
         final c = ProviderContainer(
           overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
         );
         addTearDown(c.dispose);
-        await waitForInit(c);
-        expect(c.read(dashboardProvider).errorMessage, isNull);
+        await waitForData(c);
+        expect(c.read(dashboardProvider).hasError, isFalse);
 
-        c.read(dashboardProvider.notifier).setYear(2022);
+        c.read(dashboardProvider.notifier).setYear(2020);
         for (var i = 0; i < 100; i++) {
           await Future.delayed(const Duration(milliseconds: 20));
           final s = c.read(dashboardProvider);
-          if (!s.isLoading && s.errorMessage != null) break;
+          if (!s.isLoading && s.hasError) break;
         }
-        final state = c.read(dashboardProvider);
-        expect(state.errorMessage, isNotNull);
-        expect(state.errorMessage!.isNotEmpty, isTrue);
+        final asyncVal = c.read(dashboardProvider);
+        expect(asyncVal.hasError, isTrue);
+        expect(asyncVal.error, isNotNull);
       },
     );
 
@@ -241,16 +263,18 @@ void main() {
           await Future.delayed(const Duration(milliseconds: 20));
           if (!c.read(dashboardProvider).isLoading) break;
         }
-        expect(c.read(dashboardProvider).errorMessage, isNotNull);
+        expect(c.read(dashboardProvider).hasError, isTrue);
 
-        c.read(dashboardProvider.notifier).retry();
+        await c.read(dashboardProvider.notifier).retry();
         for (var i = 0; i < 100; i++) {
           await Future.delayed(const Duration(milliseconds: 20));
-          if (!c.read(dashboardProvider).isLoading) break;
+          final asyncVal = c.read(dashboardProvider);
+          if (asyncVal.hasValue && !asyncVal.isLoading) break;
         }
-        final state = c.read(dashboardProvider);
-        expect(state.errorMessage, isNull);
-        expect(state.departments, isNotEmpty);
+        final asyncVal = c.read(dashboardProvider);
+        expect(asyncVal.hasError, isFalse);
+        expect(asyncVal.hasValue, isTrue);
+        expect(asyncVal.requireValue.departments, isNotEmpty);
       },
     );
 
@@ -262,8 +286,8 @@ void main() {
           overrides: [repositoryProvider.overrideWithValue(repo)],
         );
         addTearDown(c.dispose);
-        await waitForInit(c);
-        final state = c.read(dashboardProvider);
+        await waitForData(c);
+        final state = c.read(dashboardProvider).requireValue;
         expect(state.fatalitiesDelta, 2);
         expect(state.injuriesDelta, 2);
         expect(state.materialDamageDelta, 5);
@@ -288,7 +312,8 @@ void main() {
       container.read(dashboardProvider);
       for (var i = 0; i < 100; i++) {
         await Future.delayed(const Duration(milliseconds: 20));
-        if (!container.read(dashboardProvider).isLoading) return;
+        final asyncVal = container.read(dashboardProvider);
+        if (asyncVal.hasValue && !asyncVal.isLoading) return;
       }
       throw StateError('Timeout waiting for dashboard init');
     }

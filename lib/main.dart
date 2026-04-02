@@ -57,7 +57,7 @@ class _SplashScreenState extends State<SplashScreen> {
       if (!mounted) return;
       final message = e is DatabaseBootstrapException
           ? e.message
-          : 'Something went wrong. Please try again.';
+          : 'Došlo je do greške. Pokušajte ponovo.';
       setState(() {
         _errorMessage = message;
         _isLoading = false;
@@ -71,12 +71,12 @@ class _SplashScreenState extends State<SplashScreen> {
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
       body: Semantics(
-        label: _isLoading ? 'App is loading' : 'Database setup failed',
+        label: _isLoading ? 'Aplikacija se učitava' : 'Greška pri pripremi baze podataka',
         child: Center(
           child: _isLoading
               ? const _LoadingContent()
               : _ErrorContent(
-                  message: _errorMessage ?? 'An error occurred.',
+                  message: _errorMessage ?? 'Došlo je do greške.',
                   onRetry: _bootstrapApp,
                 ),
         ),
@@ -92,7 +92,7 @@ class _LoadingContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Semantics(
-      label: 'Setting up database',
+      label: 'Priprema baze podataka',
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -106,7 +106,7 @@ class _LoadingContent extends StatelessWidget {
           CircularProgressIndicator(color: theme.colorScheme.primary),
           const SizedBox(height: 20),
           Text(
-            'Setting up database...',
+            'Priprema baze podataka...',
             style: theme.textTheme.bodyLarge?.copyWith(
               color: theme.colorScheme.primary,
             ),
@@ -127,7 +127,7 @@ class _ErrorContent extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Semantics(
-      label: 'Database setup failed. $message',
+      label: 'Greška pri pripremi baze podataka. $message',
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Column(
@@ -136,7 +136,7 @@ class _ErrorContent extends StatelessWidget {
             Icon(Icons.error_outline, size: 64, color: theme.colorScheme.error),
             const SizedBox(height: 24),
             Text(
-              'Database setup failed',
+              'Greška pri pripremi baze podataka',
               style: theme.textTheme.headlineMedium?.copyWith(
                 color: theme.colorScheme.onSurface,
               ),
@@ -154,7 +154,7 @@ class _ErrorContent extends StatelessWidget {
             FilledButton.icon(
               onPressed: onRetry,
               icon: const Icon(Icons.refresh),
-              label: const Text('Try again'),
+              label: const Text('Pokušaj ponovo'),
               style: FilledButton.styleFrom(
                 backgroundColor: theme.colorScheme.primary,
                 foregroundColor: theme.colorScheme.onPrimary,

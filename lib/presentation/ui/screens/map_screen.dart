@@ -6,6 +6,7 @@ import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
+import 'package:saobracajke/core/theme/app_theme.dart';
 import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/presentation/logic/accidents_provider.dart';
@@ -260,6 +261,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             button: true,
             child: FloatingActionButton(
               heroTag: 'zoom_in',
+              backgroundColor: AppTheme.primaryGreenDark,
               onPressed: () {
                 _mapController.move(
                   _mapController.camera.center,
@@ -275,6 +277,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             button: true,
             child: FloatingActionButton(
               heroTag: 'zoom_out',
+              backgroundColor: AppTheme.primaryGreenDark,
               onPressed: () {
                 _mapController.move(
                   _mapController.camera.center,
@@ -290,6 +293,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             button: true,
             child: FloatingActionButton(
               heroTag: 'recenter',
+              backgroundColor: AppTheme.primaryGreenDark,
               onPressed: () {
                 _mapController.move(const LatLng(44.0165, 21.0059), 7.0);
               },

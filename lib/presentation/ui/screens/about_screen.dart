@@ -34,17 +34,15 @@ class AboutScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Verzija $_appVersion',
-                style: theme.textTheme.bodyMedium,
-              ),
+              Text('Verzija $_appVersion', style: theme.textTheme.bodyMedium),
               const SizedBox(height: AppSpacing.xxxl),
               _DataSourceSection(theme: theme),
               const SizedBox(height: AppSpacing.xxl),
               _Section(
                 icon: Icons.warning_amber_outlined,
                 title: 'Napomena',
-                body: 'Ova aplikacija je razvijena u edukativne svrhe. '
+                body:
+                    'Ova aplikacija je razvijena u edukativne svrhe. '
                     'Autor nije povezan ni sa jednim državnim organom '
                     'niti institucijom. '
                     'Podaci se prikazuju u viđenom stanju, '
@@ -72,7 +70,7 @@ class _DataSourceSection extends StatelessWidget {
   final ThemeData theme;
 
   static const _datasetUrl =
-      'https://data.gov.rs/sr/datasets/podatsi-o-saobrakajnim-nezgodama-po-politsijskim-upravama-i-opshtinama/';
+      'https://data.gov.rs/sr/datasets/podatsi-o-saobratshajnim-nezgodama-po-politsijskim-upravama-i-opshtinama/';
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +81,11 @@ class _DataSourceSection extends StatelessWidget {
         children: [
           Row(
             children: [
-              Icon(Icons.storage_outlined,
-                  size: 20, color: theme.colorScheme.primary),
+              Icon(
+                Icons.storage_outlined,
+                size: 20,
+                color: theme.colorScheme.primary,
+              ),
               const SizedBox(width: AppSpacing.sm),
               Text('Izvor podataka', style: theme.textTheme.titleMedium),
             ],
@@ -97,15 +98,18 @@ class _DataSourceSection extends StatelessWidget {
                 style: theme.textTheme.bodyMedium,
                 children: [
                   const TextSpan(
-                    text: 'Podaci u ovoj aplikaciji potiču sa portala '
+                    text:
+                        'Podaci u ovoj aplikaciji potiču sa portala '
                         'otvorenih podataka Republike Srbije. ',
                   ),
                   WidgetSpan(
                     alignment: PlaceholderAlignment.baseline,
                     baseline: TextBaseline.alphabetic,
                     child: GestureDetector(
-                      onTap: () => launchUrl(Uri.parse(_datasetUrl),
-                          mode: LaunchMode.externalApplication),
+                      onTap: () => launchUrl(
+                        Uri.parse(_datasetUrl),
+                        mode: LaunchMode.externalApplication,
+                      ),
                       child: Text(
                         'Link',
                         style: theme.textTheme.bodyMedium?.copyWith(
@@ -127,11 +131,7 @@ class _DataSourceSection extends StatelessWidget {
 }
 
 class _Section extends StatelessWidget {
-  const _Section({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
+  const _Section({required this.icon, required this.title, required this.body});
 
   final IconData icon;
   final String title;

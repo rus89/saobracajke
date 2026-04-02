@@ -19,7 +19,7 @@ void main() {
     testWidgets('displays app version', (WidgetTester tester) async {
       await tester.pumpWidget(buildSubject());
 
-      expect(find.text('Verzija 1.0.0'), findsOneWidget);
+      expect(find.text('Verzija 1.0.1'), findsOneWidget);
     });
 
     testWidgets('displays data source information with clickable link', (WidgetTester tester) async {

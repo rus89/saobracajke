@@ -2,6 +2,7 @@
 // ABOUTME: All text in Serbian; uses AppTheme and AppSpacing tokens for consistent styling.
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
@@ -38,13 +39,7 @@ class AboutScreen extends StatelessWidget {
                 style: theme.textTheme.bodyMedium,
               ),
               const SizedBox(height: AppSpacing.xxxl),
-              _Section(
-                icon: Icons.storage_outlined,
-                title: 'Izvor podataka',
-                body: 'Podaci u ovoj aplikaciji potiču sa portala '
-                    'otvorenih podataka Republike Srbije:\n'
-                    'https://data.gov.rs/sr/datasets/podatsi-o-saobrakajnim-nezgodama-po-politsijskim-upravama-i-opshtinama/',
-              ),
+              _DataSourceSection(theme: theme),
               const SizedBox(height: AppSpacing.xxl),
               _Section(
                 icon: Icons.warning_amber_outlined,
@@ -66,6 +61,66 @@ class AboutScreen extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _DataSourceSection extends StatelessWidget {
+  const _DataSourceSection({required this.theme});
+
+  final ThemeData theme;
+
+  static const _datasetUrl =
+      'https://data.gov.rs/sr/datasets/podatsi-o-saobrakajnim-nezgodama-po-politsijskim-upravama-i-opshtinama/';
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: double.infinity,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.storage_outlined,
+                  size: 20, color: theme.colorScheme.primary),
+              const SizedBox(width: AppSpacing.sm),
+              Text('Izvor podataka', style: theme.textTheme.titleMedium),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Padding(
+            padding: const EdgeInsets.only(left: 28),
+            child: Text.rich(
+              TextSpan(
+                style: theme.textTheme.bodyMedium,
+                children: [
+                  const TextSpan(
+                    text: 'Podaci u ovoj aplikaciji potiču sa portala '
+                        'otvorenih podataka Republike Srbije. ',
+                  ),
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.baseline,
+                    baseline: TextBaseline.alphabetic,
+                    child: GestureDetector(
+                      onTap: () => launchUrl(Uri.parse(_datasetUrl),
+                          mode: LaunchMode.externalApplication),
+                      child: Text(
+                        'Link',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.primary,
+                          decoration: TextDecoration.underline,
+                          decorationColor: theme.colorScheme.primary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -22,17 +22,14 @@ void main() {
       expect(find.text('Verzija 1.0.0'), findsOneWidget);
     });
 
-    testWidgets('displays data source information with dataset link', (WidgetTester tester) async {
+    testWidgets('displays data source information with clickable link', (WidgetTester tester) async {
       await tester.pumpWidget(buildSubject());
 
       expect(
         find.textContaining('otvorenih podataka Republike Srbije'),
         findsOneWidget,
       );
-      expect(
-        find.textContaining('data.gov.rs'),
-        findsOneWidget,
-      );
+      expect(find.text('Link'), findsOneWidget);
     });
 
     testWidgets('displays disclaimer with educational purpose', (WidgetTester tester) async {

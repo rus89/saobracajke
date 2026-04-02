@@ -21,7 +21,12 @@ class HomeScreen extends ConsumerWidget {
     final notifier = ref.read(dashboardProvider.notifier);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Saobraćajne Nezgode - Pregled')),
+      appBar: AppBar(
+        title: const Text(
+          'Saobraćajne Nezgode - Pregled',
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
       body: SafeArea(
         child: asyncState.when(
           loading: () => Semantics(

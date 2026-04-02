@@ -59,7 +59,6 @@ class SectionOneHeader extends StatelessWidget {
       label:
           'Key metrics: $totalAccidents total accidents, trend $delta vs last year. Injuries: $injuries, Fatalities: $fatalities, Material damage: $materialDamageAccidents',
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           children: [
             Container(

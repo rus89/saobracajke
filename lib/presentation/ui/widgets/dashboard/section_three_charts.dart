@@ -22,17 +22,14 @@ class SectionThreeTemporal extends StatelessWidget {
     return Semantics(
       label:
           'Temporal distribution: by season, weekday vs weekend, time of day',
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          children: [
-            _buildSeasonChart(context),
-            const SizedBox(height: AppSpacing.xxl),
-            _buildWeekendChart(context),
-            const SizedBox(height: AppSpacing.xxl),
-            _buildTimeOfDayChart(context),
-          ],
-        ),
+      child: Column(
+        children: [
+          _buildSeasonChart(context),
+          const SizedBox(height: AppSpacing.xxl),
+          _buildWeekendChart(context),
+          const SizedBox(height: AppSpacing.xxl),
+          _buildTimeOfDayChart(context),
+        ],
       ),
     );
   }

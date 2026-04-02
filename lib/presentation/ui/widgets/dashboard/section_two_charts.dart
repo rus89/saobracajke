@@ -22,17 +22,14 @@ class SectionTwoCharts extends StatelessWidget {
     return Semantics(
       label:
           'Charts: monthly accidents, accidents by type per month, top police stations',
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          children: [
-            _buildMonthlyChart(context),
-            const SizedBox(height: AppSpacing.xxl),
-            _buildTypeMonthlyChart(context),
-            const SizedBox(height: AppSpacing.xxl),
-            if (stationAccidents.isNotEmpty) _buildStationChart(context),
-          ],
-        ),
+      child: Column(
+        children: [
+          _buildMonthlyChart(context),
+          const SizedBox(height: AppSpacing.xxl),
+          _buildTypeMonthlyChart(context),
+          const SizedBox(height: AppSpacing.xxl),
+          if (stationAccidents.isNotEmpty) _buildStationChart(context),
+        ],
       ),
     );
   }
@@ -307,6 +304,7 @@ class SectionTwoCharts extends StatelessWidget {
     final narrow = width < 400;
     final chartHeight = narrow ? 280.0 : 400.0;
     final bottomReserved = narrow ? 56.0 : 80.0;
+    final barWidth = narrow ? 12.0 : 20.0;
     final sortedStations = stationAccidents.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
     final topStations = sortedStations.take(10).toList();
@@ -386,7 +384,7 @@ class SectionTwoCharts extends StatelessWidget {
                       BarChartRodData(
                         toY: entry.value.value.toDouble(),
                         color: Colors.purple.shade600,
-                        width: 20,
+                        width: barWidth,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(AppSpacing.radiusSm),
                           topRight: Radius.circular(AppSpacing.radiusSm),

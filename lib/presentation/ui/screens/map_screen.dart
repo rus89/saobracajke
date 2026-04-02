@@ -211,7 +211,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                     ),
                   ],
                 ),
-                Positioned(bottom: 20, left: 20, child: _buildLegend(context)),
+                Positioned(
+                  bottom: 20 + MediaQuery.paddingOf(context).bottom,
+                  left: 20,
+                  child: _buildLegend(context),
+                ),
                 Positioned(
                   top: 0,
                   left: 0,

@@ -164,7 +164,7 @@ These surfaced from a pass over project structure, architecture, code quality, a
 
 - **ABOUTME headers**: CLAUDE.md requires every code file to start with a 2-line comment, each line starting with "ABOUTME: ". No files in `lib/` currently have it. Add to all Dart files under `lib/`. Commit: "chore: add ABOUTME headers to lib files".
 
-- **Localization**: No `.arb` or `flutter_localizations` in the project yet. Set up Flutter l10n (pubspec, l10n.yaml, .arb files) and migrate hardcoded strings (e.g. "Mapa Nesreća", "Izaberite godinu", section titles). Commit: "feat: add localization scaffolding and migrate strings".
+- **~~Localization~~**: Removed — app is Serbian-only, full l10n infrastructure is YAGNI. English strings in `main.dart` were translated to Serbian for consistency.
 
 - **Responsive layout**: Dashboard and map were not audited for small screens. Review and fix layout for narrow/mobile viewports (dashboard sections, map overlay, filter). Files: `lib/presentation/ui/screens/home_screen.dart`, `map_screen.dart`, `year_department_filter.dart`, dashboard section widgets. Commit: "fix: responsive layout for small screens".
 

@@ -41,17 +41,20 @@ class AboutScreen extends StatelessWidget {
               _Section(
                 icon: Icons.storage_outlined,
                 title: 'Izvor podataka',
-                body: 'Podaci u ovoj aplikaciji potiču iz '
-                    'Otvoreni podaci Republike Srbije '
-                    '(portal otvorenih podataka Republike Srbije).',
+                body: 'Podaci u ovoj aplikaciji potiču sa portala '
+                    'otvorenih podataka Republike Srbije:\n'
+                    'https://data.gov.rs/sr/datasets/podatsi-o-saobrakajnim-nezgodama-po-politsijskim-upravama-i-opshtinama/',
               ),
               const SizedBox(height: AppSpacing.xxl),
               _Section(
                 icon: Icons.warning_amber_outlined,
                 title: 'Napomena',
-                body: 'Podaci se prikazuju u viđenom stanju i '
-                    'nisu za zvaničnu upotrebu. '
-                    'Mogu biti nepotpuni ili zastareli.',
+                body: 'Ova aplikacija je razvijena u edukativne svrhe. '
+                    'Autor nije povezan ni sa jednim državnim organom '
+                    'niti institucijom. '
+                    'Podaci se prikazuju u viđenom stanju, '
+                    'nisu za zvaničnu upotrebu i '
+                    'mogu biti nepotpuni ili zastareli.',
               ),
               const SizedBox(height: AppSpacing.xxl),
               _Section(

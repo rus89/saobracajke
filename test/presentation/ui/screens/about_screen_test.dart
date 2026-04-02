@@ -22,18 +22,30 @@ void main() {
       expect(find.text('Verzija 1.0.0'), findsOneWidget);
     });
 
-    testWidgets('displays data source information', (WidgetTester tester) async {
+    testWidgets('displays data source information with dataset link', (WidgetTester tester) async {
       await tester.pumpWidget(buildSubject());
 
       expect(
-        find.textContaining('Otvoreni podaci Republike Srbije'),
+        find.textContaining('otvorenih podataka Republike Srbije'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('data.gov.rs'),
         findsOneWidget,
       );
     });
 
-    testWidgets('displays disclaimer', (WidgetTester tester) async {
+    testWidgets('displays disclaimer with educational purpose', (WidgetTester tester) async {
       await tester.pumpWidget(buildSubject());
 
+      expect(
+        find.textContaining('edukativne svrhe'),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('nije povezan ni sa jednim državnim organom'),
+        findsOneWidget,
+      );
       expect(
         find.textContaining('nisu za zvaničnu upotrebu'),
         findsOneWidget,

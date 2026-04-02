@@ -1,0 +1,55 @@
+// ABOUTME: Widget tests for the About screen content and layout.
+// ABOUTME: Verifies all required text sections render correctly.
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:saobracajke/presentation/ui/screens/about_screen.dart';
+
+void main() {
+  group('AboutScreen', () {
+    Widget buildSubject() {
+      return const MaterialApp(home: AboutScreen());
+    }
+
+    testWidgets('displays app name', (WidgetTester tester) async {
+      await tester.pumpWidget(buildSubject());
+
+      expect(find.text('Saobraćajne Nezgode'), findsOneWidget);
+    });
+
+    testWidgets('displays app version', (WidgetTester tester) async {
+      await tester.pumpWidget(buildSubject());
+
+      expect(find.text('Verzija 1.0.0'), findsOneWidget);
+    });
+
+    testWidgets('displays data source information', (WidgetTester tester) async {
+      await tester.pumpWidget(buildSubject());
+
+      expect(
+        find.textContaining('Otvoreni podaci Republike Srbije'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('displays disclaimer', (WidgetTester tester) async {
+      await tester.pumpWidget(buildSubject());
+
+      expect(
+        find.textContaining('nisu za zvaničnu upotrebu'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('displays contact email', (WidgetTester tester) async {
+      await tester.pumpWidget(buildSubject());
+
+      expect(find.text('serbiaopendata@gmail.com'), findsOneWidget);
+    });
+
+    testWidgets('displays app bar title', (WidgetTester tester) async {
+      await tester.pumpWidget(buildSubject());
+
+      expect(find.text('O aplikaciji'), findsOneWidget);
+    });
+  });
+}

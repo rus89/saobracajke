@@ -165,4 +165,43 @@ YOU MUST follow this debugging framework for ANY technical issue:
 - Track patterns in user feedback to improve collaboration over time
 - When you notice something that should be fixed but is unrelated to your current task, document it in your journal rather than fixing it immediately
 
+## Project
+
+Flutter app visualizing Serbian traffic accident open data. Data is read-only — bundled as `assets/db/serbian_traffic.db.zip`, extracted to device storage on first launch.
+
+## Commands
+
+```bash
+flutter run              # Run on connected device/emulator
+flutter test             # Run all tests
+flutter analyze          # Static analysis
+flutter build appbundle --release  # Release build (see /release skill for full steps)
+```
+
+## Architecture
+
+Clean Architecture with three layers:
+
+```
+lib/
+  core/          # Shared infrastructure (DatabaseService, theme, DI providers)
+  data/          # Repository implementations (SqliteTrafficRepository)
+  domain/        # Interfaces, models, AccidentTypes enum/normalization
+  presentation/
+    logic/       # Riverpod providers (accidents_provider, dashboard_provider)
+    ui/
+      screens/   # home_screen (dashboard stats), map_screen (accident map), about_screen
+      widgets/   # Reusable UI components; dashboard/ subdirectory for chart widgets
+```
+
+State management: flutter_riverpod. Entry point: `lib/main.dart` (SplashScreen bootstraps DB, then pushes MainScaffold).
+
+Key dependencies: `flutter_map` (map rendering), `fl_chart` (dashboard charts), `sqflite` (local DB).
+
+## Gotchas
+
+- **DB bootstrap**: `DatabaseService` is a singleton. If the bundled zip changes, the old extracted `.db` must be deleted (or the app re-installed) — `_initDatabase()` skips extraction if the file already exists.
+- **Testing**: Repository tests use `sqflite_common_ffi` with in-memory SQLite (`databaseFactoryFfi`). Do not mock the database — use in-memory.
+- **`getAccidents()` cap**: The list query hard-limits to 1000 rows. This is intentional for map performance.
+- **`AccidentTypes.normalize()`**: Raw DB type names must be passed through this before display or counting — the DB contains inconsistent strings.
 

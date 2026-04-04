@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:saobracajke/core/di/repository_providers.dart';
@@ -107,7 +109,7 @@ void main() {
     test('setYear updates selectedYear and reloads dashboard', () async {
       await waitForData();
       final notifier = container.read(dashboardProvider.notifier);
-      notifier.setYear(2022);
+      await notifier.setYear(2022);
       // After calling setYear, the year should update
       for (var i = 0; i < 100; i++) {
         await Future.delayed(const Duration(milliseconds: 20));
@@ -122,7 +124,7 @@ void main() {
     test('setDepartment updates selectedDept and reloads dashboard', () async {
       await waitForData();
       final notifier = container.read(dashboardProvider.notifier);
-      notifier.setDepartment('Belgrade');
+      await notifier.setDepartment('Belgrade');
       for (var i = 0; i < 100; i++) {
         await Future.delayed(const Duration(milliseconds: 20));
         final asyncVal = container.read(dashboardProvider);
@@ -144,7 +146,7 @@ void main() {
         await waitForData(slowContainer);
         expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
 
-        slowContainer.read(dashboardProvider.notifier).setYear(2022);
+        unawaited(slowContainer.read(dashboardProvider.notifier).setYear(2022));
         await Future.delayed(Duration.zero);
         expect(
           slowContainer.read(dashboardProvider).isLoading,
@@ -179,9 +181,11 @@ void main() {
         await waitForData(slowContainer);
         expect(slowContainer.read(dashboardProvider).isLoading, isFalse);
 
-        slowContainer
-            .read(dashboardProvider.notifier)
-            .setDepartment('Belgrade');
+        unawaited(
+          slowContainer
+              .read(dashboardProvider.notifier)
+              .setDepartment('Belgrade'),
+        );
         await Future.delayed(Duration.zero);
         expect(
           slowContainer.read(dashboardProvider).isLoading,
@@ -238,7 +242,7 @@ void main() {
         await waitForData(c);
         expect(c.read(dashboardProvider).hasError, isFalse);
 
-        c.read(dashboardProvider.notifier).setYear(2020);
+        await c.read(dashboardProvider.notifier).setYear(2020);
         for (var i = 0; i < 100; i++) {
           await Future.delayed(const Duration(milliseconds: 20));
           final s = c.read(dashboardProvider);

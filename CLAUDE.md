@@ -194,14 +194,15 @@ lib/
       widgets/   # Reusable UI components; dashboard/ subdirectory for chart widgets
 ```
 
-State management: flutter_riverpod. Entry point: `lib/main.dart` (SplashScreen bootstraps DB, then pushes MainScaffold).
+State management: flutter_riverpod. Entry point: `lib/main.dart` (SplashScreen bootstraps DB, then pushes `presentation/ui/main_scaffold.dart` — a BottomNavigationBar + IndexedStack shell with three tabs: Pregled / Mapa / O Aplikaciji).
 
 Key dependencies: `flutter_map` (map rendering), `fl_chart` (dashboard charts), `sqflite` (local DB).
 
 ## Gotchas
 
-- **DB bootstrap**: `DatabaseService` is a singleton. If the bundled zip changes, the old extracted `.db` must be deleted (or the app re-installed) — `_initDatabase()` skips extraction if the file already exists.
+- **DB bootstrap**: `DatabaseService` is a singleton. If the bundled zip changes, the old extracted `.db` must be deleted (or the app re-installed) — `_initDatabase()` skips extraction if the file already exists. On failure it throws `DatabaseBootstrapException`, which SplashScreen catches and renders with a retry button.
 - **Testing**: Repository tests use `sqflite_common_ffi` with in-memory SQLite (`databaseFactoryFfi`). Do not mock the database — use in-memory.
 - **`getAccidents()` cap**: The list query hard-limits to 1000 rows. This is intentional for map performance.
 - **`AccidentTypes.normalize()`**: Raw DB type names must be passed through this before display or counting — the DB contains inconsistent strings.
+- **`docs/` directory**: `IMPROVEMENTS.md` tracks known improvement opportunities (year-over-year deltas, error UX, Riverpod migration). `docs/plans/` holds implementation plans. Check here before starting a larger feature.
 

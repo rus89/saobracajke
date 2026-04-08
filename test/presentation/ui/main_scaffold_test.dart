@@ -9,12 +9,23 @@ import 'package:saobracajke/core/di/repository_providers.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/domain/repositories/traffic_repository.dart';
 import 'package:saobracajke/presentation/ui/main_scaffold.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+late SharedPreferences _prefs;
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    _prefs = await SharedPreferences.getInstance();
+  });
+
   group('MainScaffold', () {
     Widget buildSubject() {
       return ProviderScope(
-        overrides: [repositoryProvider.overrideWithValue(_SlowRepo())],
+        overrides: [
+          repositoryProvider.overrideWithValue(_SlowRepo()),
+          sharedPreferencesProvider.overrideWithValue(_prefs),
+        ],
         child: const MaterialApp(home: MainScaffold()),
       );
     }

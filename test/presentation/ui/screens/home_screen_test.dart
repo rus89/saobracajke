@@ -10,15 +10,26 @@ import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/domain/repositories/traffic_repository.dart';
 import 'package:saobracajke/presentation/ui/screens/home_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+late SharedPreferences _prefs;
 
 void main() {
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    _prefs = await SharedPreferences.getInstance();
+  });
+
   group('HomeScreen', () {
     testWidgets('shows progress indicator while loading',
         (WidgetTester tester) async {
       final repo = _SlowRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -34,7 +45,10 @@ void main() {
       final repo = _FailingRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -50,7 +64,10 @@ void main() {
       final repo = _FailingRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -69,7 +86,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -85,7 +105,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -103,7 +126,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -121,7 +147,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -137,7 +166,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -154,7 +186,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -183,7 +218,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -198,7 +236,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -219,7 +260,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -233,7 +277,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -248,7 +295,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -263,7 +313,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -286,7 +339,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );
@@ -305,7 +361,10 @@ void main() {
       final repo = _FakeRepo();
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(_prefs),
+          ],
           child: const MaterialApp(home: HomeScreen()),
         ),
       );

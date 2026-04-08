@@ -1,10 +1,16 @@
 // ABOUTME: Dashboard state management: filters (year, department) and all chart/aggregate data.
 // ABOUTME: DashboardNotifier loads data from TrafficRepository and exposes year-over-year deltas.
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/di/repository_providers.dart';
 import '../../domain/accident_types.dart';
 import '../../domain/repositories/traffic_repository.dart';
+
+const _keySelectedYear = 'dashboard_selected_year';
+const _keySelectedDept = 'dashboard_selected_department';
 
 /// Dashboard-only state: filters, metadata, and chart aggregates.
 /// Map/list accident list is held by [accidentsProvider].
@@ -107,10 +113,12 @@ class DashboardState {
 /// [accidentsProvider] reacts to filter changes and loads map/list data.
 class DashboardNotifier extends AsyncNotifier<DashboardState> {
   late final TrafficRepository _repo;
+  late final SharedPreferences _prefs;
 
   @override
   Future<DashboardState> build() async {
     _repo = ref.read(repositoryProvider);
+    _prefs = ref.read(sharedPreferencesProvider);
     return _initialize();
   }
 
@@ -118,10 +126,20 @@ class DashboardNotifier extends AsyncNotifier<DashboardState> {
     final depts = await _repo.getDepartments();
     final years = await _repo.getAvailableYears();
     final defaultYear = years.isNotEmpty ? years.first : DateTime.now().year;
+
+    // Restore saved filters; ignore values that are no longer valid.
+    final savedYear = _prefs.getInt(_keySelectedYear);
+    final savedDept = _prefs.getString(_keySelectedDept);
+    final initialYear =
+        (savedYear != null && years.contains(savedYear)) ? savedYear : defaultYear;
+    final initialDept =
+        (savedDept != null && depts.contains(savedDept)) ? savedDept : null;
+
     final baseState = DashboardState(
       departments: depts,
       availableYears: years,
-      selectedYear: defaultYear,
+      selectedYear: initialYear,
+      selectedDept: initialDept,
     );
     return _loadDashboardData(baseState);
   }
@@ -160,18 +178,10 @@ class DashboardNotifier extends AsyncNotifier<DashboardState> {
     );
   }
 
-  /// Transitions to loading (preserving previous data), runs [action],
-  /// and sets the result or error (again preserving previous data).
+  /// Transitions to loading, runs [action], and sets the result or error.
   Future<void> _runGuarded(Future<DashboardState> Function() action) async {
-    final previous = state;
-    // ignore: invalid_use_of_internal_member
-    state = const AsyncLoading<DashboardState>().copyWithPrevious(previous);
-    try {
-      state = AsyncData(await action());
-    } catch (e, st) {
-      // ignore: invalid_use_of_internal_member
-      state = AsyncError<DashboardState>(e, st).copyWithPrevious(previous);
-    }
+    state = const AsyncValue.loading();
+    state = await AsyncValue.guard(action);
   }
 
   Future<void> retry() => _runGuarded(_initialize);
@@ -179,6 +189,7 @@ class DashboardNotifier extends AsyncNotifier<DashboardState> {
   Future<void> setYear(int year) async {
     final current = state.value;
     if (current == null) return;
+    unawaited(_prefs.setInt(_keySelectedYear, year));
     final updated = current.copyWith(selectedYear: year);
     return _runGuarded(() => _loadDashboardData(updated));
   }
@@ -186,6 +197,11 @@ class DashboardNotifier extends AsyncNotifier<DashboardState> {
   Future<void> setDepartment(String? dept) async {
     final current = state.value;
     if (current == null) return;
+    if (dept == null) {
+      unawaited(_prefs.remove(_keySelectedDept));
+    } else {
+      unawaited(_prefs.setString(_keySelectedDept, dept));
+    }
     final updated = current.copyWith(selectedDept: dept);
     return _runGuarded(() => _loadDashboardData(updated));
   }

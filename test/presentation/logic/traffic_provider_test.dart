@@ -8,6 +8,13 @@ import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/domain/repositories/traffic_repository.dart';
 import 'package:saobracajke/presentation/logic/accidents_provider.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+/// Returns a fresh mock [SharedPreferences] with no saved values.
+Future<SharedPreferences> _mockPrefs() async {
+  SharedPreferences.setMockInitialValues({});
+  return SharedPreferences.getInstance();
+}
 
 void main() {
   group('DashboardState', () {
@@ -71,11 +78,16 @@ void main() {
   group('DashboardNotifier', () {
     late FakeTrafficRepository fakeRepo;
     late ProviderContainer container;
+    late SharedPreferences prefs;
 
-    setUp(() {
+    setUp(() async {
       fakeRepo = FakeTrafficRepository();
+      prefs = await _mockPrefs();
       container = ProviderContainer(
-        overrides: [repositoryProvider.overrideWithValue(fakeRepo)],
+        overrides: [
+          repositoryProvider.overrideWithValue(fakeRepo),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
       );
     });
 
@@ -140,7 +152,10 @@ void main() {
       () async {
         final slowFake = SlowFakeTrafficRepository();
         final slowContainer = ProviderContainer(
-          overrides: [repositoryProvider.overrideWithValue(slowFake)],
+          overrides: [
+            repositoryProvider.overrideWithValue(slowFake),
+            sharedPreferencesProvider.overrideWithValue(await _mockPrefs()),
+          ],
         );
         addTearDown(slowContainer.dispose);
         await waitForData(slowContainer);
@@ -175,7 +190,10 @@ void main() {
       () async {
         final slowFake = SlowFakeTrafficRepository();
         final slowContainer = ProviderContainer(
-          overrides: [repositoryProvider.overrideWithValue(slowFake)],
+          overrides: [
+            repositoryProvider.overrideWithValue(slowFake),
+            sharedPreferencesProvider.overrideWithValue(await _mockPrefs()),
+          ],
         );
         addTearDown(slowContainer.dispose);
         await waitForData(slowContainer);
@@ -214,7 +232,10 @@ void main() {
       () async {
         final throwingRepo = ThrowingInitFakeTrafficRepository();
         final c = ProviderContainer(
-          overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(throwingRepo),
+            sharedPreferencesProvider.overrideWithValue(await _mockPrefs()),
+          ],
         );
         addTearDown(c.dispose);
         c.read(dashboardProvider);
@@ -236,7 +257,10 @@ void main() {
           throwForYear: 2020,
         );
         final c = ProviderContainer(
-          overrides: [repositoryProvider.overrideWithValue(throwingRepo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(throwingRepo),
+            sharedPreferencesProvider.overrideWithValue(await _mockPrefs()),
+          ],
         );
         addTearDown(c.dispose);
         await waitForData(c);
@@ -259,7 +283,10 @@ void main() {
       () async {
         final repo = ThrowingOnceInitFakeTrafficRepository();
         final c = ProviderContainer(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(await _mockPrefs()),
+          ],
         );
         addTearDown(c.dispose);
         c.read(dashboardProvider);
@@ -287,7 +314,10 @@ void main() {
       () async {
         final repo = YoYDeltasFakeTrafficRepository();
         final c = ProviderContainer(
-          overrides: [repositoryProvider.overrideWithValue(repo)],
+          overrides: [
+            repositoryProvider.overrideWithValue(repo),
+            sharedPreferencesProvider.overrideWithValue(await _mockPrefs()),
+          ],
         );
         addTearDown(c.dispose);
         await waitForData(c);
@@ -303,10 +333,13 @@ void main() {
     late FakeTrafficRepository fakeRepo;
     late ProviderContainer container;
 
-    setUp(() {
+    setUp(() async {
       fakeRepo = FakeTrafficRepository();
       container = ProviderContainer(
-        overrides: [repositoryProvider.overrideWithValue(fakeRepo)],
+        overrides: [
+          repositoryProvider.overrideWithValue(fakeRepo),
+          sharedPreferencesProvider.overrideWithValue(await _mockPrefs()),
+        ],
       );
     });
 

@@ -1,0 +1,25 @@
+#!/bin/sh
+# ABOUTME: Git pre-commit hook for the saobracajke project.
+# ABOUTME: Runs flutter analyze and flutter test before allowing a commit.
+
+# Unset GIT_DIR so that Flutter's own git-based version detection works
+# correctly — when GIT_DIR is set to the app repo, Flutter misdetects its
+# own SDK version as 0.0.0-unknown, causing pub dependency resolution to fail.
+unset GIT_DIR
+unset GIT_WORK_TREE
+
+echo "Running flutter analyze..."
+flutter analyze --no-fatal-infos
+if [ $? -ne 0 ]; then
+  echo "flutter analyze failed. Fix issues before committing."
+  exit 1
+fi
+
+echo "Running flutter test..."
+flutter test
+if [ $? -ne 0 ]; then
+  echo "flutter test failed. Fix failing tests before committing."
+  exit 1
+fi
+
+echo "All checks passed."

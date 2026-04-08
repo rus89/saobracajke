@@ -2,11 +2,13 @@
 # ABOUTME: Git pre-commit hook for the saobracajke project.
 # ABOUTME: Runs flutter analyze and flutter test before allowing a commit.
 
-# Unset GIT_DIR so that Flutter's own git-based version detection works
-# correctly — when GIT_DIR is set to the app repo, Flutter misdetects its
+# Unset git env vars so Flutter's own git-based version detection works
+# correctly — when these are set to the app repo, Flutter misdetects its
 # own SDK version as 0.0.0-unknown, causing pub dependency resolution to fail.
+# GIT_COMMON_DIR is also set in git worktree contexts and must be cleared.
 unset GIT_DIR
 unset GIT_WORK_TREE
+unset GIT_COMMON_DIR
 
 echo "Running flutter analyze..."
 flutter analyze --no-fatal-infos

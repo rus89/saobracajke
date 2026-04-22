@@ -96,9 +96,9 @@ void main() {
 
       await _waitForSettle(tester);
 
-      expect(find.text('Sekcija 1: Ključni pokazatelji'), findsOneWidget);
-      expect(find.text('Sekcija 2: Trendovi i Analize'), findsOneWidget);
-      expect(find.text('Sekcija 3: Vremenska Distribucija'), findsOneWidget);
+      expect(find.text('KLJUČNI POKAZATELJI'), findsOneWidget);
+      expect(find.text('TRENDOVI'), findsOneWidget);
+      expect(find.text('VREMENSKA DISTRIBUCIJA'), findsOneWidget);
     });
 
     testWidgets('renders app bar title', (WidgetTester tester) async {
@@ -115,10 +115,8 @@ void main() {
 
       await _waitForSettle(tester);
 
-      expect(
-        find.text('Saobraćajne Nezgode - Pregled'),
-        findsOneWidget,
-      );
+      expect(find.text('Pregled'), findsOneWidget);
+      expect(find.text('Saobraćajne nezgode · 2023'), findsOneWidget);
     });
 
     testWidgets('filter dropdowns are present with data state',
@@ -136,9 +134,9 @@ void main() {
 
       await _waitForSettle(tester);
 
-      // Year and department filter labels
-      expect(find.text('Izaberite godinu'), findsOneWidget);
-      expect(find.text('Izaberite policijsku upravu'), findsOneWidget);
+      // Year and department filter chips
+      expect(find.byType(DropdownButton<int>), findsOneWidget);
+      expect(find.byType(DropdownButton<String?>), findsOneWidget);
     });
   });
 
@@ -198,7 +196,7 @@ void main() {
 
       expect(find.text('POVREĐENI'), findsOneWidget);
       expect(find.text('POGINULI'), findsOneWidget);
-      expect(find.text('SA MATERIJALNOM ŠTETOM'), findsOneWidget);
+      expect(find.text('MAT. ŠTETA'), findsOneWidget);
 
       // Mini-stat counts: injuries=400, fatalities=50, materialDamage=1,050
       expect(find.text('400'), findsOneWidget);

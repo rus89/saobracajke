@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:saobracajke/main.dart' as app;
+import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart';
 
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -64,8 +65,8 @@ void main() {
         // Wait for dashboard async data load.
         await tester.pumpAndSettle(const Duration(seconds: 15));
 
-        // YearDepartmentFilter hint text is always present when loaded.
-        expect(find.text('Izaberite godinu'), findsAtLeastNWidgets(1));
+        // YearDepartmentFilter chip is always present when loaded.
+        expect(find.byType(YearDepartmentFilter), findsOneWidget);
 
         // The "UKUPNO NESREĆA" label appears in the SectionOneHeader card.
         expect(find.text('UKUPNO NESREĆA'), findsOneWidget);
@@ -83,13 +84,12 @@ void main() {
         await tester.pumpAndSettle(const Duration(seconds: 15));
 
         // Scroll the dashboard body until the section header is visible.
-        final scrollable = find.byType(SingleChildScrollView).first;
         await tester.scrollUntilVisible(
-          find.text('Sekcija 1: Ključni pokazatelji'),
+          find.text('KLJUČNI POKAZATELJI'),
           200,
-          scrollable: scrollable,
+          scrollable: find.byType(Scrollable).first,
         );
-        expect(find.text('Sekcija 1: Ključni pokazatelji'), findsOneWidget);
+        expect(find.text('KLJUČNI POKAZATELJI'), findsOneWidget);
       },
     );
   });
@@ -147,7 +147,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // IndexedStack preserves state — dashboard content is still visible.
-        expect(find.text('Izaberite godinu'), findsAtLeastNWidgets(1));
+        expect(find.byType(YearDepartmentFilter), findsOneWidget);
         expect(find.byType(MaterialBanner), findsNothing);
       },
     );
@@ -167,13 +167,11 @@ void main() {
         // Confirm dashboard data is loaded.
         expect(find.text('UKUPNO NESREĆA'), findsOneWidget);
 
-        // Open the year dropdown by tapping on the form field.
-        final yearDropdown = find
-            .ancestor(
-              of: find.text('Izaberite godinu'),
-              matching: find.byType(DropdownButtonFormField<int>),
-            )
-            .first;
+        // Open the year dropdown chip scoped to the filter widget.
+        final yearDropdown = find.descendant(
+          of: find.byType(YearDepartmentFilter),
+          matching: find.byType(DropdownButton<int>),
+        );
         await tester.tap(yearDropdown);
         await tester.pumpAndSettle();
 

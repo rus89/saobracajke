@@ -5,6 +5,21 @@ import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 
+const List<String> _monthAbbreviations = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'Maj',
+  'Jun',
+  'Jul',
+  'Avg',
+  'Sep',
+  'Okt',
+  'Nov',
+  'Dec',
+];
+
 class SectionTwoCharts extends StatelessWidget {
   const SectionTwoCharts({
     super.key,
@@ -47,9 +62,9 @@ class SectionTwoCharts extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -60,7 +75,12 @@ class SectionTwoCharts extends StatelessWidget {
             height: chartHeight,
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (_) =>
+                      const FlLine(color: AppTheme.outlineVariant, strokeWidth: 1),
+                ),
                 titlesData: FlTitlesData(
                   rightTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -71,32 +91,25 @@ class SectionTwoCharts extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      interval: 1,
                       reservedSize: 30,
                       getTitlesWidget: (value, meta) {
-                        const months = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'Maj',
-                          'Jun',
-                          'Jul',
-                          'Avg',
-                          'Sep',
-                          'Okt',
-                          'Nov',
-                          'Dec',
-                        ];
-                        if (value.toInt() >= 1 && value.toInt() <= 12) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              months[value.toInt() - 1],
-                              style: theme.textTheme.bodySmall,
-                            ),
-                          );
+                        final month = value.round();
+                        if (value != month.toDouble()) {
+                          return const SizedBox.shrink();
                         }
-                        return const SizedBox.shrink();
+                        if (month < 1 || month > 12) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            _monthAbbreviations[month - 1],
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppTheme.textMuted,
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -107,7 +120,9 @@ class SectionTwoCharts extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: theme.textTheme.bodySmall,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: AppTheme.textMuted,
+                          ),
                         );
                       },
                     ),
@@ -115,7 +130,7 @@ class SectionTwoCharts extends StatelessWidget {
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(color: theme.colorScheme.outline),
+                  border: Border.all(color: AppTheme.outlineVariant),
                 ),
                 lineBarsData: [
                   LineChartBarData(
@@ -130,7 +145,7 @@ class SectionTwoCharts extends StatelessWidget {
                           radius: 4,
                           color: theme.colorScheme.primary,
                           strokeWidth: 2,
-                          strokeColor: theme.colorScheme.surface,
+                          strokeColor: AppTheme.surface,
                         );
                       },
                     ),
@@ -181,7 +196,7 @@ class SectionTwoCharts extends StatelessWidget {
                 radius: 3,
                 color: color,
                 strokeWidth: 1,
-                strokeColor: theme.colorScheme.surface,
+                strokeColor: AppTheme.surface,
               );
             },
           ),
@@ -193,9 +208,9 @@ class SectionTwoCharts extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -209,7 +224,12 @@ class SectionTwoCharts extends StatelessWidget {
             height: chartHeight,
             child: LineChart(
               LineChartData(
-                gridData: FlGridData(show: true),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (_) =>
+                      const FlLine(color: AppTheme.outlineVariant, strokeWidth: 1),
+                ),
                 titlesData: FlTitlesData(
                   rightTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -220,32 +240,25 @@ class SectionTwoCharts extends StatelessWidget {
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
+                      interval: 1,
                       reservedSize: 30,
                       getTitlesWidget: (value, meta) {
-                        const months = [
-                          'Jan',
-                          'Feb',
-                          'Mar',
-                          'Apr',
-                          'Maj',
-                          'Jun',
-                          'Jul',
-                          'Avg',
-                          'Sep',
-                          'Okt',
-                          'Nov',
-                          'Dec',
-                        ];
-                        if (value.toInt() >= 1 && value.toInt() <= 12) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8.0),
-                            child: Text(
-                              months[value.toInt() - 1],
-                              style: theme.textTheme.bodySmall,
-                            ),
-                          );
+                        final month = value.round();
+                        if (value != month.toDouble()) {
+                          return const SizedBox.shrink();
                         }
-                        return const SizedBox.shrink();
+                        if (month < 1 || month > 12) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            _monthAbbreviations[month - 1],
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: AppTheme.textMuted,
+                            ),
+                          ),
+                        );
                       },
                     ),
                   ),
@@ -256,7 +269,9 @@ class SectionTwoCharts extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: theme.textTheme.bodySmall,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: AppTheme.textMuted,
+                          ),
                         );
                       },
                     ),
@@ -264,7 +279,7 @@ class SectionTwoCharts extends StatelessWidget {
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(color: theme.colorScheme.outline),
+                  border: Border.all(color: AppTheme.outlineVariant),
                 ),
                 lineBarsData: lines,
               ),
@@ -312,9 +327,9 @@ class SectionTwoCharts extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -328,7 +343,12 @@ class SectionTwoCharts extends StatelessWidget {
             height: chartHeight,
             child: BarChart(
               BarChartData(
-                gridData: FlGridData(show: true, drawVerticalLine: false),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  getDrawingHorizontalLine: (_) =>
+                      const FlLine(color: AppTheme.outlineVariant, strokeWidth: 1),
+                ),
                 titlesData: FlTitlesData(
                   rightTitles: AxisTitles(
                     sideTitles: SideTitles(showTitles: false),
@@ -349,7 +369,9 @@ class SectionTwoCharts extends StatelessWidget {
                               quarterTurns: -1,
                               child: Text(
                                 topStations[index].key,
-                                style: theme.textTheme.bodySmall,
+                                style: theme.textTheme.labelSmall?.copyWith(
+                                  color: AppTheme.textMuted,
+                                ),
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
                               ),
@@ -367,7 +389,9 @@ class SectionTwoCharts extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         return Text(
                           value.toInt().toString(),
-                          style: theme.textTheme.bodySmall,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: AppTheme.textMuted,
+                          ),
                         );
                       },
                     ),
@@ -375,7 +399,7 @@ class SectionTwoCharts extends StatelessWidget {
                 ),
                 borderData: FlBorderData(
                   show: true,
-                  border: Border.all(color: theme.colorScheme.outline),
+                  border: Border.all(color: AppTheme.outlineVariant),
                 ),
                 barGroups: topStations.asMap().entries.map((entry) {
                   return BarChartGroupData(
@@ -383,7 +407,7 @@ class SectionTwoCharts extends StatelessWidget {
                     barRods: [
                       BarChartRodData(
                         toY: entry.value.value.toDouble(),
-                        color: Colors.purple.shade600,
+                        color: AppTheme.primary,
                         width: barWidth,
                         borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(AppSpacing.radiusSm),

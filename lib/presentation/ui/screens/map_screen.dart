@@ -1,5 +1,7 @@
 // ABOUTME: Interactive map screen displaying traffic accident markers clustered on OpenStreetMap tiles.
 // ABOUTME: Supports filtering by year/department, color-coded markers by accident type, and detail bottom sheets.
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_marker_cluster/flutter_map_marker_cluster.dart';
@@ -11,6 +13,9 @@ import 'package:saobracajke/domain/accident_types.dart';
 import 'package:saobracajke/domain/models/accident_model.dart';
 import 'package:saobracajke/presentation/logic/accidents_provider.dart';
 import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
+import 'package:saobracajke/presentation/ui/widgets/map/accident_detail_sheet.dart';
+import 'package:saobracajke/presentation/ui/widgets/map/glassy_fab.dart';
+import 'package:saobracajke/presentation/ui/widgets/map/map_legend.dart';
 import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart';
 
 //-------------------------------------------------------------------------------
@@ -29,32 +34,16 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Color _getMarkerColor(String type) => AccidentTypes.markerColor(type);
 
   //----------------------------------------------------------------------------
-  Widget _buildMarker(String type, int count) {
+  Widget _buildMarker(String type) {
     final color = _getMarkerColor(type);
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        Icon(Icons.location_on, color: color, size: 40),
-        if (count > 1)
-          Positioned(
-            top: 0,
-            child: Container(
-              padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                border: Border.all(color: color, width: 2),
-              ),
-              child: Text(
-                count.toString(),
-                style: const TextStyle(
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-      ],
+    return Container(
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        color: color,
+        shape: BoxShape.circle,
+        border: Border.all(color: AppTheme.scaffoldBg, width: 2),
+      ),
     );
   }
 
@@ -121,16 +110,21 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final accidents = accidentsAsync.value ?? [];
     final markers = <Marker>[];
     for (final accident in accidents) {
+      final dateLabel =
+          '${accident.date.day}.${accident.date.month}.${accident.date.year}';
       markers.add(
         Marker(
           point: LatLng(accident.lat, accident.lng),
-          width: 40,
-          height: 40,
-          child: GestureDetector(
-            onTap: () {
-              _showAccidentDetails(accident);
-            },
-            child: _buildMarker(accident.type, 1),
+          width: 44,
+          height: 44,
+          child: Semantics(
+            label: '${accident.type}, ${accident.department}, $dateLabel',
+            button: true,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => _showAccidentDetails(accident),
+              child: Center(child: _buildMarker(accident.type)),
+            ),
           ),
         ),
       );
@@ -178,44 +172,68 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   children: [
                     TileLayer(
                       urlTemplate:
-                          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+                      subdomains: const ['a', 'b', 'c', 'd'],
                       userAgentPackageName: 'com.serbiaOpenData.saobracajke',
-                      maxZoom: 19,
+                      retinaMode: RetinaMode.isHighDensity(context),
+                      maxZoom: 20,
                     ),
                     MarkerClusterLayerWidget(
                       options: MarkerClusterLayerOptions(
-                        maxClusterRadius: 80,
+                        maxClusterRadius: 45,
+                        disableClusteringAtZoom: 16,
                         size: const Size(50, 50),
                         markers: markers,
                         builder: (context, markers) {
-                          return DecoratedBox(
+                          return Container(
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: theme.colorScheme.primary,
+                              color: AppTheme.primary,
                               border: Border.all(
-                                color: theme.colorScheme.surface,
-                                width: 3,
+                                color: AppTheme.scaffoldBg,
+                                width: 2,
                               ),
-                            ),
-                            child: Center(
-                              child: Text(
-                                markers.length.toString(),
-                                style: theme.textTheme.titleMedium?.copyWith(
-                                  color: theme.colorScheme.onPrimary,
-                                  fontWeight: FontWeight.bold,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppTheme.primary.withValues(alpha: 0.2),
+                                  spreadRadius: 4,
+                                  blurRadius: 0,
                                 ),
-                              ),
+                              ],
+                            ),
+                            alignment: Alignment.center,
+                            child: Text(
+                              markers.length.toString(),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .labelMedium
+                                  ?.copyWith(
+                                    color: AppTheme.onPrimary,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                             ),
                           );
                         },
                       ),
+                    ),
+                    RichAttributionWidget(
+                      attributions: [
+                        TextSourceAttribution(
+                          'OpenStreetMap contributors',
+                          onTap: () {},
+                        ),
+                        TextSourceAttribution(
+                          'CARTO',
+                          onTap: () {},
+                        ),
+                      ],
                     ),
                   ],
                 ),
                 Positioned(
                   bottom: 20 + MediaQuery.paddingOf(context).bottom,
                   left: 20,
-                  child: _buildLegend(context),
+                  child: const MapLegend(),
                 ),
                 Positioned(
                   top: 0,
@@ -224,27 +242,43 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                   child: SafeArea(
                     bottom: false,
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
-                      child: Card(
-                        child: Padding(
-                          padding: const EdgeInsets.all(AppSpacing.md),
-                          child: YearDepartmentFilter(
-                            selectedYear: dashboardState?.selectedYear,
-                            availableYears: dashboardState?.availableYears ?? const [],
-                            selectedDept: dashboardState?.selectedDept,
-                            departments: dashboardState?.departments ?? const [],
-                            compact: true,
-                            onYearChanged: (year) {
-                              if (year == null) return;
-                              ref
-                                  .read(dashboardProvider.notifier)
-                                  .setYear(year);
-                            },
-                            onDepartmentChanged: (dept) {
-                              ref
-                                  .read(dashboardProvider.notifier)
-                                  .setDepartment(dept);
-                            },
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        AppSpacing.md,
+                        0,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                          child: Container(
+                            padding: const EdgeInsets.all(AppSpacing.sm),
+                            decoration: BoxDecoration(
+                              color: AppTheme.surface.withValues(alpha: 0.92),
+                              border: Border.all(color: AppTheme.outline),
+                              borderRadius:
+                                  BorderRadius.circular(AppSpacing.radiusMd),
+                            ),
+                            child: YearDepartmentFilter(
+                              selectedYear: dashboardState?.selectedYear,
+                              availableYears:
+                                  dashboardState?.availableYears ?? const [],
+                              selectedDept: dashboardState?.selectedDept,
+                              departments:
+                                  dashboardState?.departments ?? const [],
+                              onYearChanged: (year) {
+                                if (year == null) return;
+                                ref
+                                    .read(dashboardProvider.notifier)
+                                    .setYear(year);
+                              },
+                              onDepartmentChanged: (dept) {
+                                ref
+                                    .read(dashboardProvider.notifier)
+                                    .setDepartment(dept);
+                              },
+                            ),
                           ),
                         ),
                       ),
@@ -256,49 +290,37 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       floatingActionButton: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          Semantics(
-            label: 'Zoom in',
-            button: true,
-            child: FloatingActionButton(
-              heroTag: 'zoom_in',
-              backgroundColor: AppTheme.primaryGreenDark,
-              onPressed: () {
-                _mapController.move(
-                  _mapController.camera.center,
-                  _mapController.camera.zoom + 1,
-                );
-              },
-              child: const Icon(Icons.add),
-            ),
+          GlassyFab(
+            heroTag: 'zoom_in',
+            semanticLabel: 'Zoom in',
+            icon: Icons.add,
+            onPressed: () {
+              _mapController.move(
+                _mapController.camera.center,
+                _mapController.camera.zoom + 1,
+              );
+            },
           ),
           const SizedBox(height: AppSpacing.sm),
-          Semantics(
-            label: 'Zoom out',
-            button: true,
-            child: FloatingActionButton(
-              heroTag: 'zoom_out',
-              backgroundColor: AppTheme.primaryGreenDark,
-              onPressed: () {
-                _mapController.move(
-                  _mapController.camera.center,
-                  _mapController.camera.zoom - 1,
-                );
-              },
-              child: const Icon(Icons.remove),
-            ),
+          GlassyFab(
+            heroTag: 'zoom_out',
+            semanticLabel: 'Zoom out',
+            icon: Icons.remove,
+            onPressed: () {
+              _mapController.move(
+                _mapController.camera.center,
+                _mapController.camera.zoom - 1,
+              );
+            },
           ),
           const SizedBox(height: AppSpacing.sm),
-          Semantics(
-            label: 'Center map on Serbia',
-            button: true,
-            child: FloatingActionButton(
-              heroTag: 'recenter',
-              backgroundColor: AppTheme.primaryGreenDark,
-              onPressed: () {
-                _mapController.move(const LatLng(44.0165, 21.0059), 7.0);
-              },
-              child: const Icon(Icons.my_location),
-            ),
+          GlassyFab(
+            heroTag: 'recenter',
+            semanticLabel: 'Center map on Serbia',
+            icon: Icons.my_location,
+            onPressed: () {
+              _mapController.move(const LatLng(44.0165, 21.0059), 7.0);
+            },
           ),
         ],
       ),
@@ -306,179 +328,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   }
 
   //----------------------------------------------------------------------------
-  Widget _buildLegend(BuildContext context) {
-    final theme = Theme.of(context);
-    return Semantics(
-      label: 'Map legend: accident types by color',
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
-          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-          boxShadow: [
-            BoxShadow(
-              color: theme.colorScheme.shadow.withValues(alpha: 0.1),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Legenda', style: theme.textTheme.labelLarge),
-            const SizedBox(height: AppSpacing.sm),
-            _buildLegendItem(
-              context,
-              AccidentTypes.markerColor(AccidentTypes.fatalities),
-              AccidentTypes.displayLabel(AccidentTypes.fatalities),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            _buildLegendItem(
-              context,
-              AccidentTypes.markerColor(AccidentTypes.injuries),
-              AccidentTypes.displayLabel(AccidentTypes.injuries),
-            ),
-            const SizedBox(height: AppSpacing.xs),
-            _buildLegendItem(
-              context,
-              AccidentTypes.markerColor(AccidentTypes.materialDamage),
-              AccidentTypes.displayLabel(AccidentTypes.materialDamage),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  //----------------------------------------------------------------------------
-  Widget _buildLegendItem(BuildContext context, Color color, String label) {
-    final theme = Theme.of(context);
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(Icons.location_on, color: color, size: 20),
-        const SizedBox(width: AppSpacing.xs),
-        Text(label, style: theme.textTheme.bodySmall),
-      ],
-    );
-  }
-
-  //----------------------------------------------------------------------------
   void _showAccidentDetails(AccidentModel accident) {
-    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
-      builder: (ctx) {
-        return Semantics(
-          label: 'Accident details: ${accident.type}, ${accident.department}',
-          child: Container(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on,
-                      color: _getMarkerColor(accident.type),
-                      size: 30,
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            accident.type,
-                            style: theme.textTheme.titleLarge,
-                          ),
-                          Text(
-                            accident.department,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: theme.colorScheme.onSurfaceVariant,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                _buildDetailRow(
-                  ctx,
-                  Icons.calendar_today,
-                  'Datum',
-                  '${accident.date.day}.${accident.date.month}.${accident.date.year}',
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(
-                  ctx,
-                  Icons.access_time,
-                  'Vreme',
-                  '${accident.date.hour}:${accident.date.minute.toString().padLeft(2, '0')}',
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(
-                  ctx,
-                  Icons.location_city,
-                  'Stanica',
-                  accident.station,
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                _buildDetailRow(
-                  ctx,
-                  Icons.people,
-                  'Učesnici',
-                  accident.participants,
-                ),
-                if (accident.officialDesc != null) ...[
-                  const SizedBox(height: AppSpacing.md),
-                  const Divider(),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    'Opis:',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(
-                    accident.officialDesc!,
-                    style: theme.textTheme.bodyMedium,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  //----------------------------------------------------------------------------
-  Widget _buildDetailRow(
-    BuildContext context,
-    IconData icon,
-    String label,
-    String value,
-  ) {
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        Icon(icon, size: 18, color: theme.colorScheme.onSurfaceVariant),
-        const SizedBox(width: AppSpacing.sm),
-        Text(
-          '$label: ',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            fontWeight: FontWeight.w600,
-            color: theme.colorScheme.onSurfaceVariant,
-          ),
-        ),
-        Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
-      ],
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => AccidentDetailSheet(accident: accident),
     );
   }
 

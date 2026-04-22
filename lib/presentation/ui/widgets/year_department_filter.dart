@@ -1,11 +1,9 @@
 // ABOUTME: Reusable filter widget with year and police department dropdown selectors.
-// ABOUTME: Used by both the dashboard home screen and the map overlay card.
+// ABOUTME: Chip-style presentation on both home screen and map overlay.
 import 'package:flutter/material.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
+import 'package:saobracajke/core/theme/app_theme.dart';
 
-/// Reusable year and department filter used by [HomeScreen] and [MapScreen].
-/// Drives the same dashboard filter state via callbacks.
-/// Uses theme and minimum touch targets for accessibility.
 class YearDepartmentFilter extends StatelessWidget {
   const YearDepartmentFilter({
     super.key,
@@ -15,7 +13,6 @@ class YearDepartmentFilter extends StatelessWidget {
     required this.departments,
     required this.onYearChanged,
     required this.onDepartmentChanged,
-    this.compact = false,
   });
 
   final int? selectedYear;
@@ -25,76 +22,99 @@ class YearDepartmentFilter extends StatelessWidget {
   final ValueChanged<int?>? onYearChanged;
   final ValueChanged<String?>? onDepartmentChanged;
 
-  /// When true, uses denser layout (e.g. for map overlay card).
-  final bool compact;
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      label: 'Filter by year and police department',
+      child: Row(
+        children: [
+          Expanded(
+            child: _Chip<int>(
+              value: selectedYear,
+              items: availableYears
+                  .map(
+                    (y) => DropdownMenuItem(value: y, child: Text(y.toString())),
+                  )
+                  .toList(),
+              hint: 'Godina',
+              onChanged: onYearChanged,
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: _Chip<String?>(
+              value: selectedDept,
+              items: [
+                const DropdownMenuItem<String?>(
+                  value: null,
+                  child: Text('Sve uprave'),
+                ),
+                ...departments.map(
+                  (d) => DropdownMenuItem<String?>(value: d, child: Text(d)),
+                ),
+              ],
+              hint: 'Uprava',
+              onChanged: onDepartmentChanged,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _Chip<T> extends StatelessWidget {
+  const _Chip({
+    required this.value,
+    required this.items,
+    required this.hint,
+    required this.onChanged,
+  });
+
+  final T? value;
+  final List<DropdownMenuItem<T>> items;
+  final String hint;
+  final ValueChanged<T?>? onChanged;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final spacing = compact ? AppSpacing.sm : AppSpacing.md;
-    return Semantics(
-      label: 'Filter by year and police department',
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          DropdownButtonFormField<int>(
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: AppSpacing.minTouchTarget),
+      child: Container(
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          border: Border.all(color: AppTheme.outline),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
+        child: DropdownButtonHideUnderline(
+          child: DropdownButton<T>(
             isExpanded: true,
-            initialValue: selectedYear,
-            decoration: InputDecoration(
-              labelText: 'Izaberite godinu',
-              prefixIcon: const Icon(Icons.calendar_today),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(compact ? 4 : 8),
-              ),
-              filled: true,
-              fillColor: theme.colorScheme.surface,
-              isDense: compact,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: compact ? AppSpacing.sm : AppSpacing.md,
+            value: value,
+            hint: Text(
+              hint,
+              style: theme.textTheme.labelLarge?.copyWith(
+                color: AppTheme.primary,
+                letterSpacing: 0.5,
               ),
             ),
-            items: availableYears
-                .map(
-                  (year) => DropdownMenuItem(
-                    value: year,
-                    child: Text(year.toString()),
-                  ),
-                )
-                .toList(),
-            onChanged: onYearChanged,
-          ),
-          SizedBox(height: spacing),
-          DropdownButtonFormField<String?>(
-            isExpanded: true,
-            initialValue: selectedDept,
-            decoration: InputDecoration(
-              labelText: 'Izaberite policijsku upravu',
-              prefixIcon: const Icon(Icons.location_city),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(compact ? 4 : 8),
-              ),
-              filled: true,
-              fillColor: theme.colorScheme.surface,
-              isDense: compact,
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: AppSpacing.lg,
-                vertical: compact ? AppSpacing.sm : AppSpacing.md,
-              ),
+            dropdownColor: AppTheme.surfaceElevated,
+            icon: const Icon(
+              Icons.keyboard_arrow_down_rounded,
+              color: AppTheme.textMuted,
             ),
-            items: [
-              const DropdownMenuItem<String?>(
-                value: null,
-                child: Text('Sve policijske uprave'),
-              ),
-              ...departments.map(
-                (dept) =>
-                    DropdownMenuItem<String?>(value: dept, child: Text(dept)),
-              ),
-            ],
-            onChanged: onDepartmentChanged,
+            style: theme.textTheme.labelLarge?.copyWith(
+              color: AppTheme.primary,
+              letterSpacing: 0.5,
+            ),
+            items: items,
+            onChanged: onChanged,
           ),
-        ],
+        ),
       ),
     );
   }

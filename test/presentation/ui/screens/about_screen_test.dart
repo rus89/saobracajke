@@ -19,7 +19,7 @@ void main() {
     testWidgets('displays app version', (WidgetTester tester) async {
       await tester.pumpWidget(buildSubject());
 
-      expect(find.text('Verzija 1.0.1'), findsOneWidget);
+      expect(find.text('v1.0.1'), findsOneWidget);
     });
 
     testWidgets('displays data source information with clickable link', (WidgetTester tester) async {
@@ -29,7 +29,7 @@ void main() {
         find.textContaining('otvorenih podataka Republike Srbije'),
         findsOneWidget,
       );
-      expect(find.text('Link'), findsOneWidget);
+      expect(find.text('Otvori izvor'), findsOneWidget);
     });
 
     testWidgets('displays disclaimer with educational purpose', (WidgetTester tester) async {

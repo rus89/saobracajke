@@ -26,7 +26,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(theme: AppTheme.light, home: const SplashScreen());
+    return MaterialApp(theme: AppTheme.dark, home: const SplashScreen());
   }
 }
 

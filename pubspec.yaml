@@ -1,7 +1,7 @@
 name: saobracajke
 description: "A Flutter application for traffic accident reporting using Serbian Open Data."
 publish_to: "none"
-version: 1.0.1+2
+version: 1.1.0+3
 
 environment:
   sdk: ^3.10.7
@@ -35,3 +35,7 @@ flutter:
   uses-material-design: true
   assets:
     - assets/db/serbian_traffic.db.zip
+  fonts:
+    - family: DMSans
+      fonts:
+        - asset: assets/fonts/DMSans.ttf

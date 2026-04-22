@@ -1,25 +1,10 @@
-// ABOUTME: Dashboard section 1: total accident count with year-over-year trend badge.
-// ABOUTME: Shows mini-stat cards for injuries, fatalities, and material damage with deltas.
+// ABOUTME: Dashboard section 1 body: hero KPI card plus mini stats for injuries/fatalities/material damage.
+// ABOUTME: Consumes DeltaBadge for year-over-year indicators and shows three-column grid of metrics.
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
-
-class _MiniStatArgs {
-  _MiniStatArgs({
-    required this.label,
-    required this.count,
-    required this.delta,
-    required this.color,
-    required this.icon,
-  });
-
-  final String label;
-  final int count;
-  final int delta;
-  final Color color;
-  final IconData icon;
-}
+import 'package:saobracajke/presentation/ui/widgets/delta_badge.dart';
 
 class SectionOneHeader extends StatelessWidget {
   const SectionOneHeader({
@@ -45,259 +30,196 @@ class SectionOneHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isImprovement = delta <= 0;
-    final trendColor = isImprovement
-        ? AppTheme.primaryGreen
-        : theme.colorScheme.error;
-    final trendBg = isImprovement
-        ? AppTheme.primaryGreen.withValues(alpha: 0.12)
-        : theme.colorScheme.errorContainer;
-    final sign = delta > 0 ? '+' : '';
-
     return Semantics(
       label:
           'Key metrics: $totalAccidents total accidents, trend $delta vs last year. Injuries: $injuries, Fatalities: $fatalities, Material damage: $materialDamageAccidents',
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(AppSpacing.xxl),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
-                boxShadow: [
-                  BoxShadow(
-                    color: theme.colorScheme.shadow.withValues(alpha: 0.06),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Text(
-                    'UKUPNO NESREĆA',
-                    style: theme.textTheme.labelMedium?.copyWith(
-                      letterSpacing: 1.2,
-                      color: theme.colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    NumberFormat('#,###').format(totalAccidents),
-                    style: theme.textTheme.displayLarge?.copyWith(
-                      color: theme.colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                      vertical: 10,
-                    ),
-                    decoration: BoxDecoration(
-                      color: trendBg,
-                      borderRadius: BorderRadius.circular(AppSpacing.radiusPill),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          isImprovement
-                              ? Icons.arrow_downward
-                              : Icons.arrow_upward,
-                          size: 18,
-                          color: trendColor,
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Text(
-                          '$sign$delta',
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            color: trendColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.xs),
-                        Text(
-                          'vs prošle godine',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: trendColor,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            LayoutBuilder(
-              builder: (context, constraints) {
-                const breakpoint = 600.0;
-                final narrow = constraints.maxWidth < breakpoint;
-                final miniStats = [
-                  _MiniStatArgs(
-                    label: 'POVREĐENI',
-                    count: injuries,
-                    delta: injuriesDelta,
-                    color: AppTheme.semanticInjuries,
-                    icon: Icons.personal_injury,
-                  ),
-                  _MiniStatArgs(
-                    label: 'POGINULI',
-                    count: fatalities,
-                    delta: fatalitiesDelta,
-                    color: AppTheme.semanticFatalities,
-                    icon: Icons.heart_broken,
-                  ),
-                  _MiniStatArgs(
-                    label: 'SA MATERIJALNOM ŠTETOM',
-                    count: materialDamageAccidents,
-                    delta: materialDamageAccidentsDelta,
-                    color: AppTheme.semanticMaterialDamage,
-                    icon: Icons.build,
-                  ),
-                ];
-                if (narrow) {
-                  return Column(
-                    children: [
-                      for (var i = 0; i < miniStats.length; i++) ...[
-                        if (i > 0) const SizedBox(height: AppSpacing.md),
-                        _buildMiniStat(
-                          context: context,
-                          label: miniStats[i].label,
-                          count: miniStats[i].count,
-                          delta: miniStats[i].delta,
-                          color: miniStats[i].color,
-                          icon: miniStats[i].icon,
-                        ),
-                      ],
-                    ],
-                  );
-                }
-                return Row(
-                  children: [
-                    Expanded(
-                      child: _buildMiniStat(
-                        context: context,
-                        label: miniStats[0].label,
-                        count: miniStats[0].count,
-                        delta: miniStats[0].delta,
-                        color: miniStats[0].color,
-                        icon: miniStats[0].icon,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: _buildMiniStat(
-                        context: context,
-                        label: miniStats[1].label,
-                        count: miniStats[1].count,
-                        delta: miniStats[1].delta,
-                        color: miniStats[1].color,
-                        icon: miniStats[1].icon,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: _buildMiniStat(
-                        context: context,
-                        label: miniStats[2].label,
-                        count: miniStats[2].count,
-                        delta: miniStats[2].delta,
-                        color: miniStats[2].color,
-                        icon: miniStats[2].icon,
-                      ),
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
+      child: Column(
+        children: [
+          _HeroCard(total: totalAccidents, delta: delta),
+          const SizedBox(height: AppSpacing.lg),
+          _MiniGrid(
+            injuries: injuries,
+            injuriesDelta: injuriesDelta,
+            fatalities: fatalities,
+            fatalitiesDelta: fatalitiesDelta,
+            materialDamage: materialDamageAccidents,
+            materialDamageDelta: materialDamageAccidentsDelta,
+          ),
+        ],
       ),
     );
   }
+}
 
-  Widget _buildMiniStat({
-    required BuildContext context,
-    required String label,
-    required int count,
-    required int delta,
-    required Color color,
-    required IconData icon,
-  }) {
+class _HeroCard extends StatelessWidget {
+  const _HeroCard({required this.total, required this.delta});
+
+  final int total;
+  final int delta;
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isUp = delta > 0;
-    final deltaColor = isUp ? theme.colorScheme.error : AppTheme.primaryGreen;
-
     return Container(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      width: double.infinity,
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.shadow.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
+        color: AppTheme.surface,
+        border: Border.all(color: AppTheme.outline),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          Container(
+            height: 3,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [AppTheme.primary, AppTheme.primaryDark],
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(AppSpacing.xxl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'UKUPNO NESREĆA',
+                  style: theme.textTheme.labelSmall,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  NumberFormat('#,###').format(total),
+                  style: theme.textTheme.displayLarge,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                DeltaBadge(
+                  delta: delta,
+                  trailing: 'vs prošle godine',
+                  showArrow: true,
+                ),
+              ],
+            ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _MiniGrid extends StatelessWidget {
+  const _MiniGrid({
+    required this.injuries,
+    required this.injuriesDelta,
+    required this.fatalities,
+    required this.fatalitiesDelta,
+    required this.materialDamage,
+    required this.materialDamageDelta,
+  });
+
+  final int injuries;
+  final int injuriesDelta;
+  final int fatalities;
+  final int fatalitiesDelta;
+  final int materialDamage;
+  final int materialDamageDelta;
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final narrow = constraints.maxWidth < 360;
+        final cards = [
+          _MiniStat(
+            label: 'POVREĐENI',
+            count: injuries,
+            delta: injuriesDelta,
+            color: AppTheme.semanticInjuries,
+            icon: Icons.personal_injury,
+          ),
+          _MiniStat(
+            label: 'POGINULI',
+            count: fatalities,
+            delta: fatalitiesDelta,
+            color: AppTheme.semanticFatalities,
+            icon: Icons.heart_broken,
+          ),
+          _MiniStat(
+            label: 'MAT. ŠTETA',
+            count: materialDamage,
+            delta: materialDamageDelta,
+            color: AppTheme.semanticMaterialDamage,
+            icon: Icons.build,
+          ),
+        ];
+        if (narrow) {
+          return Column(
+            children: [
+              for (var i = 0; i < cards.length; i++) ...[
+                if (i > 0) const SizedBox(height: AppSpacing.sm),
+                cards[i],
+              ],
+            ],
+          );
+        }
+        return Row(
+          children: [
+            for (var i = 0; i < cards.length; i++) ...[
+              if (i > 0) const SizedBox(width: AppSpacing.sm),
+              Expanded(child: cards[i]),
+            ],
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _MiniStat extends StatelessWidget {
+  const _MiniStat({
+    required this.label,
+    required this.count,
+    required this.delta,
+    required this.color,
+    required this.icon,
+  });
+
+  final String label;
+  final int count;
+  final int delta;
+  final Color color;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppTheme.surface,
+        border: Border.all(color: AppTheme.outline),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(AppSpacing.sm),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                ),
-                child: Icon(icon, size: 20, color: color),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.sm,
-                  vertical: AppSpacing.xs,
-                ),
-                decoration: BoxDecoration(
-                  color: deltaColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                ),
-                child: Text(
-                  '${isUp ? '+' : ''}$delta',
-                  style: theme.textTheme.labelMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: deltaColor,
-                  ),
-                ),
-              ),
-            ],
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.xs),
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+            ),
+            child: Icon(icon, size: 16, color: color),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
           Text(
             NumberFormat('#,###').format(count),
-            style: theme.textTheme.headlineMedium?.copyWith(
-              fontWeight: FontWeight.bold,
-              color: theme.colorScheme.onSurface,
-            ),
+            style: theme.textTheme.headlineMedium?.copyWith(fontSize: 26),
           ),
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-              letterSpacing: 0.5,
-            ),
-          ),
+          Text(label, style: theme.textTheme.labelSmall),
+          const SizedBox(height: AppSpacing.sm),
+          DeltaBadge(delta: delta),
         ],
       ),
     );

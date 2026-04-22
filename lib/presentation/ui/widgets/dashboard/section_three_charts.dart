@@ -40,7 +40,7 @@ class SectionThreeTemporal extends StatelessWidget {
     final theme = Theme.of(context);
     final narrow = MediaQuery.sizeOf(context).width < _narrowBreakpoint;
     final colors = [
-      AppTheme.primaryGreen.withValues(alpha: 0.8),
+      AppTheme.primary.withValues(alpha: 0.8),
       AppTheme.semanticInjuries.withValues(alpha: 0.9),
       AppTheme.semanticFatalities.withValues(alpha: 0.9),
       AppTheme.semanticMaterialDamage.withValues(alpha: 0.9),
@@ -62,7 +62,7 @@ class SectionThreeTemporal extends StatelessWidget {
           radius: 100,
           titleStyle:
               theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.surface,
+                color: AppTheme.scaffoldBg,
                 fontWeight: FontWeight.bold,
               ) ??
               const TextStyle(
@@ -78,9 +78,9 @@ class SectionThreeTemporal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -139,7 +139,7 @@ class SectionThreeTemporal extends StatelessWidget {
                                   Text(
                                     '$count nesreća',
                                     style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                      color: AppTheme.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -212,9 +212,8 @@ class SectionThreeTemporal extends StatelessWidget {
                                               '$count nesreća',
                                               style: theme.textTheme.bodySmall
                                                   ?.copyWith(
-                                                    color: theme
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
+                                                    color: AppTheme
+                                                        .textSecondary,
                                                   ),
                                             ),
                                           ],
@@ -240,7 +239,7 @@ class SectionThreeTemporal extends StatelessWidget {
     final narrow = MediaQuery.sizeOf(context).width < _narrowBreakpoint;
     final colors = [
       AppTheme.semanticMaterialDamage,
-      AppTheme.primaryGreen,
+      AppTheme.primary,
     ];
 
     final total = weekendCounts.values.fold(0, (sum, val) => sum + val);
@@ -280,9 +279,9 @@ class SectionThreeTemporal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -339,7 +338,7 @@ class SectionThreeTemporal extends StatelessWidget {
                                   Text(
                                     '$count nesreća',
                                     style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                      color: AppTheme.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -430,7 +429,7 @@ class SectionThreeTemporal extends StatelessWidget {
     final theme = Theme.of(context);
     final narrow = MediaQuery.sizeOf(context).width < _narrowBreakpoint;
     final colors = [
-      AppTheme.primaryGreen,
+      AppTheme.primary,
       AppTheme.semanticInjuries,
       AppTheme.semanticFatalities,
       AppTheme.semanticMaterialDamage,
@@ -452,7 +451,7 @@ class SectionThreeTemporal extends StatelessWidget {
           radius: 100,
           titleStyle:
               theme.textTheme.titleSmall?.copyWith(
-                color: theme.colorScheme.surface,
+                color: AppTheme.scaffoldBg,
                 fontWeight: FontWeight.bold,
               ) ??
               const TextStyle(
@@ -468,9 +467,9 @@ class SectionThreeTemporal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
-        color: theme.colorScheme.surface,
+        color: AppTheme.surface,
         borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
+        border: Border.all(color: AppTheme.outline),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -526,7 +525,7 @@ class SectionThreeTemporal extends StatelessWidget {
                                   Text(
                                     '$count nesreća',
                                     style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.onSurfaceVariant,
+                                      color: AppTheme.textSecondary,
                                     ),
                                   ),
                                 ],
@@ -599,9 +598,8 @@ class SectionThreeTemporal extends StatelessWidget {
                                               '$count nesreća',
                                               style: theme.textTheme.bodySmall
                                                   ?.copyWith(
-                                                    color: theme
-                                                        .colorScheme
-                                                        .onSurfaceVariant,
+                                                    color: AppTheme
+                                                        .textSecondary,
                                                   ),
                                             ),
                                           ],

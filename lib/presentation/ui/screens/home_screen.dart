@@ -8,6 +8,7 @@ import 'package:saobracajke/presentation/logic/dashboard_provider.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_one_header.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_three_charts.dart';
 import 'package:saobracajke/presentation/ui/widgets/dashboard/section_two_charts.dart';
+import 'package:saobracajke/presentation/ui/widgets/section_header.dart';
 import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -22,9 +23,26 @@ class HomeScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Saobraćajne Nezgode - Pregled',
-          overflow: TextOverflow.ellipsis,
+        title: asyncState.maybeWhen(
+          data: (state) {
+            final theme = Theme.of(context);
+            final year = state.selectedYear;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('Pregled', style: theme.textTheme.titleMedium),
+                if (year != null)
+                  Text(
+                    'Saobraćajne nezgode · $year',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: AppTheme.textSecondary,
+                    ),
+                  ),
+              ],
+            );
+          },
+          orElse: () => const Text('Pregled'),
         ),
       ),
       body: SafeArea(
@@ -72,40 +90,33 @@ class HomeScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Semantics(
-                        label: 'Filter by year and police department',
-                        child: Container(
-                          padding: const EdgeInsets.all(AppSpacing.lg),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.surfaceContainerHighest,
-                            border: Border(
-                              bottom: BorderSide(
-                                color: theme.colorScheme.outlineVariant,
-                                width: 1,
-                              ),
-                            ),
-                          ),
-                          child: YearDepartmentFilter(
-                            selectedYear: state.selectedYear,
-                            availableYears: state.availableYears,
-                            selectedDept: state.selectedDept,
-                            departments: state.departments,
-                            onYearChanged: (year) {
-                              if (year != null) {
-                                ref
-                                    .read(dashboardProvider.notifier)
-                                    .setYear(year);
-                              }
-                            },
-                            onDepartmentChanged: (dept) {
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.lg,
+                          AppSpacing.md,
+                          AppSpacing.lg,
+                          AppSpacing.lg,
+                        ),
+                        child: YearDepartmentFilter(
+                          selectedYear: state.selectedYear,
+                          availableYears: state.availableYears,
+                          selectedDept: state.selectedDept,
+                          departments: state.departments,
+                          onYearChanged: (year) {
+                            if (year != null) {
                               ref
                                   .read(dashboardProvider.notifier)
-                                  .setDepartment(dept);
-                            },
-                          ),
+                                  .setYear(year);
+                            }
+                          },
+                          onDepartmentChanged: (dept) {
+                            ref
+                                .read(dashboardProvider.notifier)
+                                .setDepartment(dept);
+                          },
                         ),
                       ),
-                      _SectionHeader(title: 'Sekcija 1: Ključni pokazatelji'),
+                      const SectionHeader(label: 'KLJUČNI POKAZATELJI'),
                       Padding(
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         child: SectionOneHeader(
@@ -120,7 +131,7 @@ class HomeScreen extends ConsumerWidget {
                               state.materialDamageDelta,
                         ),
                       ),
-                      _SectionHeader(title: 'Sekcija 2: Trendovi i Analize'),
+                      const SectionHeader(label: 'TRENDOVI'),
                       Padding(
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         child: SectionTwoCharts(
@@ -129,9 +140,7 @@ class HomeScreen extends ConsumerWidget {
                           stationAccidents: state.stationAccidents,
                         ),
                       ),
-                      _SectionHeader(
-                        title: 'Sekcija 3: Vremenska Distribucija',
-                      ),
+                      const SectionHeader(label: 'VREMENSKA DISTRIBUCIJA'),
                       Padding(
                         padding: const EdgeInsets.all(AppSpacing.lg),
                         child: SectionThreeTemporal(
@@ -154,42 +163,3 @@ class HomeScreen extends ConsumerWidget {
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title});
-
-  final String title;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.lg,
-        AppSpacing.lg,
-        AppSpacing.lg,
-        0,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Container(
-                width: 4,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: AppTheme.primaryGreen,
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(width: AppSpacing.sm),
-              Expanded(child: Text(title, style: AppTheme.sectionTitleStyle)),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.sm),
-          Divider(height: 1, thickness: 1),
-        ],
-      ),
-    );
-  }
-}

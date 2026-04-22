@@ -62,7 +62,7 @@
 - Create: `assets/fonts/DMSans.ttf`
 - Modify: `pubspec.yaml`
 
-- [ ] **Step 1: Create fonts directory and download DM Sans variable font**
+- [x] **Step 1: Create fonts directory and download DM Sans variable font**
 
 ```bash
 mkdir -p assets/fonts
@@ -74,7 +74,7 @@ ls -lh "assets/fonts/DMSans.ttf"
 
 Expected: file exists, ~350-450 KB. (The source file on GitHub uses `DMSans[opsz,wght].ttf`; we rename to `DMSans.ttf` to avoid YAML-hostile characters in `pubspec.yaml`.)
 
-- [ ] **Step 2: Declare font family in pubspec.yaml**
+- [x] **Step 2: Declare font family in pubspec.yaml**
 
 Add a `fonts:` section under `flutter:` (after the existing `assets:` block):
 
@@ -89,17 +89,17 @@ flutter:
         - asset: assets/fonts/DMSans.ttf
 ```
 
-- [ ] **Step 3: Pub get to pick up the new asset**
+- [x] **Step 3: Pub get to pick up the new asset**
 
 Run: `flutter pub get`
 Expected: exit 0, no errors.
 
-- [ ] **Step 4: Verify the font is visible to Flutter**
+- [x] **Step 4: Verify the font is visible to Flutter**
 
 Run: `flutter analyze`
 Expected: exit 0.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add assets/fonts/ pubspec.yaml
@@ -114,7 +114,7 @@ git commit -m "chore: bundle DM Sans font asset for dark redesign"
 - Modify: `lib/core/theme/app_theme.dart`
 - Create: `test/core/theme/app_theme_test.dart`
 
-- [ ] **Step 1: Write failing test for the new palette**
+- [x] **Step 1: Write failing test for the new palette**
 
 Create `test/core/theme/app_theme_test.dart`:
 
@@ -176,12 +176,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `flutter test test/core/theme/app_theme_test.dart`
 Expected: FAIL — `AppTheme.scaffoldBg` etc. undefined.
 
-- [ ] **Step 3: Replace color tokens in app_theme.dart**
+- [x] **Step 3: Replace color tokens in app_theme.dart**
 
 Overwrite the color tokens section (the top of the class body, before `static ThemeData get light`). Replace lines 11-30 of [lib/core/theme/app_theme.dart](../../../lib/core/theme/app_theme.dart) with:
 
@@ -207,12 +207,12 @@ Overwrite the color tokens section (the top of the class body, before `static Th
   static const Color semanticMaterialDamage = Color(0xFF3B82F6);
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `flutter test test/core/theme/app_theme_test.dart`
 Expected: PASS.
 
-- [ ] **Step 5: Run analyze to catch downstream breakage**
+- [x] **Step 5: Run analyze to catch downstream breakage**
 
 Run: `flutter analyze`
 Expected: there WILL be errors — the old `primaryGreen`, `primaryGreenDark`, `onSurface`, etc. tokens are referenced from other files. Those get fixed in later tasks. Do NOT fix them now; just note the errors exist. If the errors are confined to references to `AppTheme.primaryGreen`, `AppTheme.primaryGreenDark`, `AppTheme.onSurface`, `AppTheme.onSurfaceVariant`, `AppTheme.surfaceContainer`, `AppTheme.surfaceContainerLow`, `AppTheme.outlineLight`, `AppTheme.onError` — that's expected. Do NOT commit yet.
@@ -233,7 +233,7 @@ Actually, to keep the tree compilable commit-by-commit, **keep backwards-compati
 
 Re-run `flutter analyze`. Expected: clean. (`primaryGreenLight` is defined in the current `app_theme.dart:14` but is unused outside the file — verified via `grep -rn 'primaryGreenLight' lib test integration_test`; the wholesale rewrite in Step 3 drops it, no alias needed.)
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/core/theme/app_theme.dart test/core/theme/app_theme_test.dart
@@ -248,7 +248,7 @@ git commit -m "feat: introduce Deep Emerald color tokens in AppTheme"
 - Modify: `lib/core/theme/app_theme.dart`
 - Modify: `test/core/theme/app_theme_test.dart`
 
-- [ ] **Step 1: Extend the app_theme_test with typography assertions**
+- [x] **Step 1: Extend the app_theme_test with typography assertions**
 
 Append to `test/core/theme/app_theme_test.dart` inside `void main()`:
 
@@ -281,12 +281,12 @@ Append to `test/core/theme/app_theme_test.dart` inside `void main()`:
 
 Note: this references `AppTheme.dark`, which Task 5 renames from the existing `light` getter. To keep Tasks 3 and 4 compilable before that rename, Step 3 below adds a temporary `static ThemeData get dark => light;` forwarding getter that Task 5 removes.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `flutter test test/core/theme/app_theme_test.dart`
 Expected: FAIL — `AppTheme.dark` undefined or typography mismatches.
 
-- [ ] **Step 3: Replace `_buildTextTheme()` body and add a `dark` getter forwarding to `light`**
+- [x] **Step 3: Replace `_buildTextTheme()` body and add a `dark` getter forwarding to `light`**
 
 Replace the body of `_buildTextTheme()` (currently lines 123-194 of [lib/core/theme/app_theme.dart](../../../lib/core/theme/app_theme.dart)):
 
@@ -395,17 +395,17 @@ Finally, add a `dark` getter alongside `light` (at the end of the class body, be
 
 This is a temporary alias so the test in Step 1 passes; Task 5 renames the real getter.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `flutter test test/core/theme/app_theme_test.dart`
 Expected: PASS.
 
-- [ ] **Step 5: Run analyze**
+- [x] **Step 5: Run analyze**
 
 Run: `flutter analyze`
 Expected: clean (legacy aliases from Task 2 still absorb any dangling references).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/core/theme/app_theme.dart test/core/theme/app_theme_test.dart
@@ -419,7 +419,7 @@ git commit -m "feat: switch AppTheme typography to DM Sans"
 **Files:**
 - Modify: `lib/core/theme/app_theme.dart`
 
-- [ ] **Step 1: Replace the body of `static ThemeData get light`**
+- [x] **Step 1: Replace the body of `static ThemeData get light`**
 
 Replace the entire `light` getter body (currently lines 33-121) with the dark-theme `ThemeData`. The full replacement — `ColorScheme.dark(...)`, `AppBarTheme`, `CardThemeData`, `BottomNavigationBarThemeData`, `FloatingActionButtonThemeData`, `InputDecorationTheme`, `DropdownMenuThemeData`, button themes:
 
@@ -609,17 +609,17 @@ Also update `sectionTitleStyle` at the bottom of the class (currently lines 197-
 
 Milan approved: do NOT create backward-compat preservation for the sectionTitleStyle name itself beyond the `@Deprecated` annotation; it will be removed when no references remain.
 
-- [ ] **Step 2: Run analyze**
+- [x] **Step 2: Run analyze**
 
 Run: `flutter analyze`
 Expected: clean. Legacy-alias getters from Task 2 absorb remaining references; `@Deprecated` on `sectionTitleStyle` will surface as an info-level hint ONLY at call sites (acceptable).
 
-- [ ] **Step 3: Run all tests**
+- [x] **Step 3: Run all tests**
 
 Run: `flutter test`
 Expected: PASS for theme tests. Widget tests may still pass because the legacy aliases keep colour references compiling; if any widget test asserts a specific old color (e.g. `primaryGreen == 0xFF2E7D32`), it will fail — that's addressed in later tasks. If any unexpected test fails, stop and diagnose rather than pushing through.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lib/core/theme/app_theme.dart
@@ -635,33 +635,33 @@ git commit -m "feat: apply Deep Emerald dark theme to Material components"
 - Modify: `lib/main.dart`
 - Modify: any test files referencing `AppTheme.light`
 
-- [ ] **Step 1: Find all references to `AppTheme.light`**
+- [x] **Step 1: Find all references to `AppTheme.light`**
 
 Run: `grep -rn 'AppTheme.light' lib/ test/ integration_test/`
 
 Expected: handful of call sites in `lib/main.dart` and possibly test files.
 
-- [ ] **Step 2: Rename the getter and the forwarding alias in app_theme.dart**
+- [x] **Step 2: Rename the getter and the forwarding alias in app_theme.dart**
 
 In [lib/core/theme/app_theme.dart](../../../lib/core/theme/app_theme.dart):
 - Change `static ThemeData get light {` to `static ThemeData get dark {`
 - Delete the temporary `static ThemeData get dark => light;` forwarding alias from Task 3.
 
-- [ ] **Step 3: Update all call sites**
+- [x] **Step 3: Update all call sites**
 
 Replace `AppTheme.light` with `AppTheme.dark` in every file grepped in Step 1. In the current tree that's `lib/main.dart:29`.
 
-- [ ] **Step 4: Run analyze**
+- [x] **Step 4: Run analyze**
 
 Run: `flutter analyze`
 Expected: clean.
 
-- [ ] **Step 5: Run tests**
+- [x] **Step 5: Run tests**
 
 Run: `flutter test`
 Expected: PASS (theme tests already assert `AppTheme.dark`).
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add lib/core/theme/app_theme.dart lib/main.dart test/
@@ -678,7 +678,7 @@ Reusable header: 3×14px emerald dot, 10px caps label, full-width outline line.
 - Create: `lib/presentation/ui/widgets/section_header.dart`
 - Create: `test/presentation/ui/widgets/section_header_test.dart`
 
-- [ ] **Step 1: Write failing widget test**
+- [x] **Step 1: Write failing widget test**
 
 ```dart
 // ABOUTME: Widget tests for SectionHeader — asserts label is uppercased and styling applied.
@@ -720,12 +720,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `flutter test test/presentation/ui/widgets/section_header_test.dart`
 Expected: FAIL — `SectionHeader` undefined.
 
-- [ ] **Step 3: Implement SectionHeader**
+- [x] **Step 3: Implement SectionHeader**
 
 Create `lib/presentation/ui/widgets/section_header.dart`:
 
@@ -780,12 +780,12 @@ class SectionHeader extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `flutter test test/presentation/ui/widgets/section_header_test.dart`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/presentation/ui/widgets/section_header.dart test/presentation/ui/widgets/section_header_test.dart
@@ -802,7 +802,7 @@ Pill badge: red (error) bg+text when delta > 0 (worse), emerald bg+text when del
 - Create: `lib/presentation/ui/widgets/delta_badge.dart`
 - Create: `test/presentation/ui/widgets/delta_badge_test.dart`
 
-- [ ] **Step 1: Write failing widget test**
+- [x] **Step 1: Write failing widget test**
 
 ```dart
 // ABOUTME: Widget tests for DeltaBadge — polarity, sign prefix, and color mapping.
@@ -851,12 +851,12 @@ void main() {
 }
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `flutter test test/presentation/ui/widgets/delta_badge_test.dart`
 Expected: FAIL — `DeltaBadge` undefined.
 
-- [ ] **Step 3: Implement DeltaBadge**
+- [x] **Step 3: Implement DeltaBadge**
 
 Create `lib/presentation/ui/widgets/delta_badge.dart`:
 
@@ -928,12 +928,12 @@ class DeltaBadge extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `flutter test test/presentation/ui/widgets/delta_badge_test.dart`
 Expected: PASS.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/presentation/ui/widgets/delta_badge.dart test/presentation/ui/widgets/delta_badge_test.dart
@@ -949,7 +949,7 @@ Per spec §5 & §6: `surface` background, 1px `outline`, `primary` text color fo
 **Files:**
 - Modify: `lib/presentation/ui/widgets/year_department_filter.dart`
 
-- [ ] **Step 1: Replace the widget body**
+- [x] **Step 1: Replace the widget body**
 
 Overwrite [lib/presentation/ui/widgets/year_department_filter.dart](../../../lib/presentation/ui/widgets/year_department_filter.dart):
 
@@ -1081,7 +1081,7 @@ class _Chip<T> extends StatelessWidget {
 
 Note: this drops the `compact` parameter from influencing layout (there is effectively one chip layout now). Keep the parameter on the class signature to preserve call sites — mark its use as intentionally ignored with a single leading underscore in the field declaration. Actually keep the public API unchanged but note `compact` is reserved for future tweaks; no behavior difference today.
 
-- [ ] **Step 2: Update tests**
+- [x] **Step 2: Update tests**
 
 Existing tests that reference `DropdownButtonFormField` or `labelText: 'Izaberite godinu'` need updating. Run the grep across BOTH `test/` and `integration_test/`:
 
@@ -1091,12 +1091,12 @@ grep -rn 'Izaberite godinu\|Izaberite policijsku\|DropdownButtonFormField' test/
 
 Expected hits today: `test/presentation/ui/screens/home_screen_test.dart:140-141` and `integration_test/app_test.dart:68,150,173-174`. For each matching assertion, update to the new UI: `find.text('Godina')`, `find.text('Uprava')`, `find.byType(DropdownButton)`. Where an assertion was purely presentation-checking (labelText), remove it; where it was behavioral (tapping a dropdown and selecting a value), update the finder. Pay particular attention to `integration_test/app_test.dart:173-174` — the `find.descendant(of: find.text('Izaberite godinu'), matching: find.byType(DropdownButtonFormField<int>))` will break on both counts and must be rewritten against the new chip widget.
 
-- [ ] **Step 3: Run analyze + tests**
+- [x] **Step 3: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + all unit/widget tests pass. (Integration tests are not run here — they require an emulator; they are exercised in Task 24.)
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add lib/presentation/ui/widgets/year_department_filter.dart test/ integration_test/
@@ -1110,7 +1110,7 @@ git commit -m "feat: restyle YearDepartmentFilter as chip-style"
 **Files:**
 - Modify: `lib/presentation/ui/screens/home_screen.dart`
 
-- [ ] **Step 1: Replace AppBar and filter row**
+- [x] **Step 1: Replace AppBar and filter row**
 
 In [lib/presentation/ui/screens/home_screen.dart](../../../lib/presentation/ui/screens/home_screen.dart), replace the `AppBar` (lines 24-29) and the filter-row block (lines 75-107) with:
 
@@ -1173,12 +1173,12 @@ And the filter row (replacing the `Semantics`/`Container`/`Padding` wrapping `Ye
 
 Keep the rest of the build method (sections, loading, error) unchanged in this task.
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean. `home_screen_test.dart:119` asserts `'Saobraćajne Nezgode - Pregled'` and will fail — update it to find `'Pregled'` + `'Saobraćajne nezgode · <year>'`. Also update `integration_test/app_test.dart` if it asserts the same string (`grep -n 'Saobraćajne Nezgode - Pregled' integration_test/` — if any match, update likewise).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/home_screen.dart test/ integration_test/
@@ -1192,7 +1192,7 @@ git commit -m "feat: home screen AppBar title+subtitle and slim filter row"
 **Files:**
 - Modify: `lib/presentation/ui/screens/home_screen.dart`
 
-- [ ] **Step 1: Remove the private `_SectionHeader` class and update call sites**
+- [x] **Step 1: Remove the private `_SectionHeader` class and update call sites**
 
 In [lib/presentation/ui/screens/home_screen.dart](../../../lib/presentation/ui/screens/home_screen.dart):
 
@@ -1209,7 +1209,7 @@ const SectionHeader(label: 'VREMENSKA DISTRIBUCIJA'),
 
 - Add the import: `import 'package:saobracajke/presentation/ui/widgets/section_header.dart';`
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean. Grep across BOTH directories to find all affected assertions:
@@ -1220,7 +1220,7 @@ grep -rn 'Sekcija 1:\|Sekcija 2:\|Sekcija 3:' test/ integration_test/
 
 Expected hits: `test/presentation/ui/screens/home_screen_test.dart:99-101` and `integration_test/app_test.dart:88,92`. Replace each with `'KLJUČNI POKAZATELJI'` / `'TRENDOVI'` / `'VREMENSKA DISTRIBUCIJA'` to match the new widget output.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/home_screen.dart test/ integration_test/
@@ -1236,7 +1236,7 @@ Spec §6: hero KPI card with top accent gradient stripe, `displayLarge` total, D
 **Files:**
 - Modify: `lib/presentation/ui/widgets/dashboard/section_one_header.dart`
 
-- [ ] **Step 1: Overwrite the widget**
+- [x] **Step 1: Overwrite the widget**
 
 Replace the entire file contents of [lib/presentation/ui/widgets/dashboard/section_one_header.dart](../../../lib/presentation/ui/widgets/dashboard/section_one_header.dart) with:
 
@@ -1470,12 +1470,12 @@ class _MiniStat extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean. If an existing widget test on home_screen asserted specific private class names (`_MiniStatArgs`), they will need updating — but the new file does not export internals, so tests should rely on rendered labels only.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/widgets/dashboard/section_one_header.dart test/
@@ -1489,7 +1489,7 @@ git commit -m "feat: redesign SectionOneHeader with accent hero and mini grid"
 **Files:**
 - Modify: `lib/presentation/ui/widgets/dashboard/section_two_charts.dart`
 
-- [ ] **Step 1: Replace hardcoded chart styling with new tokens**
+- [x] **Step 1: Replace hardcoded chart styling with new tokens**
 
 Three changes throughout [lib/presentation/ui/widgets/dashboard/section_two_charts.dart](../../../lib/presentation/ui/widgets/dashboard/section_two_charts.dart):
 
@@ -1523,12 +1523,12 @@ Text(
 
 Add the import if missing: `import 'package:saobracajke/core/theme/app_theme.dart';`
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/widgets/dashboard/section_two_charts.dart
@@ -1542,7 +1542,7 @@ git commit -m "feat: dark-theme chart tokens for SectionTwoCharts"
 **Files:**
 - Modify: `lib/presentation/ui/widgets/dashboard/section_three_charts.dart`
 
-- [ ] **Step 1: Apply the same substitutions as Task 12**
+- [x] **Step 1: Apply the same substitutions as Task 12**
 
 In [lib/presentation/ui/widgets/dashboard/section_three_charts.dart](../../../lib/presentation/ui/widgets/dashboard/section_three_charts.dart):
 
@@ -1556,12 +1556,12 @@ In [lib/presentation/ui/widgets/dashboard/section_three_charts.dart](../../../li
 
 Add the import if missing.
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/widgets/dashboard/section_three_charts.dart
@@ -1575,7 +1575,7 @@ git commit -m "feat: dark-theme chart tokens for SectionThreeTemporal"
 **Files:**
 - Modify: `lib/presentation/ui/screens/map_screen.dart`
 
-- [ ] **Step 1: Update the TileLayer**
+- [x] **Step 1: Update the TileLayer**
 
 In [lib/presentation/ui/screens/map_screen.dart](../../../lib/presentation/ui/screens/map_screen.dart), replace the `TileLayer` (lines 179-184) with:
 
@@ -1609,12 +1609,12 @@ Add the attribution. Immediately after `MarkerClusterLayerWidget(...)` inside th
 
 `RichAttributionWidget` is provided by `flutter_map` out of the box — no import changes required beyond the existing `package:flutter_map/flutter_map.dart`. `TextSourceAttribution` prepends `© ` automatically via its default `prependCopyright: true`, so the text strings above intentionally omit the leading copyright symbol.
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/map_screen.dart
@@ -1628,7 +1628,7 @@ git commit -m "feat: switch map tiles to CartoDB dark_all with attribution"
 **Files:**
 - Modify: `lib/presentation/ui/screens/map_screen.dart`
 
-- [ ] **Step 1: Replace `_buildMarker` and the per-marker size**
+- [x] **Step 1: Replace `_buildMarker` and the per-marker size**
 
 In [lib/presentation/ui/screens/map_screen.dart](../../../lib/presentation/ui/screens/map_screen.dart):
 
@@ -1666,12 +1666,12 @@ Update the marker creation inside `build` (lines 123-136) to use the new signatu
       );
 ```
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/map_screen.dart
@@ -1685,7 +1685,7 @@ git commit -m "feat: map markers become filled circle dots"
 **Files:**
 - Modify: `lib/presentation/ui/screens/map_screen.dart`
 
-- [ ] **Step 1: Replace the cluster `builder`**
+- [x] **Step 1: Replace the cluster `builder`**
 
 Replace the `builder:` closure (lines 190-210) with:
 
@@ -1722,12 +1722,12 @@ Replace the `builder:` closure (lines 190-210) with:
                         },
 ```
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/map_screen.dart
@@ -1741,7 +1741,7 @@ git commit -m "feat: map cluster styled with primary bg and glow"
 **Files:**
 - Modify: `lib/presentation/ui/screens/map_screen.dart`
 
-- [ ] **Step 1: Replace the three `FloatingActionButton` widgets**
+- [x] **Step 1: Replace the three `FloatingActionButton` widgets**
 
 In the `floatingActionButton` column (lines 256-303), the three FABs currently pass `backgroundColor: AppTheme.primaryGreenDark`. Replace each `FloatingActionButton` with:
 
@@ -1771,12 +1771,12 @@ In the `floatingActionButton` column (lines 256-303), the three FABs currently p
 
 Apply the same pattern for `zoom_out` and `recenter` (preserving their respective `Semantics` labels, icons, and onPressed).
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/map_screen.dart
@@ -1790,7 +1790,7 @@ git commit -m "feat: map FABs become glass with primary icon"
 **Files:**
 - Modify: `lib/presentation/ui/screens/map_screen.dart`
 
-- [ ] **Step 1: Replace `_buildLegend` and `_buildLegendItem`**
+- [x] **Step 1: Replace `_buildLegend` and `_buildLegendItem`**
 
 In [lib/presentation/ui/screens/map_screen.dart](../../../lib/presentation/ui/screens/map_screen.dart) add `import 'dart:ui' show ImageFilter;` at the top.
 
@@ -1865,12 +1865,12 @@ Replace `_buildLegend` and `_buildLegendItem` with:
   }
 ```
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/map_screen.dart
@@ -1884,7 +1884,7 @@ git commit -m "feat: map legend as frosted glass card with dot markers"
 **Files:**
 - Modify: `lib/presentation/ui/screens/map_screen.dart`
 
-- [ ] **Step 1: Replace the filter overlay**
+- [x] **Step 1: Replace the filter overlay**
 
 Replace the `Card` wrapper around `YearDepartmentFilter` (lines 220-253) with a frosted-glass container:
 
@@ -1942,12 +1942,12 @@ Replace the `Card` wrapper around `YearDepartmentFilter` (lines 220-253) with a 
                 ),
 ```
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass. Update `map_screen_test.dart` if it asserted `Card` as the overlay container — drop that assertion or switch to `BackdropFilter`.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/map_screen.dart test/
@@ -1961,7 +1961,7 @@ git commit -m "feat: map filter overlay becomes frosted glass"
 **Files:**
 - Modify: `lib/presentation/ui/screens/map_screen.dart`
 
-- [ ] **Step 1: Replace `_showAccidentDetails`**
+- [x] **Step 1: Replace `_showAccidentDetails`**
 
 Replace `_showAccidentDetails` (lines 369-459) with:
 
@@ -2098,12 +2098,12 @@ Replace `_showAccidentDetails` (lines 369-459) with:
 
 You can now delete the old `_buildDetailRow` method — it has no callers.
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean + tests pass.
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/map_screen.dart
@@ -2117,7 +2117,7 @@ git commit -m "feat: redesign accident detail bottom sheet"
 **Files:**
 - Modify: `lib/presentation/ui/screens/about_screen.dart`
 
-- [ ] **Step 1: Overwrite the file**
+- [x] **Step 1: Overwrite the file**
 
 Replace [lib/presentation/ui/screens/about_screen.dart](../../../lib/presentation/ui/screens/about_screen.dart) with:
 
@@ -2346,7 +2346,7 @@ class _InfoCard extends StatelessWidget {
 }
 ```
 
-- [ ] **Step 2: Run analyze + tests**
+- [x] **Step 2: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean. Existing `about_screen_test.dart` may assert specific legacy texts — update to find:
@@ -2357,7 +2357,7 @@ Expected: clean. Existing `about_screen_test.dart` may assert specific legacy te
 
 Drop any assertions for `'Verzija 1.0.1'` (removed) or `Icons.directions_car` at headline size 64 (now in hero).
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add lib/presentation/ui/screens/about_screen.dart test/
@@ -2372,7 +2372,7 @@ git commit -m "feat: redesign About screen with hero and info cards"
 
 Verified pre-plan: the splash in `lib/main.dart` (lines 77-177) already sources every color from `theme.colorScheme.*` / `theme.textTheme.*` — no hard-coded `Colors.white` or similar. After Task 4 swaps `ThemeData` to the dark palette, the splash picks up the new tokens automatically.
 
-- [ ] **Step 1: Re-verify and skip**
+- [x] **Step 1: Re-verify and skip**
 
 Run: `grep -n 'Colors\.\|Color(0x' lib/main.dart`
 Expected: zero matches inside the splash build methods (only the license/file header, if anything). If any match appears, stop and replace with a `theme.colorScheme.*` token in the same commit pattern used by the rest of the plan.
@@ -2387,7 +2387,7 @@ No commit for this task if the grep is clean.
 - Modify: `lib/core/theme/app_theme.dart`
 - Modify: any call sites still using old names
 
-- [ ] **Step 1: Find remaining references to transitional aliases**
+- [x] **Step 1: Find remaining references to transitional aliases**
 
 Run:
 
@@ -2395,7 +2395,7 @@ Run:
 grep -rn 'AppTheme\.primaryGreen\|AppTheme\.primaryGreenDark\|AppTheme\.onSurface\b\|AppTheme\.onSurfaceVariant\|AppTheme\.surfaceContainer\|AppTheme\.surfaceContainerLow\|AppTheme\.outlineLight\|AppTheme\.onError\|AppTheme\.sectionTitleStyle' lib/ test/ integration_test/
 ```
 
-- [ ] **Step 2: Rewrite each call site to the new token**
+- [x] **Step 2: Rewrite each call site to the new token**
 
 For each match:
 - `AppTheme.primaryGreen` → `AppTheme.primary`
@@ -2408,16 +2408,16 @@ For each match:
 - `AppTheme.onError` → `AppTheme.onPrimary`
 - `AppTheme.sectionTitleStyle` → delete call site (use `SectionHeader` widget instead; if the call site is an inline label where `SectionHeader` does not fit, use `Theme.of(context).textTheme.labelSmall`)
 
-- [ ] **Step 3: Delete the transitional aliases from app_theme.dart**
+- [x] **Step 3: Delete the transitional aliases from app_theme.dart**
 
 Remove the entire `// Transitional aliases` block added in Task 2 Step 5. Also remove the `@Deprecated sectionTitleStyle` getter if no references remain.
 
-- [ ] **Step 4: Run analyze + tests**
+- [x] **Step 4: Run analyze + tests**
 
 Run: `flutter analyze && flutter test`
 Expected: clean. If any reference missed, `flutter analyze` will fail — go back to Step 1 with the new failure and iterate.
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add lib/ test/
@@ -2431,12 +2431,12 @@ git commit -m "refactor: remove transitional AppTheme aliases"
 **Files:**
 - No code changes.
 
-- [ ] **Step 1: Full test suite**
+- [x] **Step 1: Full test suite**
 
 Run: `flutter test`
 Expected: all tests pass. Integration tests are not run here (they require a device).
 
-- [ ] **Step 2: Full analyze**
+- [x] **Step 2: Full analyze**
 
 Run: `flutter analyze`
 Expected: exit 0, no errors or warnings introduced.

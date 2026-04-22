@@ -34,7 +34,7 @@ void main() {
       await tester.pumpWidget(buildSubject());
       await tester.pump();
 
-      expect(find.text('Pregled'), findsOneWidget);
+      expect(find.text('Pregled'), findsAtLeastNWidgets(1));
       expect(find.text('Mapa'), findsOneWidget);
       expect(find.text('O aplikaciji'), findsOneWidget);
     });

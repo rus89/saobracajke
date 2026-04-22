@@ -48,3 +48,6 @@ app.*.map.json
 /android/app/release
 .superpowers/
 .worktrees/
+
+# Play Store screenshot pipeline raw output
+assets/screenshots/raw/

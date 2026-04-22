@@ -33,9 +33,9 @@ This document is for engineers who are skilled developers but have **no prior co
 
 - **Tests and SQLite**: Unit tests use `sqflite_common_ffi` and an in-memory DB. Call `sqfliteFfiInit()` in `setUpAll`. The real asset DB is not used in tests. Reference: `test/data/repositories/traffic_repository_test.dart` (schema and pattern).
 
-- **Linting**: `analysis_options.yaml` includes `package:flutter_lints/flutter.yaml` only. There is no pre-commit config in the repo; if one is added, never disable hooks (see CLAUDE.md).
+- **Linting**: `analysis_options.yaml` extends `package:flutter_lints/flutter.yaml` with stricter rules (sort_constructors_first, unawaited_futures, prefer_final_locals, etc.) and promotes `missing_required_param` and `missing_return` to errors. A local git `pre-commit` hook runs `flutter analyze` + `flutter test` — never disable it (see CLAUDE.md).
 
-- **Read first**: `CLAUDE.md` (mandatory rules), `pubspec.yaml`, `.cursor/plans/project_deep_audit_d8eba396.plan.md` (history and pending items).
+- **Read first**: `CLAUDE.md` (mandatory rules), `pubspec.yaml`, `docs/superpowers/specs/2026-04-04-dark-redesign-design.md` (open visual-redesign spec — see §6).
 
 ---
 
@@ -46,7 +46,7 @@ This document is for engineers who are skilled developers but have **no prior co
 - **core/**: Theme (`app_theme.dart`, `app_spacing.dart`), DI (`di/repository_providers.dart`), services (`database_service.dart` — singleton; extracts DB from asset; exposes `database` getter; throws `DatabaseBootstrapException` on failure).
 - **domain/**: Contracts and domain types. `repositories/traffic_repository.dart` = abstract interface. `models/accident_model.dart` = accident entity; `AccidentModel.fromSql()` for safe parsing from SQL rows. `accident_types.dart` = canonical type keys and normalization.
 - **data/**: `repositories/traffic_repository.dart` = `SqliteTrafficRepository` implements the domain interface; all SQL and DB access lives here. Injected via `repositoryProvider` (optional `databaseProvider` for tests).
-- **presentation/**: `logic/dashboard_provider.dart` = `DashboardState` + `DashboardNotifier` (StateNotifier), filters and dashboard aggregates; `logic/accidents_provider.dart` = `FutureProvider` that loads the accident list from the repo using dashboard year/dept. UI: `main_scaffold.dart` (tab shell), `screens/home_screen.dart`, `screens/map_screen.dart`, `widgets/year_department_filter.dart`, `widgets/dashboard/section_*.dart`.
+- **presentation/**: `logic/dashboard_provider.dart` = `DashboardState` + `DashboardNotifier` (`AsyncNotifier<DashboardState>`), filters and dashboard aggregates; exposes `retry()` and emits `AsyncValue.loading` on each filter change via `_runGuarded`. Dashboard state holds both current-year and previous-year type counts, so `fatalitiesDelta` / `injuriesDelta` / `materialDamageDelta` are real year-over-year deltas. Filters are persisted across restarts via `SharedPreferences`. `logic/accidents_provider.dart` = `FutureProvider` that loads the accident list from the repo using dashboard year/dept. UI: `main_scaffold.dart` (tab shell), `screens/home_screen.dart` (handles loading/error/data via `asyncState.when`; error banner has retry), `screens/map_screen.dart` (handles `accidentsAsync.hasError` with retry via `ref.invalidate(accidentsProvider)`), `screens/about_screen.dart`, `widgets/year_department_filter.dart`, `widgets/dashboard/section_*.dart`.
 
 **Entry and flow**: `lib/main.dart` → `ProviderScope` → `MyApp` → `SplashScreen`. Splash awaits `DatabaseService().database`, then replaces with `MainScaffold`. Home and Map both watch `dashboardProvider` and `accidentsProvider` (map uses accidents for markers).
 
@@ -78,11 +78,9 @@ See **CLAUDE.md** for the full rule set. Summary:
 
 ---
 
-## 6. Bite-sized tasks
+## 6. Active work
 
-Each task uses: **Goal**, **Files to touch**, **Tests (TDD: write first, run to see fail, then implement)**, **How to run tests**, **Commit suggestion**.
-
-For any task not listed here, use the same pattern: (1) define goal and files, (2) write failing test, (3) implement, (4) run tests, (5) commit. Prefer adding a small task to this list rather than ad-hoc work.
+There is one substantial open task. For anything not listed here, follow the same pattern: (1) define goal and files, (2) write failing test, (3) implement, (4) run tests, (5) commit. Prefer adding a small task to this section rather than ad-hoc work.
 
 ---
 
@@ -92,85 +90,25 @@ For any task not listed here, use the same pattern: (1) define goal and files, (
 - **Files**: None (read-only).
 - **Tests**: Ensure `flutter test` passes.
 - **How to run**: `flutter test`
-- **Commit**: Not required (optional: "docs: add implementation plan").
+- **Commit**: Not required.
 
 ---
 
-### Task 1 — Add loading indicator when filters change (dashboard)
+### Task 1 — Dark redesign (Deep Emerald)
 
-- **Goal**: When the user changes year or department, show a loading state (e.g. spinner) until new data is ready; avoid showing stale data without feedback.
-- **Files**: `lib/presentation/logic/dashboard_provider.dart` (set `isLoading: true` at start of `_loadDashboardData`, false at end/error), `lib/presentation/ui/screens/home_screen.dart` (already uses `state.isLoading` for body — verify it covers filter changes).
-- **Tests**: In `test/presentation/logic/traffic_provider_test.dart`, add a test that after `setYear` or `setDepartment`, `isLoading` becomes true then false (or assert intermediate loading state). TDD: write test first, then implement.
-- **How to run**: `flutter test test/presentation/logic/traffic_provider_test.dart`
-- **Commit**: "feat: show loading state when dashboard filters change"
-
----
-
-### Task 2 — Surface dashboard load errors to the user
-
-- **Goal**: Replace silent `debugPrint` on dashboard load failure with user-visible error state (e.g. banner or inline message and retry).
-- **Files**: `lib/presentation/logic/dashboard_provider.dart` (add error message to state; set it in catch of `_initialize` and `_loadDashboardData`), `lib/presentation/ui/screens/home_screen.dart` (show error UI when state has error; retry clears error and reloads).
-- **Tests**: Unit test that when repo throws, state contains error message; after retry (or clear), error is cleared. TDD first.
-- **How to run**: `flutter test test/presentation/logic/`
-- **Commit**: "feat: show dashboard load errors and retry"
-
----
-
-### Task 3 — YoY deltas for fatalities, injuries, material damage
-
-- **Goal**: Section one header shows real year-over-year deltas (current year vs previous year) for the three type counts, not hardcoded 0.
-- **Files**: `lib/presentation/ui/screens/home_screen.dart` (currently uses `fatalitiesDelta: 0` etc.; pass real deltas from state), `lib/presentation/logic/dashboard_provider.dart` (state already has `totalAccidentsPrevYear` and `accidentTypeCounts`; add prev-year type counts — e.g. call `getAccidentTypeCountsForYear(year - 1)` and store in state; compute deltas in state or in header).
-- **Tests**: Repository already returns type counts; add or extend test that dashboard state or header receives correct deltas when prev-year counts differ. TDD first.
-- **How to run**: `flutter test`
-- **Commit**: "feat: real YoY deltas for fatalities, injuries, material damage"
-
----
-
-### Task 4 — Migrate DashboardNotifier from StateNotifier to AsyncNotifier (optional)
-
-- **Goal**: Use modern Riverpod API: `flutter_riverpod` (no legacy), AsyncNotifier for dashboard.
-- **Files**: `lib/presentation/logic/dashboard_provider.dart`, any widget that reads `dashboardProvider.notifier` (home_screen, map_screen, year_department_filter if any).
-- **Tests**: Existing tests in traffic_provider_test must still pass; update if API changes (e.g. `ref.read(dashboardProvider.notifier)` usage).
-- **How to run**: `flutter test`
-- **Commit**: "refactor: dashboard to AsyncNotifier"
-
----
-
-### Task 5 — Pre-commit hook (analyze + test)
-
-- **Goal**: Add a local git pre-commit hook that runs `flutter analyze` and `flutter test` before every commit, so broken code can't be committed.
-- **Files**: `.git/hooks/pre-commit` (not tracked; document in README or CLAUDE.md if needed).
-- **Tests**: No new app tests; hook runs existing suite.
-- **How to run**: `git commit` (hook fires automatically).
-- **Commit**: Not applicable (hook lives in `.git/hooks/`, not tracked by git).
-
----
-
-### Task 6 — Widget tests for critical UI (optional)
-
-- **Goal**: Add widget tests for filter widget and/or dashboard sections (e.g. YearDepartmentFilter renders and callbacks fire; SectionOneHeader shows numbers).
-- **Files**: New tests under `test/presentation/ui/` or `test/.../widgets/`; widgets under `lib/presentation/ui/`.
-- **Tests**: Use `testWidgets`, pump with ProviderScope/override repositoryProvider if needed; assert on semantics or text. TDD: write test first.
-- **How to run**: `flutter test test/presentation/`
-- **Commit**: "test: widget tests for filter and dashboard sections"
-
----
-
-### Additional tasks (from deep analysis)
-
-These surfaced from a pass over project structure, architecture, code quality, and UI/UX. Add them to your backlog or use the same task format when implementing.
-
-- **Map screen error state**: When `accidentsProvider` fails, the map currently shows an empty map with no message. Add handling for `AsyncValue.hasError` (and optional retry). Files: `lib/presentation/ui/screens/map_screen.dart`. Tests: widget or integration test that when repo throws, map shows error UI. Commit: "feat: map screen error state and retry".
-
-- **ABOUTME headers**: CLAUDE.md requires every code file to start with a 2-line comment, each line starting with "ABOUTME: ". No files in `lib/` currently have it. Add to all Dart files under `lib/`. Commit: "chore: add ABOUTME headers to lib files".
-
-- **~~Localization~~**: Removed — app is Serbian-only, full l10n infrastructure is YAGNI. English strings in `main.dart` were translated to Serbian for consistency.
-
-- **Responsive layout**: Dashboard and map were not audited for small screens. Review and fix layout for narrow/mobile viewports (dashboard sections, map overlay, filter). Files: `lib/presentation/ui/screens/home_screen.dart`, `map_screen.dart`, `year_department_filter.dart`, dashboard section widgets. Commit: "fix: responsive layout for small screens".
-
-- **Lint tightening (optional)**: Add stricter rules in `analysis_options.yaml` beyond default `flutter_lints` (e.g. additional lint rules, document public APIs). Commit: "chore: tighten analysis_options".
-
-- **Play Store prep (optional)**: Prepare for Android Google Play Store update (version, signing, store listing, release config). Commit: "chore: prepare for Play Store update".
+- **Goal**: Apply the visual redesign specified in `docs/superpowers/specs/2026-04-04-dark-redesign-design.md`: new color tokens, DM Sans typography via `google_fonts`, hero KPI card, frosted-glass map overlays, filled-circle markers, dark map tiles. No data-layer or logic changes — theme and widget styling only.
+- **Scope**: See the spec for the authoritative file-by-file change list. High level:
+  - `pubspec.yaml` — add `google_fonts`.
+  - `lib/core/theme/app_theme.dart` — replace palette, add DM Sans text theme, component themes.
+  - `lib/presentation/ui/screens/home_screen.dart` — AppBar title+subtitle, slim filter row, replace "Sekcija N:" section headers with caps-label headers ("KLJUČNI POKAZATELJI", "TRENDOVI", "VREMENSKA DISTRIBUCIJA").
+  - `lib/presentation/ui/widgets/dashboard/section_one_header.dart` — accent-stripe hero card, 3-col mini stats grid.
+  - `section_two_charts.dart`, `section_three_charts.dart` — dark chart re-skin (backgrounds, grid, axis labels).
+  - `lib/presentation/ui/widgets/year_department_filter.dart` — filter chip styling.
+  - `lib/presentation/ui/screens/map_screen.dart` — Stadia Alidade Smooth Dark tiles, frosted-glass filter overlay + legend, filled-circle markers, cluster glow ring, glass FABs, `surfaceElevated` bottom sheet.
+  - `lib/presentation/ui/screens/about_screen.dart` — hero card + three info cards.
+- **Tests**: Existing widget tests must stay green. Consider golden tests for the three dashboard sections and the about screen — the spec calls for specific visual treatments and goldens are the cheapest way to lock them down. Do not mock the repository inside goldens — use `FakeRepository` with fixed data via `repositoryProvider.overrideWithValue`.
+- **How to run**: `flutter test`; visual check with `flutter run`.
+- **Commit**: Multiple commits preferred — split by surface (theme tokens; dashboard; map; about). Example: "feat(theme): Deep Emerald dark theme and DM Sans", "feat(dashboard): hero KPI card and caps section headers", "feat(map): frosted-glass overlays and filled-circle markers", "feat(about): hero card and info cards".
 
 ---
 
@@ -186,6 +124,7 @@ These surfaced from a pass over project structure, architecture, code quality, a
 ## 8. Docs and references
 
 - **Must read**: `CLAUDE.md`
-- **Reference**: `.cursor/plans/project_deep_audit_d8eba396.plan.md` (pending items: YoY deltas, error handling, loading feedback, Riverpod migration, CI, Play Store prep)
+- **Active spec**: `docs/superpowers/specs/2026-04-04-dark-redesign-design.md` (visual redesign — see §6 Task 1)
+- **Play Store release checklist**: `docs/play_store.md`
 - **Dependencies and assets**: `pubspec.yaml`
 - **Run and analyze**: `flutter test`, `flutter analyze`; prefer MCP Dart tools when available (run_tests, analyze_files)

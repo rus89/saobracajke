@@ -1,0 +1,8 @@
+Ažuriranje 1.1.0 — Tamna tema
+
+• Nov vizuelni identitet: tamna paleta (Deep Emerald) sa boljim kontrastom i manjom potrošnjom baterije na OLED ekranima.
+• Redizajniran Pregled: istaknuta kartica sa ukupnim brojem nezgoda i mini statistike (povređeni, poginuli, materijalna šteta).
+• Tamna mapa sa jasnijim markerima i preciznijim dodirom na pojedinačne nezgode.
+• Ispravka: meseci na x-osi grafikona se više ne prikazuju dvaput.
+
+Podaci i funkcionalnosti ostaju nepromenjeni.

@@ -1,6 +1,7 @@
 // ABOUTME: Static informational screen: app title, data source, disclaimer, contact.
 // ABOUTME: Hero card with accent stripe and three info cards, all dark-theme styled.
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -11,6 +12,20 @@ class AboutScreen extends StatelessWidget {
   static const String _appVersion = '1.0.1';
   static const String _datasetUrl =
       'https://data.gov.rs/sr/datasets/podatsi-o-saobratshajnim-nezgodama-po-politsijskim-upravama-i-opshtinama/';
+
+  Future<void> _openExternalUrl(BuildContext context, String url) async {
+    try {
+      await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+    } on PlatformException catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(url)),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -34,10 +49,7 @@ class AboutScreen extends StatelessWidget {
                 body:
                     'Podaci u ovoj aplikaciji potiču sa portala otvorenih podataka Republike Srbije.',
                 actionLabel: 'Otvori izvor',
-                onAction: () => launchUrl(
-                  Uri.parse(_datasetUrl),
-                  mode: LaunchMode.externalApplication,
-                ),
+                onAction: () => _openExternalUrl(context, _datasetUrl),
               ),
               const SizedBox(height: AppSpacing.md),
               _InfoCard(

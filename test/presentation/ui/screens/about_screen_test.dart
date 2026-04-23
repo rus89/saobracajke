@@ -98,13 +98,6 @@ void main() {
       expect(find.textContaining('nisu za zvaničnu upotrebu'), findsOneWidget);
     });
 
-    testWidgets('displays contact email', (WidgetTester tester) async {
-      await tester.pumpWidget(buildSubject());
-      await tester.pumpAndSettle();
-
-      expect(find.text('serbiaopendataapps@gmail.com'), findsOneWidget);
-    });
-
     testWidgets('displays app bar title', (WidgetTester tester) async {
       await tester.pumpWidget(buildSubject());
       await tester.pumpAndSettle();

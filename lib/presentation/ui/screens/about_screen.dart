@@ -1,5 +1,5 @@
-// ABOUTME: Static informational screen: app title, data source, disclaimer, contact.
-// ABOUTME: Hero card with accent stripe and three info cards, all dark-theme styled.
+// ABOUTME: Informational screen: app title, data source, disclaimer, rate and feedback actions.
+// ABOUTME: Hero card with accent stripe, two info cards, and two action tiles — dark-theme styled.
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -139,14 +139,6 @@ class _AboutScreenState extends State<AboutScreen> {
                 title: 'Napomena',
                 body:
                     'Ova aplikacija je razvijena u edukativne svrhe. Autor nije povezan ni sa jednim državnim organom niti institucijom. Podaci se prikazuju u viđenom stanju, nisu za zvaničnu upotrebu i mogu biti nepotpuni ili zastareli.',
-              ),
-              const SizedBox(height: AppSpacing.md),
-              _InfoCard(
-                theme: theme,
-                icon: Icons.email_outlined,
-                iconColor: AppTheme.primary,
-                title: 'Kontakt',
-                body: 'serbiaopendataapps@gmail.com',
               ),
               if (shouldShowRateTile()) ...[
                 const SizedBox(height: AppSpacing.md),

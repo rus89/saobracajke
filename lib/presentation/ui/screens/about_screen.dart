@@ -83,25 +83,6 @@ class _AboutScreenState extends State<AboutScreen> {
     }
   }
 
-  Future<void> _openRateApp(BuildContext context) async {
-    try {
-      final ok = await launchUrl(
-        Uri.parse(_playStoreUrl),
-        mode: LaunchMode.externalApplication,
-      );
-      if (!ok && context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(buildCopyableSnackBar(_playStoreUrl));
-      }
-    } on Exception catch (_) {
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(buildCopyableSnackBar(_playStoreUrl));
-    }
-  }
-
   Future<void> _openFeedback(BuildContext context) async {
     final info = _packageInfo;
     if (info == null) return;
@@ -170,7 +151,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   title: 'Oceni aplikaciju',
                   subtitle: 'Otvori Google Play prodavnicu',
                   semanticsLabel: 'Oceni aplikaciju u Google Play prodavnici',
-                  onTap: () => _openRateApp(context),
+                  onTap: () => _openExternalUrl(context, _playStoreUrl),
                 ),
               ],
               const SizedBox(height: AppSpacing.md),

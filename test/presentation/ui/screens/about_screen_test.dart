@@ -179,6 +179,15 @@ void main() {
     });
   });
 
+  group('playStoreUrl', () {
+    test('points at Google Play with the app package id', () {
+      final uri = Uri.parse(playStoreUrl);
+
+      expect(uri.host, 'play.google.com');
+      expect(uri.queryParameters['id'], 'com.serbiaOpenData.saobracajke');
+    });
+  });
+
   group('buildFeedbackUri', () {
     test(
       'builds mailto URI with recipient, subject, and version-stamped body',

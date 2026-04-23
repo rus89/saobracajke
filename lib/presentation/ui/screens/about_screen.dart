@@ -9,7 +9,9 @@ import 'package:saobracajke/core/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const String _feedbackEmail = 'serbiaopendataapps@gmail.com';
-const String _playStoreUrl =
+
+@visibleForTesting
+const String playStoreUrl =
     'https://play.google.com/store/apps/details?id=com.serbiaOpenData.saobracajke';
 
 @visibleForTesting
@@ -156,7 +158,7 @@ class _AboutScreenState extends State<AboutScreen> {
                   title: 'Oceni aplikaciju',
                   subtitle: 'Otvori Google Play prodavnicu',
                   semanticsLabel: 'Oceni aplikaciju u Google Play prodavnici',
-                  onTap: () => _openExternalUrl(context, _playStoreUrl),
+                  onTap: () => _openExternalUrl(context, playStoreUrl),
                 ),
               ],
               const SizedBox(height: AppSpacing.md),

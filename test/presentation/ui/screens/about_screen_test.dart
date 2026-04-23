@@ -105,7 +105,7 @@ void main() {
       expect(find.text('O aplikaciji'), findsOneWidget);
     });
 
-    testWidgets('renders both action tiles on non-web', (
+    testWidgets('renders all three action tiles on non-web', (
       WidgetTester tester,
     ) async {
       await tester.pumpWidget(buildSubject());
@@ -113,6 +113,7 @@ void main() {
 
       expect(find.text('Oceni aplikaciju'), findsOneWidget);
       expect(find.text('Prijavite grešku ili predlog'), findsOneWidget);
+      expect(find.text('Politika Privatnosti'), findsOneWidget);
     });
 
     testWidgets(
@@ -143,6 +144,23 @@ void main() {
               widget is Semantics &&
               widget.properties.button == true &&
               widget.properties.label == 'Prijavite grešku ili predlog autoru',
+        );
+        expect(semanticsFinder, findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'privacy policy action tile exposes Semantics button with expected label',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(buildSubject());
+        await tester.pumpAndSettle();
+
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.button == true &&
+              widget.properties.label ==
+                  'Otvori politiku privatnosti u pretraživaču',
         );
         expect(semanticsFinder, findsOneWidget);
       },
@@ -178,6 +196,16 @@ void main() {
 
       expect(uri.host, 'play.google.com');
       expect(uri.queryParameters['id'], 'com.serbiaOpenData.saobracajke');
+    });
+  });
+
+  group('privacyPolicyUrl', () {
+    test('points at the public Serbia Open Data site over HTTPS', () {
+      final uri = Uri.parse(privacyPolicyUrl);
+
+      expect(uri.scheme, 'https');
+      expect(uri.host, 'sites.google.com');
+      expect(uri.path, '/view/serbiaopendata/home');
     });
   });
 

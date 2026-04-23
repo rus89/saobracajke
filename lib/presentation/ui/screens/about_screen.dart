@@ -1,5 +1,5 @@
-// ABOUTME: Informational screen: app title, data source, disclaimer, rate and feedback actions.
-// ABOUTME: Hero card with accent stripe, two info cards, and two action tiles — dark-theme styled.
+// ABOUTME: Informational screen: app title, data source, disclaimer, and rate/feedback/privacy actions.
+// ABOUTME: Hero card with accent stripe, two info cards, and three action tiles — dark-theme styled.
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +13,9 @@ const String _feedbackEmail = 'serbiaopendataapps@gmail.com';
 @visibleForTesting
 const String playStoreUrl =
     'https://play.google.com/store/apps/details?id=com.serbiaOpenData.saobracajke';
+
+@visibleForTesting
+const String privacyPolicyUrl = 'https://sites.google.com/view/serbiaopendata/home';
 
 @visibleForTesting
 bool shouldShowRateTile({bool isWeb = kIsWeb}) => !isWeb;
@@ -161,6 +164,16 @@ class _AboutScreenState extends State<AboutScreen> {
                 subtitle: 'Pošaljite poruku autoru',
                 semanticsLabel: 'Prijavite grešku ili predlog autoru',
                 onTap: () => _openFeedback(context),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              _ActionCard(
+                theme: theme,
+                icon: Icons.privacy_tip_outlined,
+                iconColor: AppTheme.primary,
+                title: 'Politika Privatnosti',
+                subtitle: 'Otvori u pretraživaču',
+                semanticsLabel: 'Otvori politiku privatnosti u pretraživaču',
+                onTap: () => _openExternalUrl(context, privacyPolicyUrl),
               ),
             ],
           ),

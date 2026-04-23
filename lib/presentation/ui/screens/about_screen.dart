@@ -2,28 +2,44 @@
 // ABOUTME: Hero card with accent stripe and three info cards, all dark-theme styled.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class AboutScreen extends StatelessWidget {
+class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
 
-  static const String _appVersion = '1.0.1';
+  @override
+  State<AboutScreen> createState() => _AboutScreenState();
+}
+
+class _AboutScreenState extends State<AboutScreen> {
   static const String _datasetUrl =
       'https://data.gov.rs/sr/datasets/podatsi-o-saobratshajnim-nezgodama-po-politsijskim-upravama-i-opshtinama/';
 
+  String? _versionLabel;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadVersion();
+  }
+
+  Future<void> _loadVersion() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() {
+      _versionLabel = 'v${info.version}+${info.buildNumber}';
+    });
+  }
+
   Future<void> _openExternalUrl(BuildContext context, String url) async {
     try {
-      await launchUrl(
-        Uri.parse(url),
-        mode: LaunchMode.externalApplication,
-      );
+      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } on PlatformException catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(url)),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(url)));
     }
   }
 
@@ -39,7 +55,7 @@ class AboutScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _Hero(theme: theme, version: _appVersion),
+              _Hero(theme: theme, version: _versionLabel),
               const SizedBox(height: AppSpacing.lg),
               _InfoCard(
                 theme: theme,
@@ -80,7 +96,7 @@ class _Hero extends StatelessWidget {
   const _Hero({required this.theme, required this.version});
 
   final ThemeData theme;
-  final String version;
+  final String? version;
 
   @override
   Widget build(BuildContext context) {
@@ -137,24 +153,26 @@ class _Hero extends StatelessWidget {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppTheme.primary.withValues(alpha: 0.12),
-                    border: Border.all(color: AppTheme.primary),
-                    borderRadius:
-                        BorderRadius.circular(AppSpacing.radiusPill),
-                  ),
-                  child: Text(
-                    'v$version',
-                    style: theme.textTheme.labelSmall?.copyWith(
-                      color: AppTheme.primary,
+                if (version != null)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primary.withValues(alpha: 0.12),
+                      border: Border.all(color: AppTheme.primary),
+                      borderRadius: BorderRadius.circular(
+                        AppSpacing.radiusPill,
+                      ),
+                    ),
+                    child: Text(
+                      version!,
+                      style: theme.textTheme.labelSmall?.copyWith(
+                        color: AppTheme.primary,
+                      ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -207,25 +225,17 @@ class _InfoCard extends StatelessWidget {
                 child: Icon(icon, size: 16, color: iconColor),
               ),
               const SizedBox(width: AppSpacing.sm),
-              Expanded(
-                child: Text(title, style: theme.textTheme.titleSmall),
-              ),
+              Expanded(child: Text(title, style: theme.textTheme.titleSmall)),
             ],
           ),
           Padding(
-            padding: const EdgeInsets.only(
-              left: 34,
-              top: AppSpacing.sm,
-            ),
+            padding: const EdgeInsets.only(left: 34, top: AppSpacing.sm),
             child: Text(body, style: theme.textTheme.bodySmall),
           ),
           if (actionLabel != null && onAction != null)
             Padding(
               padding: const EdgeInsets.only(left: 26),
-              child: TextButton(
-                onPressed: onAction,
-                child: Text(actionLabel!),
-              ),
+              child: TextButton(onPressed: onAction, child: Text(actionLabel!)),
             ),
         ],
       ),

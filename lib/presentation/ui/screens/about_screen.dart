@@ -19,14 +19,13 @@ bool shouldShowRateTile({bool isWeb = kIsWeb}) => !isWeb;
 
 @visibleForTesting
 Uri buildFeedbackUri(PackageInfo info) {
-  return Uri(
-    scheme: 'mailto',
-    path: _feedbackEmail,
-    queryParameters: {
-      'subject': 'Saobraćajne Nezgode — povratna informacija',
-      'body': 'Verzija aplikacije: v${info.version}+${info.buildNumber}\n\n',
-    },
+  final subject = Uri.encodeComponent(
+    'Saobraćajne Nezgode — povratna informacija',
   );
+  final body = Uri.encodeComponent(
+    'Verzija aplikacije: v${info.version}+${info.buildNumber}\n\n',
+  );
+  return Uri.parse('mailto:$_feedbackEmail?subject=$subject&body=$body');
 }
 
 @visibleForTesting

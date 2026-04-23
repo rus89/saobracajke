@@ -215,5 +215,21 @@ void main() {
         );
       },
     );
+
+    test('encodes spaces as %20 (mailto RFC 6068), not + (form-style)', () {
+      final info = PackageInfo(
+        appName: 'saobracajke',
+        packageName: 'com.serbiaOpenData.saobracajke',
+        version: '1.1.1',
+        buildNumber: '4',
+        buildSignature: '',
+        installerStore: null,
+      );
+
+      final raw = buildFeedbackUri(info).toString();
+
+      expect(raw, contains('Nezgode%20'));
+      expect(raw, isNot(contains('Nezgode+')));
+    });
   });
 }

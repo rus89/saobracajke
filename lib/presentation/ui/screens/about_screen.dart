@@ -1,11 +1,31 @@
 // ABOUTME: Static informational screen: app title, data source, disclaimer, contact.
 // ABOUTME: Hero card with accent stripe and three info cards, all dark-theme styled.
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:saobracajke/core/theme/app_spacing.dart';
 import 'package:saobracajke/core/theme/app_theme.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+const String _feedbackEmail = 'serbiaopendataapps@gmail.com';
+const String _playStoreUrl =
+    'https://play.google.com/store/apps/details?id=com.serbiaOpenData.saobracajke';
+
+@visibleForTesting
+bool shouldShowRateTile({bool isWeb = kIsWeb}) => !isWeb;
+
+@visibleForTesting
+Uri buildFeedbackUri(PackageInfo info) {
+  return Uri(
+    scheme: 'mailto',
+    path: _feedbackEmail,
+    queryParameters: {
+      'subject': 'Saobraćajne Nezgode — povratna informacija',
+      'body': 'Verzija aplikacije: v${info.version}+${info.buildNumber}\n\n',
+    },
+  );
+}
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -18,6 +38,7 @@ class _AboutScreenState extends State<AboutScreen> {
   static const String _datasetUrl =
       'https://data.gov.rs/sr/datasets/podatsi-o-saobratshajnim-nezgodama-po-politsijskim-upravama-i-opshtinama/';
 
+  PackageInfo? _packageInfo;
   String? _versionLabel;
 
   @override
@@ -30,6 +51,7 @@ class _AboutScreenState extends State<AboutScreen> {
     final info = await PackageInfo.fromPlatform();
     if (!mounted) return;
     setState(() {
+      _packageInfo = info;
       _versionLabel = 'v${info.version}+${info.buildNumber}';
     });
   }
@@ -40,6 +62,33 @@ class _AboutScreenState extends State<AboutScreen> {
     } on PlatformException catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(url)));
+    }
+  }
+
+  Future<void> _openRateApp(BuildContext context) async {
+    try {
+      await launchUrl(
+        Uri.parse(_playStoreUrl),
+        mode: LaunchMode.externalApplication,
+      );
+    } on PlatformException catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(_playStoreUrl)));
+    }
+  }
+
+  Future<void> _openFeedback(BuildContext context) async {
+    final info = _packageInfo;
+    if (info == null) return;
+    try {
+      await launchUrl(buildFeedbackUri(info));
+    } on PlatformException catch (_) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(_feedbackEmail)));
     }
   }
 
@@ -84,7 +133,106 @@ class _AboutScreenState extends State<AboutScreen> {
                 title: 'Kontakt',
                 body: 'serbiaopendataapps@gmail.com',
               ),
+              if (shouldShowRateTile()) ...[
+                const SizedBox(height: AppSpacing.md),
+                _ActionCard(
+                  theme: theme,
+                  icon: Icons.star_rate,
+                  iconColor: AppTheme.primary,
+                  title: 'Oceni aplikaciju',
+                  subtitle: 'Otvori Google Play prodavnicu',
+                  semanticsLabel: 'Oceni aplikaciju u Google Play prodavnici',
+                  onTap: () => _openRateApp(context),
+                ),
+              ],
+              const SizedBox(height: AppSpacing.md),
+              _ActionCard(
+                theme: theme,
+                icon: Icons.mail_outline,
+                iconColor: AppTheme.primary,
+                title: 'Prijavite grešku ili predlog',
+                subtitle: 'Pošaljite poruku autoru',
+                semanticsLabel: 'Prijavite grešku ili predlog autoru',
+                onTap: () => _openFeedback(context),
+              ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionCard extends StatelessWidget {
+  const _ActionCard({
+    required this.theme,
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.subtitle,
+    required this.semanticsLabel,
+    required this.onTap,
+  });
+
+  final ThemeData theme;
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String subtitle;
+  final String semanticsLabel;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: semanticsLabel,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          border: Border.all(color: AppTheme.outline),
+          borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                minHeight: AppSpacing.minTouchTarget,
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(AppSpacing.lg),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: iconColor.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(
+                          AppSpacing.radiusSm,
+                        ),
+                      ),
+                      child: Icon(icon, size: 16, color: iconColor),
+                    ),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(title, style: theme.textTheme.titleSmall),
+                          const SizedBox(height: 2),
+                          Text(subtitle, style: theme.textTheme.bodySmall),
+                        ],
+                      ),
+                    ),
+                    Icon(Icons.chevron_right, color: AppTheme.textSecondary),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

@@ -78,5 +78,71 @@ void main() {
 
       expect(find.text('O aplikaciji'), findsOneWidget);
     });
+
+    testWidgets('renders both action tiles on non-web', (
+      WidgetTester tester,
+    ) async {
+      await tester.pumpWidget(buildSubject());
+      await tester.pumpAndSettle();
+
+      expect(find.text('Oceni aplikaciju'), findsOneWidget);
+      expect(find.text('Prijavite grešku ili predlog'), findsOneWidget);
+    });
+
+    testWidgets(
+      'rate action tile exposes Semantics button with expected label',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(buildSubject());
+        await tester.pumpAndSettle();
+
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.button == true &&
+              widget.properties.label ==
+                  'Oceni aplikaciju u Google Play prodavnici',
+        );
+        expect(semanticsFinder, findsOneWidget);
+      },
+    );
+  });
+
+  group('shouldShowRateTile', () {
+    test('returns false when running on web', () {
+      expect(shouldShowRateTile(isWeb: true), isFalse);
+    });
+
+    test('returns true when not running on web', () {
+      expect(shouldShowRateTile(isWeb: false), isTrue);
+    });
+  });
+
+  group('buildFeedbackUri', () {
+    test(
+      'builds mailto URI with recipient, subject, and version-stamped body',
+      () {
+        final info = PackageInfo(
+          appName: 'saobracajke',
+          packageName: 'com.serbiaOpenData.saobracajke',
+          version: '1.1.1',
+          buildNumber: '4',
+          buildSignature: '',
+          installerStore: null,
+        );
+
+        final uri = buildFeedbackUri(info);
+
+        expect(uri.scheme, 'mailto');
+        expect(uri.path, 'serbiaopendataapps@gmail.com');
+        expect(
+          uri.queryParameters['subject'],
+          'Saobraćajne Nezgode — povratna informacija',
+        );
+        expect(
+          uri.queryParameters['body'],
+          startsWith('Verzija aplikacije: v1.1.1+4'),
+        );
+      },
+    );
   });
 }

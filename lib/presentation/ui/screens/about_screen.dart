@@ -200,6 +200,8 @@ class _ActionCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
+      container: true,
+      excludeSemantics: true,
       label: semanticsLabel,
       child: DecoratedBox(
         decoration: BoxDecoration(

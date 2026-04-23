@@ -85,7 +85,12 @@ class _AboutScreenState extends State<AboutScreen> {
 
   Future<void> _openFeedback(BuildContext context) async {
     final info = _packageInfo;
-    if (info == null) return;
+    if (info == null) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(buildCopyableSnackBar(_feedbackEmail));
+      return;
+    }
     try {
       final ok = await launchUrl(buildFeedbackUri(info));
       if (!ok && context.mounted) {

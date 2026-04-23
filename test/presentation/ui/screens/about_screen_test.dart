@@ -8,6 +8,39 @@ import 'package:saobracajke/presentation/ui/screens/about_screen.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
+  // Declared before the mocked-PackageInfo group so PackageInfo.fromPlatform
+  // hasn't been populated yet — this exercises the genuine cold-start path
+  // where _packageInfo is still null when the user taps the feedback tile.
+  group('AboutScreen cold start', () {
+    testWidgets(
+      'feedback tile shows copyable email SnackBar when PackageInfo is null',
+      (WidgetTester tester) async {
+        addTearDown(tester.view.resetPhysicalSize);
+        addTearDown(tester.view.resetDevicePixelRatio);
+        tester.view.devicePixelRatio = 1.0;
+        tester.view.physicalSize = const Size(1200, 2400);
+
+        await tester.pumpWidget(const MaterialApp(home: AboutScreen()));
+        // Deliberately skip pumpAndSettle so _loadVersion has not yet resolved
+        // and _packageInfo is still null — the cold-start race the fix targets.
+
+        final feedbackTile = find.text('Prijavite grešku ili predlog');
+        await tester.tap(feedbackTile);
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+        expect(find.byType(SnackBar), findsOneWidget);
+        expect(
+          find.descendant(
+            of: find.byType(SnackBar),
+            matching: find.text('serbiaopendataapps@gmail.com'),
+          ),
+          findsOneWidget,
+        );
+      },
+    );
+  });
+
   group('AboutScreen', () {
     setUp(() {
       PackageInfo.setMockInitialValues(

@@ -54,7 +54,7 @@ class AboutScreen extends StatelessWidget {
                 icon: Icons.email_outlined,
                 iconColor: AppTheme.primary,
                 title: 'Kontakt',
-                body: 'serbiaopendata@gmail.com',
+                body: 'serbiaopendataapps@gmail.com',
               ),
             ],
           ),

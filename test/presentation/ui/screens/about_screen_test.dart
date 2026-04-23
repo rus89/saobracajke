@@ -52,7 +52,7 @@ void main() {
     testWidgets('displays contact email', (WidgetTester tester) async {
       await tester.pumpWidget(buildSubject());
 
-      expect(find.text('serbiaopendata@gmail.com'), findsOneWidget);
+      expect(find.text('serbiaopendataapps@gmail.com'), findsOneWidget);
     });
 
     testWidgets('displays app bar title', (WidgetTester tester) async {

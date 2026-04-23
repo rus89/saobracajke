@@ -27,6 +27,18 @@ Uri buildFeedbackUri(PackageInfo info) {
   );
 }
 
+@visibleForTesting
+SnackBar buildCopyableSnackBar(String target) {
+  return SnackBar(
+    content: Text(target),
+    duration: const Duration(seconds: 8),
+    action: SnackBarAction(
+      label: 'Kopiraj',
+      onPressed: () => Clipboard.setData(ClipboardData(text: target)),
+    ),
+  );
+}
+
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
 
@@ -58,24 +70,35 @@ class _AboutScreenState extends State<AboutScreen> {
 
   Future<void> _openExternalUrl(BuildContext context, String url) async {
     try {
-      await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
-    } on PlatformException catch (_) {
+      final ok = await launchUrl(
+        Uri.parse(url),
+        mode: LaunchMode.externalApplication,
+      );
+      if (!ok && context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(buildCopyableSnackBar(url));
+      }
+    } on Exception catch (_) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(url)));
+      ScaffoldMessenger.of(context).showSnackBar(buildCopyableSnackBar(url));
     }
   }
 
   Future<void> _openRateApp(BuildContext context) async {
     try {
-      await launchUrl(
+      final ok = await launchUrl(
         Uri.parse(_playStoreUrl),
         mode: LaunchMode.externalApplication,
       );
-    } on PlatformException catch (_) {
+      if (!ok && context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(buildCopyableSnackBar(_playStoreUrl));
+      }
+    } on Exception catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text(_playStoreUrl)));
+      ).showSnackBar(buildCopyableSnackBar(_playStoreUrl));
     }
   }
 
@@ -83,12 +106,17 @@ class _AboutScreenState extends State<AboutScreen> {
     final info = _packageInfo;
     if (info == null) return;
     try {
-      await launchUrl(buildFeedbackUri(info));
-    } on PlatformException catch (_) {
+      final ok = await launchUrl(buildFeedbackUri(info));
+      if (!ok && context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(buildCopyableSnackBar(_feedbackEmail));
+      }
+    } on Exception catch (_) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text(_feedbackEmail)));
+      ).showSnackBar(buildCopyableSnackBar(_feedbackEmail));
     }
   }
 

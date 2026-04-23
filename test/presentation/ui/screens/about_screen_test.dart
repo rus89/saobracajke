@@ -105,6 +105,35 @@ void main() {
         expect(semanticsFinder, findsOneWidget);
       },
     );
+
+    testWidgets(
+      'feedback action tile exposes Semantics button with expected label',
+      (WidgetTester tester) async {
+        await tester.pumpWidget(buildSubject());
+        await tester.pumpAndSettle();
+
+        final semanticsFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Semantics &&
+              widget.properties.button == true &&
+              widget.properties.label == 'Prijavite grešku ili predlog autoru',
+        );
+        expect(semanticsFinder, findsOneWidget);
+      },
+    );
+  });
+
+  group('buildCopyableSnackBar', () {
+    test('builds SnackBar with Kopiraj action and 8 second duration', () {
+      const target = 'https://example.com/path';
+      final snackBar = buildCopyableSnackBar(target);
+
+      expect(snackBar.duration, const Duration(seconds: 8));
+      expect(snackBar.action, isNotNull);
+      expect(snackBar.action!.label, 'Kopiraj');
+      expect(snackBar.content, isA<Text>());
+      expect((snackBar.content as Text).data, target);
+    });
   });
 
   group('shouldShowRateTile', () {

@@ -9,20 +9,24 @@ Use this when preparing an app update for the Play Store.
 
 ## Signing
 
-- Release builds are signed when `android/key.properties` exists and contains `storeFile`, `keyAlias`, `storePassword`, and `keyPassword`.
-- Copy `android/key.properties.example` to `android/key.properties` and fill in your upload keystore details. `key.properties` is gitignored.
+- `android/key.properties` contains `keyAlias` and `storeFile` (no passwords). File is gitignored.
+- Upload-keystore password lives in macOS Keychain under service `saobracajke-upload-keystore`, account `$USER`. Store it once with:
+  ```bash
+  security add-generic-password -a "$USER" -s "saobracajke-upload-keystore" -w <password> -U
+  ```
+- `build.gradle.kts` reads `RELEASE_STORE_PASSWORD` and `RELEASE_KEY_PASSWORD` from the environment first, falling back to `key.properties` values if set. `scripts/build-release.sh` is the supported entry point — it pulls the password from Keychain and exports those env vars.
 - Create an upload keystore if needed: [Flutter signing docs](https://docs.flutter.dev/deployment/android#signing-the-app).
-- Without `key.properties`, release builds use debug signing (so `flutter build appbundle` still runs e.g. on CI).
+- App is enrolled in Google Play App Signing — if the upload key is ever compromised, request a reset via Play Console.
 
 ## Build
 
 From project root:
 
 ```bash
-flutter build appbundle
+./scripts/build-release.sh
 ```
 
-Output: `build/app/outputs/bundle/release/app-release.aab`. Upload this in Play Console.
+This runs `flutter build appbundle --release --obfuscate --split-debug-info=build/debug-info/`. Output: `build/app/outputs/bundle/release/app-release.aab`. Upload this in Play Console. Keep `build/debug-info/` locally for crash symbolication (gitignored under `/build/`).
 
 ## Release config (already set)
 

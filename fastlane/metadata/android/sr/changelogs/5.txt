@@ -1,0 +1,9 @@
+Ažuriranje 1.2.0 — O Aplikaciji
+
+• Nove prečice: ocena aplikacije na Play prodavnici, slanje povratnih informacija mejlom i link na Politiku privatnosti.
+• Prikaz tačne verzije aplikacije u zaglavlju.
+• Bolje rukovanje mejlom kad nema podrazumevanog klijenta — adresa se nudi za kopiranje.
+• Pristupačnost: čistiji opisi kartica za čitače ekrana.
+• Pooštrena bezbednosna konfiguracija Android build-a.
+
+Podaci i funkcionalnosti ostaju nepromenjeni.

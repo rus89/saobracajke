@@ -123,11 +123,9 @@ main() {
     exit 0
   fi
 
-  if [ -z "$arg" ]; then
+  if [ -z "$arg" ] || [ "$arg" = "phone" ]; then
     run_device "phone"
-    run_device "tablet_7"
-    run_device "tablet_10"
-  elif [ "$arg" = "phone" ] || [ "$arg" = "tablet_7" ] || [ "$arg" = "tablet_10" ]; then
+  elif [ "$arg" = "tablet_7" ] || [ "$arg" = "tablet_10" ]; then
     run_device "$arg"
   else
     echo "Usage: $0 [--setup | phone | tablet_7 | tablet_10]"

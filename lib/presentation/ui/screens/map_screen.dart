@@ -22,6 +22,9 @@ import 'package:saobracajke/presentation/ui/widgets/year_department_filter.dart'
 class MapScreen extends ConsumerStatefulWidget {
   const MapScreen({super.key});
 
+  @visibleForTesting
+  static MapController? testMapController;
+
   @override
   ConsumerState<MapScreen> createState() => _MapScreenState();
 }
@@ -29,6 +32,22 @@ class MapScreen extends ConsumerStatefulWidget {
 //-------------------------------------------------------------------------------
 class _MapScreenState extends ConsumerState<MapScreen> {
   final MapController _mapController = MapController();
+
+  //----------------------------------------------------------------------------
+  @override
+  void initState() {
+    super.initState();
+    MapScreen.testMapController = _mapController;
+  }
+
+  //----------------------------------------------------------------------------
+  @override
+  void dispose() {
+    if (identical(MapScreen.testMapController, _mapController)) {
+      MapScreen.testMapController = null;
+    }
+    super.dispose();
+  }
 
   //----------------------------------------------------------------------------
   Color _getMarkerColor(String type) => AccidentTypes.markerColor(type);

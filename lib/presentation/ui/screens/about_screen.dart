@@ -21,6 +21,13 @@ const String privacyPolicyUrl = 'https://sites.google.com/view/serbiaopendata/ho
 bool shouldShowRateTile({bool isWeb = kIsWeb}) => !isWeb;
 
 @visibleForTesting
+bool isExternalHttpUrl(String url) {
+  final uri = Uri.tryParse(url);
+  if (uri == null) return false;
+  return uri.scheme == 'http' || uri.scheme == 'https';
+}
+
+@visibleForTesting
 Uri buildFeedbackUri(PackageInfo info) {
   final subject = Uri.encodeComponent(
     'Saobraćajne Nezgode — povratna informacija',
@@ -73,6 +80,12 @@ class _AboutScreenState extends State<AboutScreen> {
   }
 
   Future<void> _openExternalUrl(BuildContext context, String url) async {
+    if (!isExternalHttpUrl(url)) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(buildCopyableSnackBar(url));
+      }
+      return;
+    }
     try {
       final ok = await launchUrl(
         Uri.parse(url),

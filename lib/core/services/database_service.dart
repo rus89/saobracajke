@@ -58,13 +58,16 @@ class DatabaseService {
 
         bool extracted = false;
         for (final file in archive) {
-          if (file.name == _dbName) {
-            final data = file.content as List<int>;
-            await File(path).writeAsBytes(data, flush: true);
-            extracted = true;
-            debugPrint("✅ Database extracted to: $path");
-            break;
-          }
+          // Defense-in-depth: reject any entry with path separators before
+          // matching — prevents path traversal if the asset is ever replaced
+          // with untrusted content.
+          if (file.name.contains('/') || file.name.contains('\\')) continue;
+          if (file.name != _dbName) continue;
+          final data = file.content as List<int>;
+          await File(path).writeAsBytes(data, flush: true);
+          extracted = true;
+          debugPrint("✅ Database extracted to: $path");
+          break;
         }
 
         if (!extracted || !await databaseExists(path)) {

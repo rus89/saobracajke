@@ -253,4 +253,29 @@ void main() {
       expect(raw, isNot(contains('Nezgode+')));
     });
   });
+
+  group('isExternalHttpUrl', () {
+    test('accepts https URLs', () {
+      expect(isExternalHttpUrl('https://example.com'), isTrue);
+      expect(isExternalHttpUrl('https://sites.google.com/view/serbiaopendata/home'), isTrue);
+    });
+
+    test('accepts http URLs', () {
+      expect(isExternalHttpUrl('http://example.com'), isTrue);
+    });
+
+    test('rejects non-http schemes', () {
+      expect(isExternalHttpUrl('javascript:alert(1)'), isFalse);
+      expect(isExternalHttpUrl('file:///etc/passwd'), isFalse);
+      expect(isExternalHttpUrl('mailto:user@example.com'), isFalse);
+      expect(isExternalHttpUrl('intent://scan/#Intent;scheme=zxing;end'), isFalse);
+      expect(isExternalHttpUrl('data:text/html,<script>alert(1)</script>'), isFalse);
+    });
+
+    test('rejects empty and malformed input', () {
+      expect(isExternalHttpUrl(''), isFalse);
+      expect(isExternalHttpUrl('   '), isFalse);
+      expect(isExternalHttpUrl('not-a-url'), isFalse);
+    });
+  });
 }

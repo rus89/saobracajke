@@ -31,7 +31,7 @@ This runs `flutter build appbundle --release --obfuscate --split-debug-info=buil
 ## Release config (already set)
 
 - `compileSdk` is 36 (required by some plugins; backward compatible).
-- `targetSdk` is 35 to meet [Google Play target API requirements](https://developer.android.com/google/play/requirements/target-sdk).
+- `targetSdk` is 36 (Android 16) to meet [Google Play target API requirements](https://developer.android.com/google/play/requirements/target-sdk).
 - `minSdk` follows Flutter default (21).
 
 ## Store listing (Play Console)
